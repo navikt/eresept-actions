@@ -1,0 +1,33 @@
+target/
+generated/
+transaction-logs/
+filestore/
+logs/
+FFDC/
+codemr/
+mqjms.log*
+!.mvn/wrapper/maven-wrapper.jar
+.kotlintest
+.DS_Store
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/

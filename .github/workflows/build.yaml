@@ -1,0 +1,77 @@
+name: Reusable build
+on:
+  workflow_call:
+    inputs:
+      channel:
+        required: false
+        type: string
+        default: 'eresept'
+      username:
+        required: false
+        type: string
+        default: 'eresept build and test action: ${{ github.event.repository.name }}'
+      footer:
+        required: false
+        type: string
+        default: 'eresept © 2022'
+    secrets:
+      webhook:
+        required: true
+        type: string
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Get start time
+        id: starttime
+        run: echo "::set-output name=starttime::$(date +%s)"
+
+      - name: Set timezone
+        run: sudo timedatectl set-timezone "Europe/Oslo"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Compile and test
+        run: mvn test
+
+      - name: Calculate execution time
+        id: exectime
+        run: |
+          END_TIME=$(date +%s)
+          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
+
+      - name: Report success?
+        if: success()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "${{ inputs.username }}"
+          SLACK_TITLE: "Successfully built _*${{ github.event.repository.name }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_COLOR: "good"
+          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@master
+      - name: Report failure?
+        if: failure()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "${{ inputs.username }}"
+          SLACK_TITLE: "Build failure in _*${{ github.event.repository.name }}*_"
+          SLACK_COLOR: "warning"
+          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@master
