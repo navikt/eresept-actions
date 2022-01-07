@@ -1,4 +1,4 @@
-name: Reusable build
+name: Build, re-usable
 on:
   workflow_call:
     inputs:
@@ -62,7 +62,7 @@ jobs:
           SLACK_COLOR: "good"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
-        uses: rtCamp/action-slack-notify@master
+        uses: rtCamp/action-slack-notify@v2
       - name: Report failure?
         if: failure()
         env:
@@ -73,4 +73,4 @@ jobs:
           SLACK_COLOR: "warning"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
-        uses: rtCamp/action-slack-notify@master
+        uses: rtCamp/action-slack-notify@v2

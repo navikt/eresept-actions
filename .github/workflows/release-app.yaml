@@ -1,0 +1,146 @@
+name: Release application, re-usable
+on:
+  workflow_call:
+    inputs:
+      channel:
+        description: 'Slack channel'
+        required: false
+        type: string
+        default: 'eresept'
+      username:
+        description: 'Slack username'
+        required: false
+        type: string
+        default: 'eresept release application action: ${{ github.event.repository.name }}'
+      footer:
+        description: 'Slack footer'
+        required: false
+        type: string
+        default: 'eresept © 2022'
+      application:
+        description: 'The application to release'
+        required: true
+        type: string
+        # no default
+      applicationVersion:
+          description: 'The version to release'
+          required: false
+          type: string
+          # no default
+    secrets:
+      webhook:
+        required: true
+
+jobs:
+  release:
+    name: Release application ${{ inputs.application }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          repository: navikt/${{ inputs.application }}
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Get start time
+        id: starttime
+        run: echo "::set-output name=starttime::$(date +%s)"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Set timezone
+        run: sudo timedatectl set-timezone "Europe/Oslo"
+
+      - name: create settings.xml
+        run: |
+          cat << EOF > ~/.m2/settings.xml
+          <settings>
+            <servers>
+              <server>
+                <id>github</id>
+                <username>USERNAME</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      - name: Compile and test
+        run: mvn test
+
+      - name: Get version numbers and changelog
+        id: version
+        run: |
+          CURVERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          INPUT_VERSION=${{ inputs.applicationVersion }}
+          echo "::set-output name=relversion::$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')"
+          echo "::set-output name=nextversion::$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//'|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT"
+          echo "::set-output name=changelog::$(git log `git describe --tags --abbrev=0`..HEAD --oneline)"
+
+      - name: Configure git user
+        run: |
+          git config user.name "GitHub Actions Bot (${{ github.actor }})"
+          git config user.email "actions@github.com"
+
+      - name: Publish, tag and prepare for next
+        run: |
+          mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.relversion }} -DgenerateBackupPoms=false
+          git commit -am 'Commit new version ${{ steps.version.outputs.relversion }}, by ${{ github.actor }} [ci skip]'
+          git tag -a v${{ steps.version.outputs.relversion }} -m 'tagging as v${{ steps.version.outputs.relversion }} [ci skip]'
+          mvn --batch-mode clean install -DskipTests
+          
+          REPO=navikt/${{ inputs.application }}
+          DOCKER_TAG=${{ steps.version.outputs.relversion }}
+          DOCKER_IMG="ghcr.io/$REPO/${GITHUB_REPOSITORY#*/}:${DOCKER_TAG}
+          DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
+          cd $DIR
+          docker build --pull --build-arg version=$DOCKER_TAG --build-arg app_name=${{ inputs.application }} -t $DOCKER_IMG .
+          docker login ghcr.io -u $REPO -p ${GITHUB_TOKEN} && docker push $DOCKER_IMG
+          
+          mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.nextversion }} -DgenerateBackupPoms=false
+          git commit -am 'Updated to new dev-version ${{ steps.version.outputs.nextversion }} after release by ${{ github.actor }} [ci skip]'
+          git push -f origin v${{ steps.version.outputs.relversion }} main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calculate execution time
+        id: exectime
+        run: |
+          END_TIME=$(date +%s)
+          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
+
+      - name: Report success?
+        if: success()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "${{ inputs.username }}"
+          SLACK_TITLE: "Successfully released application _*${{ inputs.application }}:${{ steps.version.outputs.relversion }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_MESSAGE: "```${{ steps.versions.outputs.changelog }}```"
+          SLACK_COLOR: "good"
+          SLACK_ICON: https://github.com/github.png?size=48
+          MSG_MINIMAL: true
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@v2
+      - name: Report failure?
+        if: failure()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "${{ inputs.username }}"
+          SLACK_TITLE: "Failed to release application _*${{ inputs.application }}*_"
+          SLACK_MESSAGE: ""
+          SLACK_COLOR: "warning"
+          SLACK_ICON: https://github.com/github.png?size=48
+          MSG_MINIMAL: true
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@v2
