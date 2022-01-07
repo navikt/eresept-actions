@@ -74,3 +74,14 @@ jobs:
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
         uses: rtCamp/action-slack-notify@v2
+      - name: Report cancellation?
+        if: cancelled()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "${{ inputs.username }}"
+          SLACK_TITLE: "Build of _*${{ github.event.repository.name }}*_ was cancelled"
+          SLACK_COLOR: "warning"
+          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@v2

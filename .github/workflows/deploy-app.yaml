@@ -69,7 +69,7 @@ jobs:
       - name: Set timezone
         run: sudo timedatectl set-timezone "Europe/Oslo"
 
-      - name: create settings.xml
+      - name: Create settings.xml
         run: |
           cat << EOF > ~/.m2/settings.xml
           <settings>
@@ -131,6 +131,19 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
           SLACK_TITLE: "Failed to deploy application _*${{ steps.vals.outputs.deployapp }}:${{ steps.version.outputs.relversion }}*_ to _*${{ steps.vals.outputs.cluster }}*_"
+          SLACK_MESSAGE: ""
+          SLACK_COLOR: "warning"
+          SLACK_ICON: https://github.com/github.png?size=48
+          MSG_MINIMAL: true
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@v2
+      - name: Report cancellation?
+        if: cancelled()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "${{ inputs.username }}"
+          SLACK_TITLE: "Deploy of application _*${{ steps.vals.outputs.deployapp }}:${{ steps.version.outputs.relversion }}*_ to _*${{ steps.vals.outputs.cluster }}*_ was cancelled"
           SLACK_MESSAGE: ""
           SLACK_COLOR: "warning"
           SLACK_ICON: https://github.com/github.png?size=48
