@@ -58,33 +58,8 @@ jobs:
         id: starttime
         run: echo "::set-output name=starttime::$(date +%s)"
 
-      - name: Cache Maven dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
       - name: Set timezone
         run: sudo timedatectl set-timezone "Europe/Oslo"
-
-      - name: Create settings.xml
-        run: |
-          cat << EOF > ~/.m2/settings.xml
-          <settings>
-            <servers>
-              <server>
-                <id>github</id>
-                <username>USERNAME</username>
-                <password>${{ secrets.GITHUB_TOKEN }}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
-
-      - name: Compile and test
-        run: mvn test
 
       - name: Get version numbers and cluster
         id: vals
@@ -132,7 +107,7 @@ jobs:
           SLACK_USERNAME: "${{ inputs.username }}"
           SLACK_TITLE: "Failed to deploy application _*${{ steps.vals.outputs.deployapp }}:${{ steps.version.outputs.relversion }}*_ to _*${{ steps.vals.outputs.cluster }}*_"
           SLACK_MESSAGE: ""
-          SLACK_COLOR: "warning"
+          SLACK_COLOR: "danger"
           SLACK_ICON: https://github.com/github.png?size=48
           MSG_MINIMAL: true
           SLACK_FOOTER: "${{ inputs.footer }}"

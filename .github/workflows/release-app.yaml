@@ -49,6 +49,12 @@ jobs:
         id: starttime
         run: echo "::set-output name=starttime::$(date +%s)"
 
+      - name: Create settings.xml
+        uses: whelk-io/maven-settings-xml-action@v20
+        with:
+          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "false" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "github", "username": "${env.GITHUB_ACTOR}", "password": "${env.GITHUB_TOKEN}" }]'
+
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
@@ -59,20 +65,6 @@ jobs:
 
       - name: Set timezone
         run: sudo timedatectl set-timezone "Europe/Oslo"
-
-      - name: Create settings.xml
-        run: |
-          cat << EOF > ~/.m2/settings.xml
-          <settings>
-            <servers>
-              <server>
-                <id>github</id>
-                <username>USERNAME</username>
-                <password>${{ secrets.GITHUB_TOKEN }}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
 
       - name: Compile and test
         run: mvn test
@@ -139,7 +131,7 @@ jobs:
           SLACK_USERNAME: "${{ inputs.username }}"
           SLACK_TITLE: "Failed to release application _*${{ inputs.application }}*_"
           SLACK_MESSAGE: ""
-          SLACK_COLOR: "warning"
+          SLACK_COLOR: "danger"
           SLACK_ICON: https://github.com/github.png?size=48
           MSG_MINIMAL: true
           SLACK_FOOTER: "${{ inputs.footer }}"
