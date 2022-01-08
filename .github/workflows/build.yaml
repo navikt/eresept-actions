@@ -43,7 +43,10 @@ jobs:
           servers: '[{ "id": "github", "username": "${env.GITHUB_ACTOR}", "password": "${env.GITHUB_TOKEN}" }]'
 
       - name: Compile and test
-        run: mvn test
+        run: |
+          echo "hmmm...."
+          cat /home/runner/.m2/settings.xml
+          mvn test
 
       - name: Calculate execution time
         id: exectime
