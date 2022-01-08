@@ -46,8 +46,9 @@ jobs:
 
       - name: Compile and test
         run: |
-          cat /home/runner/.m2/settings.xml
           mvn test
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
 
       - name: Calculate execution time
         id: exectime

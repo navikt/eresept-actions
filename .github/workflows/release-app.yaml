@@ -30,8 +30,6 @@ on:
     secrets:
       webhook:
         required: true
-      token:
-        required: true
 
 jobs:
   release:
