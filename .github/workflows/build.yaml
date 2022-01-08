@@ -40,13 +40,10 @@ jobs:
         uses: whelk-io/maven-settings-xml-action@v20
         with:
           repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }}]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}"]'
 
       - name: Compile and test
-        run: |
-          echo "hmmm...."
-          cat /home/runner/.m2/settings.xml
-          mvn test
+        run: mvn test
 
       - name: Calculate execution time
         id: exectime
