@@ -30,6 +30,8 @@ on:
     secrets:
       webhook:
         required: true
+      token:
+        required: true
 
 jobs:
   release:
@@ -54,7 +56,7 @@ jobs:
         uses: whelk-io/maven-settings-xml-action@v20
         with:
           repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
 
       - name: Set timezone
         run: sudo timedatectl set-timezone "Europe/Oslo"
