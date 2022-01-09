@@ -42,7 +42,7 @@ on:
 
 jobs:
   deploy:
-    name: Deoploy application ${{ inputs.application }}
+    name: Deoploy ${{ inputs.application }} to $${ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
