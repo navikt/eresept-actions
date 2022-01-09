@@ -70,7 +70,7 @@ jobs:
           INPUT_VERSION=${{ inputs.application-version }}
           echo "::set-output name=relversion::$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')"
           echo "::set-output name=nextversion::$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//'|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT"
-          echo "::set-output name=changelog::$(git log `git describe --tags --abbrev=0`..HEAD --oneline)"
+          echo "::set-output name=changelog::$(git log $(git describe --tags --abbrev=0)..HEAD --oneline)"
 
       - name: Configure git user
         run: |
