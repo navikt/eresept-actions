@@ -48,7 +48,9 @@ jobs:
 
       - name: Get start time
         id: starttime
-        run: echo "::set-output name=starttime::$(date +%s)"
+        run: |
+          echo "::set-output name=starttime::$(date +%s)"
+          sudo timedatectl set-timezone "Europe/Oslo"
 
       - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@v20
@@ -56,11 +58,8 @@ jobs:
           repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
 
-      - name: Set timezone
-        run: sudo timedatectl set-timezone "Europe/Oslo"
-
       - name: Compile and test
-        run: mvn test
+        run: mvn install
 
       - name: Get version numbers and changelog
         id: version
