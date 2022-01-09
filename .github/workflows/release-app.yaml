@@ -88,9 +88,7 @@ jobs:
           DOCKER_TAG=${{ steps.version.outputs.relversion }}
           DOCKER_IMG="ghcr.io/$REPO/${GITHUB_REPOSITORY#*/}:${DOCKER_TAG}"
           DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
-          cd $DIR
-          docker build --pull --build-arg version=$DOCKER_TAG --build-arg app_name=${{ inputs.application }} -t $DOCKER_IMG .
-          docker login ghcr.io -u $REPO -p ${GITHUB_TOKEN} && docker push $DOCKER_IMG
+          (cd $DIR; docker build --pull --build-arg version=$DOCKER_TAG --build-arg app_name=${{ inputs.application }} -t $DOCKER_IMG . && docker login ghcr.io -u $REPO -p ${GITHUB_TOKEN} && docker push $DOCKER_IMG)
           
           mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.nextversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
           git commit -am 'Updated to new dev-version ${{ steps.version.outputs.nextversion }} after release by ${{ github.actor }} [ci skip]'
