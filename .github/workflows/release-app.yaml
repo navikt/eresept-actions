@@ -108,7 +108,7 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Successfully released application _*${{ inputs.application }}:${{ steps.version.outputs.relversion }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_TITLE: "Released _*${{ inputs.application }}:${{ steps.version.outputs.relversion }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
           SLACK_MESSAGE: "```${{ steps.version.outputs.changelog }}```"
           SLACK_COLOR: "good"
           SLACK_ICON: https://github.com/github.png?size=48
@@ -121,8 +121,8 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Failed to release application _*${{ inputs.application }}*_"
-          SLACK_MESSAGE: ""
+          SLACK_TITLE: "Release of _*${{ inputs.application }}*_ failed"
+          SLACK_MESSAGE: " "
           SLACK_COLOR: "danger"
           SLACK_ICON: https://github.com/github.png?size=48
           MSG_MINIMAL: true
@@ -134,8 +134,8 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Release of application _*${{ inputs.application }}*_ was cancelled"
-          SLACK_MESSAGE: ""
+          SLACK_TITLE: "Release of _*${{ inputs.application }}*_ was cancelled"
+          SLACK_MESSAGE: " "
           SLACK_COLOR: "warning"
           SLACK_ICON: https://github.com/github.png?size=48
           MSG_MINIMAL: true

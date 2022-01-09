@@ -60,7 +60,7 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Successfully built _*${{ github.event.repository.name }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_TITLE: "Built _*${{ github.event.repository.name }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
           SLACK_COLOR: "good"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"

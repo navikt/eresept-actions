@@ -66,10 +66,12 @@ jobs:
         run: |
           LASTVERSION=$(git tag --sort=-version:refname|head -1|tr -d 'v')
           INPUT_VERSION=${{ inputs.application-version }}
-          echo "::set-output name=relversion::$(echo ${INPUT_VERSION:-$LASTVERSION}|sed 's/-.*//')"
+          RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION}|sed 's/-.*//')
+          echo "::set-output name=relversion::$RELVERSION"
           echo "::set-output name=cluster::$(if [ "${{ inputs.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)"
           POTSFIX=$(if [ '${{ inputs.environment }}' != 'p' -a '${{ inputs.environment }}' != 'q1' ]; then echo '-${{ inputs.environment }}'; fi)
           echo "::set-output name=deployapp::${{ inputs.application }}$POSTFIX"
+          echo "::set-output name=deployappver::${{ inputs.application }}$POSTFIX:$RELVERSION"
 
       - name: Deploy ${{ steps.vals.outputs.deployapp }} to ${{inputs.environment }}
         uses: nais/deploy/actions/deploy@v1
@@ -92,8 +94,8 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Successfully deployed application _*${{ steps.vals.outputs.deployapp }}:${{ steps.version.outputs.relversion }}*_ to environment _*${{ inputs.environment }}*_ in cluster _*${{ steps.vals.outputs.cluster }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
-          SLACK_MESSAGE: ""
+          SLACK_TITLE: "Deployed _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ inputs.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
           SLACK_COLOR: "good"
           SLACK_ICON: https://github.com/github.png?size=48
           MSG_MINIMAL: true
@@ -105,8 +107,8 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Failed to deploy application _*${{ steps.vals.outputs.deployapp }}:${{ steps.version.outputs.relversion }}*_ to _*${{ steps.vals.outputs.cluster }}*_"
-          SLACK_MESSAGE: ""
+          SLACK_TITLE: "Deploy of _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ inputs.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ failed"
+          SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
           SLACK_COLOR: "danger"
           SLACK_ICON: https://github.com/github.png?size=48
           MSG_MINIMAL: true
@@ -118,8 +120,8 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Deploy of application _*${{ steps.vals.outputs.deployapp }}:${{ steps.version.outputs.relversion }}*_ to _*${{ steps.vals.outputs.cluster }}*_ was cancelled"
-          SLACK_MESSAGE: ""
+          SLACK_TITLE: "Deploy of _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ steps.vals.outputs.cluster }}*_ in _*${{ steps.vals.outputs.cluster }}*_ was cancelled"
+          SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
           SLACK_COLOR: "warning"
           SLACK_ICON: https://github.com/github.png?size=48
           MSG_MINIMAL: true
