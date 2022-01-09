@@ -42,7 +42,7 @@ jobs:
         uses: whelk-io/maven-settings-xml-action@v20
         with:
           repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
 
       - name: Compile and test
         run: |
