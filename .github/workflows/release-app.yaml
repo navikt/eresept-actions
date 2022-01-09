@@ -86,7 +86,7 @@ jobs:
           
           REPO=navikt/${{ inputs.application }}
           DOCKER_TAG=${{ steps.version.outputs.relversion }}
-          DOCKER_IMG="ghcr.io/$REPO/${GITHUB_REPOSITORY#*/}:${DOCKER_TAG}
+          DOCKER_IMG="ghcr.io/$REPO/${GITHUB_REPOSITORY#*/}:${DOCKER_TAG}"
           DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
           cd $DIR
           docker build --pull --build-arg version=$DOCKER_TAG --build-arg app_name=${{ inputs.application }} -t $DOCKER_IMG .
