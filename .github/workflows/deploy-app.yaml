@@ -74,7 +74,7 @@ jobs:
       - name: Deploy ${{ steps.vals.outputs.deployapp }} to ${{inputs.environment }}
         uses: nais/deploy/actions/deploy@v1
         env:
-          APIKEY: ${{ secrets.deployKey }}
+          APIKEY: ${{ secrets.deploy-key }}
           CLUSTER: ${{ steps.vals.outputs.cluster }}
           RESOURCE: nais.yaml
           VARS: nais.vars.${{ inputs.environment }}.yaml
