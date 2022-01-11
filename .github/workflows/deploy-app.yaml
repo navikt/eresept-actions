@@ -97,7 +97,7 @@ jobs:
           SLACK_TITLE: "Deployed _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ inputs.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
           SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
           SLACK_COLOR: "good"
-          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_ICON_EMOJI: ":nais:"
           MSG_MINIMAL: true
           SLACK_FOOTER: "${{ inputs.footer }}"
         uses: rtCamp/action-slack-notify@v2
@@ -110,7 +110,7 @@ jobs:
           SLACK_TITLE: "Deploy of _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ inputs.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ failed"
           SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
           SLACK_COLOR: "danger"
-          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_ICON_EMOJI: ":nais:"
           MSG_MINIMAL: true
           SLACK_FOOTER: "${{ inputs.footer }}"
         uses: rtCamp/action-slack-notify@v2
@@ -123,7 +123,7 @@ jobs:
           SLACK_TITLE: "Deploy of _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ steps.vals.outputs.cluster }}*_ in _*${{ steps.vals.outputs.cluster }}*_ was cancelled"
           SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
           SLACK_COLOR: "warning"
-          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_ICON_EMOJI: ":nais:"
           MSG_MINIMAL: true
           SLACK_FOOTER: "${{ inputs.footer }}"
         uses: rtCamp/action-slack-notify@v2
