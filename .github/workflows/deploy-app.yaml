@@ -17,16 +17,16 @@ on:
         required: false
         type: string
         default: 'eresept © 2022'
-      application:
-        description: 'The application to deploy'
+      applications:
+        description: 'The application to deploy (stringified JSON object listing application, eg: "[\"foo\",\"bar\"]"'
         required: true
         type: string
         # no default
       application-version:
-          description: 'The version to deploy'
-          required: false
-          type: string
-          # no default
+        description: 'The version to deploy'
+        required: false
+        type: string
+        # no default
       environment:
         description: 'The environment to deploy application to'
         required: true
@@ -39,16 +39,23 @@ on:
       deploy-key:
         description: 'NAIS deploy apikey'
         required: true
+      token:
+        description: 'token'
+        required: true
 
 jobs:
   deploy:
-    name: "Deploy ${{ inputs.application }}:${{ inputs.application-version }} to ${{ inputs.environment }}"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        application: ${{fromJson(inputs.applications)}}
+    name: "Deploy ${{ matrix.application }}:${{ inputs.application-version }} to ${{ inputs.environment }}"
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          repository: navikt/${{ inputs.application }}
+          repository: navikt/${{ matrix.application }}
+          token: ${{ secrets.token }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
@@ -70,8 +77,8 @@ jobs:
           echo "::set-output name=relversion::$RELVERSION"
           echo "::set-output name=cluster::$(if [ "${{ inputs.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)"
           POTSFIX=$(if [ '${{ inputs.environment }}' != 'p' -a '${{ inputs.environment }}' != 'q1' ]; then echo '-${{ inputs.environment }}'; fi)
-          echo "::set-output name=deployapp::${{ inputs.application }}$POSTFIX"
-          echo "::set-output name=deployappver::${{ inputs.application }}$POSTFIX:$RELVERSION"
+          echo "::set-output name=deployapp::${{ matrix.application }}$POSTFIX"
+          echo "::set-output name=deployappver::${{ matrix.application }}$POSTFIX:$RELVERSION"
 
       - name: Deploy ${{ steps.vals.outputs.deployapp }} to ${{inputs.environment }}
         uses: nais/deploy/actions/deploy@v1
@@ -80,7 +87,7 @@ jobs:
           CLUSTER: ${{ steps.vals.outputs.cluster }}
           RESOURCE: nais.yaml
           VARS: nais.vars.${{ inputs.environment }}.yaml
-          IMAGE: ghcr.io/navikt/${{ inputs.application }}/${{ inputs.application }}:${{ steps.vals.outputs.relversion }}
+          IMAGE: ghcr.io/navikt/${{ matrix.application }}/${{ matrix.application }}:${{ steps.vals.outputs.relversion }}
 
       - name: Calculate execution time
         id: exectime
