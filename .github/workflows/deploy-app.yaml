@@ -27,8 +27,8 @@ on:
         required: false
         type: string
         # no default
-      environment:
-        description: 'The environment to deploy application to'
+      environments:
+        description: 'The environments to deploy applications to (stringified JSON object listing application, eg: "[\"q1\",\"p\"]")'
         required: true
         type: string
         # no default
@@ -49,7 +49,8 @@ jobs:
     strategy:
       matrix:
         application: ${{ fromJson(inputs.applications) }}
-    name: Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ inputs.environment }}
+        environment: ${{ fromJson(inputs.environments) }}
+    name: Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -75,18 +76,18 @@ jobs:
           INPUT_VERSION=${{ inputs.application-version }}
           RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION}|sed 's/-.*//')
           echo "::set-output name=relversion::$RELVERSION"
-          echo "::set-output name=cluster::$(if [ "${{ inputs.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)"
-          POTSFIX=$(if [ '${{ inputs.environment }}' != 'p' -a '${{ inputs.environment }}' != 'q1' ]; then echo '-${{ inputs.environment }}'; fi)
+          echo "::set-output name=cluster::$(if [ "${{ matrix.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)"
+          POTSFIX=$(if [ '${{ matrix.environment }}' != 'p' -a '${{ matrix.environment }}' != 'q1' ]; then echo '-${{ matrix.environment }}'; fi)
           echo "::set-output name=deployapp::${{ matrix.application }}$POSTFIX"
           echo "::set-output name=deployappver::${{ matrix.application }}$POSTFIX:$RELVERSION"
 
-      - name: Deploy ${{ steps.vals.outputs.deployapp }} to ${{inputs.environment }}
+      - name: Deploy ${{ steps.vals.outputs.deployapp }} to ${{matrix.environment }}
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.deploy-key }}
           CLUSTER: ${{ steps.vals.outputs.cluster }}
           RESOURCE: nais.yaml
-          VARS: nais.vars.${{ inputs.environment }}.yaml
+          VARS: nais.vars.${{ matrix.environment }}.yaml
           IMAGE: ghcr.io/navikt/${{ matrix.application }}/${{ matrix.application }}:${{ steps.vals.outputs.relversion }}
 
       - name: Calculate execution time
@@ -101,7 +102,7 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Deployed _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ inputs.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_TITLE: "Deployed _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
           SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
           SLACK_COLOR: "good"
           SLACK_ICON_EMOJI: ":nais:"
@@ -114,7 +115,7 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Deploy of _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ inputs.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ failed"
+          SLACK_TITLE: "Deploy of _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ failed"
           SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
           SLACK_COLOR: "danger"
           SLACK_ICON_EMOJI: ":nais:"
