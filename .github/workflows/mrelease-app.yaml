@@ -1,4 +1,8 @@
 name: Release application, re-usable
+# funker ikke helt fordi vi får
+#   remote: Write access to repository not granted.
+#   fatal: unable to access 'https://github.com/navikt/eresept-xxx/': The requested URL returned error: 403
+# ved commit til repo
 on:
   workflow_call:
     inputs:
@@ -17,16 +21,16 @@ on:
         required: false
         type: string
         default: 'eresept © 2022'
-      application:
-        description: 'The application to release'
+      applications:
+        description: 'The applications to release (stringified JSON object listing application, eg: "[\"foo\",\"bar\"]")'
         required: true
         type: string
         # no default
       application-version:
-        description: 'The version to release'
-        required: false
-        type: string
-        # no default
+          description: 'The version to release'
+          required: false
+          type: string
+          # no default
     secrets:
       webhook:
         required: true
@@ -35,13 +39,17 @@ on:
 
 jobs:
   release:
-    name: Release ${{ inputs.application }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        application: ${{ fromJson(inputs.applications) }}
+    name: Release ${{ matrix.application }} ${{ inputs.application-version }}
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          repository: navikt/${{ inputs.application }}
+          repository: navikt/${{ matrix.application }}
+          token: ${{ secrets.token }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
@@ -84,11 +92,11 @@ jobs:
           git tag -a v${{ steps.version.outputs.relversion }} -m 'tagging as v${{ steps.version.outputs.relversion }} [ci skip]'
           mvn --batch-mode clean install -DskipTests
           
-          REPO=navikt/${{ inputs.application }}
+          REPO=navikt/${{ matrix.application }}
           DOCKER_TAG=${{ steps.version.outputs.relversion }}
           DOCKER_IMG="ghcr.io/$REPO/${GITHUB_REPOSITORY#*/}:${DOCKER_TAG}"
           DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
-          (cd $DIR; docker build --pull --build-arg version=$DOCKER_TAG --build-arg app_name=${{ inputs.application }} -t $DOCKER_IMG . && docker login ghcr.io -u $REPO -p ${GITHUB_TOKEN} && docker push $DOCKER_IMG)
+          (cd $DIR; docker build --pull --build-arg version=$DOCKER_TAG --build-arg app_name=${{ matrix.application }} -t $DOCKER_IMG . && docker login ghcr.io -u $REPO -p ${GITHUB_TOKEN} && docker push $DOCKER_IMG)
           
           mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.nextversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
           git commit -am 'Updated to new dev-version ${{ steps.version.outputs.nextversion }} after release by ${{ github.actor }} [ci skip]'
@@ -108,7 +116,7 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Released _*${{ inputs.application }}:${{ steps.version.outputs.relversion }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_TITLE: "Released _*${{ matrix.application }}:${{ steps.version.outputs.relversion }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
           SLACK_MESSAGE: "```${{ steps.version.outputs.changelog }}```"
           SLACK_COLOR: "good"
           SLACK_ICON_EMOJI: ":docker:"
@@ -121,7 +129,7 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Release of _*${{ inputs.application }}*_ failed"
+          SLACK_TITLE: "Release of _*${{ matrix.application }}*_ failed"
           SLACK_MESSAGE: " "
           SLACK_COLOR: "danger"
           SLACK_ICON_EMOJI: ":docker:"
@@ -134,7 +142,7 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Release of _*${{ inputs.application }}*_ was cancelled"
+          SLACK_TITLE: "Release of _*${{ matrix.application }}*_ was cancelled"
           SLACK_MESSAGE: " "
           SLACK_COLOR: "warning"
           SLACK_ICON_EMOJI: ":docker:"
