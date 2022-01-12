@@ -18,7 +18,7 @@ on:
         type: string
         default: 'eresept © 2022'
       applications:
-        description: 'The application to deploy (stringified JSON object listing application, eg: "[\"foo\",\"bar\"]"'
+        description: 'The applications to deploy (stringified JSON object listing application, eg: "[\"foo\",\"bar\"]")'
         required: true
         type: string
         # no default
@@ -48,8 +48,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        application: ${{fromJson(inputs.applications)}}
-    name: "Deploy ${{ matrix.application }}:${{ inputs.application-version }} to ${{ inputs.environment }}"
+        application: ${{ fromJson(inputs.applications) }}
+    name: Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v2
         with:
