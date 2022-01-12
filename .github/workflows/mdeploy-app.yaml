@@ -42,16 +42,17 @@ on:
 
 jobs:
   deploy:
-    name: Deoploy ${{ inputs.applications }} to ${ inputs.environment }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         application: ${{fromJson(inputs.applications)}}
+    name: "Deploy ${{ matrix.application }}:${{ inputs.application-version }} to ${{ inputs.environment }}"
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
           repository: navikt/${{ matrix.application }}
+          token: ${{ secrets.READER_TOKEN }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
