@@ -44,7 +44,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
-          command: monitor
+          command: test
           args: |
             --org=teameresept
             --project-name=${{ github.event.repository.name }}
