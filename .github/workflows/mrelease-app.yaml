@@ -3,6 +3,7 @@ name: Release application, re-usable
 #   remote: Write access to repository not granted.
 #   fatal: unable to access 'https://github.com/navikt/eresept-xxx/': The requested URL returned error: 403
 # ved commit til repo
+# se her https://nav-it.slack.com/archives/C01024R9K4G/p1642056230014200
 on:
   workflow_call:
     inputs:
