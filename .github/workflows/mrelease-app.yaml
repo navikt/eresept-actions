@@ -1,4 +1,4 @@
-name: Release application, re-usable
+name: Release applications, re-usable, unusable
 # funker ikke helt fordi vi får
 #   remote: Write access to repository not granted.
 #   fatal: unable to access 'https://github.com/navikt/eresept-xxx/': The requested URL returned error: 403

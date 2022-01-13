@@ -1,4 +1,4 @@
-name: Deploy application, re-usable
+name: Deploy application, re-usable (to be deleted)
 on:
   workflow_call:
     inputs:

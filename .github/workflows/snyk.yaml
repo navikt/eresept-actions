@@ -2,6 +2,23 @@ name: Snyk scanning, re-usable
 
 on:
   workflow_call:
+    inputs:
+      channel:
+        required: false
+        type: string
+        default: 'eresept'
+      username:
+        required: false
+        type: string
+        default: 'eresept snyk action: ${{ github.event.repository.name }}'
+      footer:
+        required: false
+        type: string
+        default: 'eresept © 2022'
+      upload:
+        type: boolean
+        required: false
+        default: false
     secrets:
       snyk-token:
         required: true
@@ -12,14 +29,38 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
+      - name: Create settings.xml
+        uses: whelk-io/maven-settings-xml-action@v20
+        with:
+          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
+
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven@master
-        continue-on-error: true # To make sure that SARIF upload gets called
+        continue-on-error: true # To make sure that the rest of the steps gets called
         env:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
-          args: --sarif-file-output=snyk.sarif --org=teameresept
+          command: monitor
+          args: |
+            --org=teameresept
+            --project-name=${{ github.event.repository.name }}
+            --sarif-file-output=snyk.sarif
+
       - name: Upload result to GitHub Code Scanning
+        if: inputs.upload == 'true'
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: snyk.sarif
+
+      - name: Report failure?
+        if: failure()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "${{ inputs.username }}"
+          SLACK_TITLE: "Snyk vulnerability scan failed _*${{ github.event.repository.name }}*_"
+          SLACK_COLOR: "danger"
+          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@v2
