@@ -24,19 +24,12 @@ on:
         required: true
       webhook:
         required: true
-      token:
-        required: true
+
 jobs:
   snyk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-
-      - name: Create settings.xml
-        uses: whelk-io/maven-settings-xml-action@v20
-        with:
-          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven@master
