@@ -22,7 +22,10 @@ on:
     secrets:
       snyk-token:
         required: true
-
+      webhook:
+        required: true
+      token:
+        required: true
 jobs:
   snyk:
     runs-on: ubuntu-latest
