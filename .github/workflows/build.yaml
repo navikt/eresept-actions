@@ -40,6 +40,12 @@ jobs:
           echo "::set-output name=starttime::$(date +%s)"
           sudo timedatectl set-timezone "Europe/Oslo"
 
+      - name: Get deploy message
+        id: deploy-message
+        run: |
+          echo "::set-output name=commit_msg::$(git log -1 --format=%B)"
+          echo "::set-output name=commit_sha::$(git log -1 --format=%H)"
+
       - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@v20
         with:
