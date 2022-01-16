@@ -65,6 +65,7 @@ jobs:
           SLACK_COLOR: "good"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
+          SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
         uses: rtCamp/action-slack-notify@v2
       - name: Report failure?
         if: failure()
@@ -76,6 +77,7 @@ jobs:
           SLACK_COLOR: "danger"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
+          SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
         uses: rtCamp/action-slack-notify@v2
       - name: Report cancellation?
         if: cancelled()
@@ -87,4 +89,5 @@ jobs:
           SLACK_COLOR: "warning"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
+          SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
         uses: rtCamp/action-slack-notify@v2
