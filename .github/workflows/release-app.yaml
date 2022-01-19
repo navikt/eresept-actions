@@ -70,7 +70,10 @@ jobs:
           INPUT_VERSION=${{ inputs.application-version }}
           echo "::set-output name=relversion::$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')"
           echo "::set-output name=nextversion::$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//'|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT"
-          echo "::set-output name=changelog::$(git log $(git describe --tags --abbrev=0)..HEAD --oneline)"
+          # multiline output
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Configure git user
         run: |
@@ -109,7 +112,7 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "${{ inputs.username }}"
           SLACK_TITLE: "Released _*${{ inputs.application }}:${{ steps.version.outputs.relversion }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
-          SLACK_MESSAGE: "```${{ steps.version.outputs.changelog }}```"
+          SLACK_MESSAGE: "```${{ env.CHANGELOG }}```"
           SLACK_COLOR: "good"
           SLACK_ICON_EMOJI: ":docker:"
           MSG_MINIMAL: true
