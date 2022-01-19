@@ -1,0 +1,38 @@
+name: 99 temporary testing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: do some stuff
+        run: |
+          echo bla bla bla
+
+      - name: gather output
+        run: |
+          ps -ef | sh multilineoutput.sh TST
+
+      - name: do some other stuff
+        run: |
+          echo more bla bla bla
+
+      - name: use output from last step
+        run: |
+          echo "this should be the output below"
+          echo "${{ env.TST }}"
+
+  next_job:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: do some stuff
+        run: |
+          echo in next job
+
+      - name: use output from first job
+        run: |
+          echo "is it still here?"
+          echo "${{ env.TST }}"
