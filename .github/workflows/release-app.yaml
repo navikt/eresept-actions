@@ -7,11 +7,6 @@ on:
         required: false
         type: string
         default: 'eresept'
-      username:
-        description: 'Slack username'
-        required: false
-        type: string
-        default: 'eresept release application action: ${{ github.event.repository.name }}'
       footer:
         description: 'Slack footer'
         required: false
@@ -68,8 +63,10 @@ jobs:
         run: |
           CURVERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           INPUT_VERSION=${{ inputs.application-version }}
-          echo "::set-output name=relversion::$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')"
-          echo "::set-output name=nextversion::$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//'|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT"
+          RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')
+          echo "::set-output name=relversion::$RELVERSION"
+          echo "::set-output name=nextversion::$(echo $RELVERSION|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT"
+          echo "::set-output name=appver::${{ inputs.application }}:$RELVERSION"
           # multiline output
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
@@ -110,8 +107,8 @@ jobs:
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "${{ inputs.username }}"
-          SLACK_TITLE: "Released _*${{ inputs.application }}:${{ steps.version.outputs.relversion }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_USERNAME: "release ${{ steps.version.outputs.appver }}"
+          SLACK_TITLE: "Released _*${{ steps.version.outputs.appver }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
           SLACK_MESSAGE: "```${{ env.CHANGELOG }}```"
           SLACK_COLOR: "good"
           SLACK_ICON_EMOJI: ":docker:"
@@ -123,7 +120,7 @@ jobs:
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "${{ inputs.username }}"
+          SLACK_USERNAME: "release ${{ inputs.application }}"
           SLACK_TITLE: "Release of _*${{ inputs.application }}*_ failed"
           SLACK_MESSAGE: " "
           SLACK_COLOR: "danger"
@@ -136,7 +133,7 @@ jobs:
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "${{ inputs.username }}"
+          SLACK_USERNAME: "release ${{ inputs.application }}"
           SLACK_TITLE: "Release of _*${{ inputs.application }}*_ was cancelled"
           SLACK_MESSAGE: " "
           SLACK_COLOR: "warning"
