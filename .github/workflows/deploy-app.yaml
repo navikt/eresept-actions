@@ -81,8 +81,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.deploy-key }}
           CLUSTER: ${{ steps.vals.outputs.cluster }}
-          RESOURCE: nais.yaml
-          VARS: nais.vars.${{ matrix.environment }}.yaml
+          RESOURCE: .nais/nais.yaml
+          VARS: .nais/nais.vars.${{ matrix.environment }}.yaml
           IMAGE: ghcr.io/navikt/${{ matrix.application }}/${{ matrix.application }}:${{ steps.vals.outputs.relversion }}
 
       - name: Calculate execution time
