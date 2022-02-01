@@ -76,7 +76,7 @@ jobs:
           badges-directory: badges
           generate-branches-badge: true
           generate-coverage-badge: true
-          fail-if-branches-less-than: 0.10
+          #fail-if-branches-less-than: 0.10
           #fail-if-coverage-less-than: 0.70
           jacoco-csv-file: target/site/jacoco/jacoco.csv
 
