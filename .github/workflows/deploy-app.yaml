@@ -57,12 +57,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Get start time
+      - name: Start time and timezone
         id: starttime
-        run: echo "::set-output name=starttime::$(date +%s)"
-
-      - name: Set timezone
-        run: sudo timedatectl set-timezone "Europe/Oslo"
+        run: |
+          echo "::set-output name=starttime::$(date +%s)"
+          sudo timedatectl set-timezone "Europe/Oslo"
 
       - name: Get version numbers and cluster
         id: vals
