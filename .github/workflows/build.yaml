@@ -71,7 +71,7 @@ jobs:
         run: mvn install
 
       - name: Jacoco reporting
-        uses: navikt/eresept-actions/jacoco-report@v1
+        uses: navikt/eresept-actions/jacoco-report@main
         with:
           jacoco-dir: target/site/jacoco
 
