@@ -25,17 +25,15 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: check-for-branch
+    - shell: bash
       run: |
-        git show-ref --verify --quiet 'ref/heads/badges'
-        echo "::set-output name=branch-exists::$(if [ $? == 0 ]; then echo true; else echo false; fi)"
-      shell: bash
-    - if: ${{ steps.check-for-branch.outputs.branch-exists == 'true' }}
+        echo "BADGES=$(branch-exists.sh)" >> $GITHUB_ENV
+    - if: ${{ env.BADGES == 'true' }}
       uses: actions/checkout@v2 # checks out the branch that stores the coverage badges
       with:
         ref: badges
         path: badges
-    - if: ${{ steps.check-for-branch.outputs.branch-exists == 'true' }}
+    - if: ${{ env.BADGES == 'true' }}
       uses: cicirello/jacoco-badge-generator@v2
       with:
         badges-directory: badges
@@ -44,7 +42,7 @@ runs:
         #fail-if-branches-less-than: 0.10
         #fail-if-coverage-less-than: 0.70
         jacoco-csv-file: ${{ inputs.jacoco.dir }}/jacoco.csv
-    - if: ${{ steps.check-for-branch.outputs.branch-exists == 'true' }}
+    - if: ${{ env.BADGES == 'true' }}
       run: |
         cd badges
         if [[ `git status --porcelain *.svg` ]]; then
@@ -55,7 +53,7 @@ runs:
           git push
         fi
       shell: bash
-    - if: ${{ steps.check-for-branch.outputs.branch-exists == 'true' }}
+    - if: ${{ env.BADGES == 'true' }}
       uses: actions/upload-artifact@v2
       with:
         name: jacoco-report
