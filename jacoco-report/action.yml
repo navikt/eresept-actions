@@ -36,14 +36,17 @@ runs:
         ref: badges
         path: badges
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
-      uses: cicirello/jacoco-badge-generator@v2
-      with:
-        badges-directory: badges
-        generate-branches-badge: true
-        generate-coverage-badge: true
-        #fail-if-branches-less-than: 0.10
-        #fail-if-coverage-less-than: 0.70
-        jacoco-csv-file: ${{ inputs.jacoco-dir }}/jacoco.csv
+      shell: bash
+      run: $GITHUB_ACTION_PATH/makebadges.sh ${{ inputs.jacoco-dir }}/jacoco.csv ${{ runner.temp }}
+#    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
+#      uses: cicirello/jacoco-badge-generator@v2
+#      with:
+#        badges-directory: badges
+#        generate-branches-badge: true
+#        generate-coverage-badge: true
+#        #fail-if-branches-less-than: 0.10
+#        #fail-if-coverage-less-than: 0.70
+#        jacoco-csv-file: ${{ inputs.jacoco-dir }}/jacoco.csv
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       run: |
         cd badges
