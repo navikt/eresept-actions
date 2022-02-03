@@ -43,7 +43,7 @@ runs:
         generate-coverage-badge: true
         #fail-if-branches-less-than: 0.10
         #fail-if-coverage-less-than: 0.70
-        jacoco-csv-file: ${{ inputs.jacoco.dir }}/jacoco.csv
+        jacoco-csv-file: ${{ inputs.jacoco-dir }}/jacoco.csv
     - if: ${{ env.BADGES == 'true' }}
       run: |
         cd badges
@@ -59,4 +59,4 @@ runs:
       uses: actions/upload-artifact@v2
       with:
         name: jacoco-report
-        path: ${{ inputs.jacoco.dir }}
+        path: ${{ inputs.jacoco-dir }}
