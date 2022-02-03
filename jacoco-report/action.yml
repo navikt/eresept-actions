@@ -27,7 +27,9 @@ runs:
   steps:
     - shell: bash
       run: |
-        echo "BADGES=$(branch-exists.sh)" >> $GITHUB_ENV
+        inloc=$(git branch --list badges)
+        inrem=$(git ls-remote --heads origin badges)
+        echo "BADGES=$(if [ -z "$inloc" -a -z "$inrem" ]; then echo false; else echo true; fi)" >> $GITHUB_ENV
     - if: ${{ env.BADGES == 'true' }}
       uses: actions/checkout@v2 # checks out the branch that stores the coverage badges
       with:
