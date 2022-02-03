@@ -22,6 +22,22 @@ inputs:
     description: 'where is the jacoco coverage reports and csv file'
     required: false
     default: 'target/site/jacoco'
+  module:
+    description: 'name of module (directory)'
+    required: true
+    default: 'null'
+  do-checkout:
+    description: 'true if we shall checkout badges branch'
+    required: false
+    default: 'true'
+  do-generate:
+    description: 'true if we shall generate the badges svg-files'
+    required: false
+    default: 'true'
+  do-commit:
+    description: 'true if we shall commit the badges svg-files'
+    required: false
+    default: 'true'
 runs:
   using: "composite"
   steps:
@@ -30,21 +46,21 @@ runs:
         inloc=$(git branch --list badges)
         inrem=$(git ls-remote --heads origin badges)
         echo "BADGES=$(if [ -z "$inloc" -a -z "$inrem" ]; then echo false; else echo true; fi)" >> $GITHUB_ENV
-    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
+    - if: ${{ inputs.do-checkout == 'true' && env.BADGES == 'true' && github.event_name != 'pull_request' }}
       uses: actions/checkout@v2 # checks out the branch that stores the coverage badges
       with:
         ref: badges
         path: badges
-    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
+    - if: ${{ inputs.do-generate == 'true' && env.BADGES == 'true' && github.event_name != 'pull_request' }}
       uses: cicirello/jacoco-badge-generator@v2
       with:
         badges-directory: badges
         generate-branches-badge: true
         generate-coverage-badge: true
-        #fail-if-branches-less-than: 0.10
-        #fail-if-coverage-less-than: 0.70
-        jacoco-csv-file: ${{ inputs.jacoco-dir }}/jacoco.csv
-    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
+        coverage-badge-filename: jacoco-${{ inputs.module }}.svg
+        branches-badge-filename: branches-${{ inputs.module }}.svg
+        jacoco-csv-file: ${{ inputs.module }}/${{ inputs.jacoco-dir }}/jacoco.csv
+    - if: ${{ inputs.do-commit == 'true' && env.BADGES == 'true' && github.event_name != 'pull_request' }}
       run: |
         cd badges
         if [[ `git status --porcelain *.svg` ]]; then
@@ -55,8 +71,3 @@ runs:
           git push
         fi
       shell: bash
-    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: jacoco-report
-        path: ${{ inputs.jacoco-dir }}
