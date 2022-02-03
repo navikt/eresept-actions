@@ -37,7 +37,7 @@ runs:
         path: badges
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       shell: bash
-      run: $GITHUB_ACTION_PATH/makebadges.sh ${{ inputs.jacoco-dir }}/jacoco.csv ${{ runner.temp }}
+      run: $GITHUB_ACTION_PATH/mkbadges.sh ${{ inputs.jacoco-dir }}/jacoco.csv ${{ runner.temp }}
 #    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
 #      uses: cicirello/jacoco-badge-generator@v2
 #      with:
