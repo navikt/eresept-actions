@@ -119,7 +119,7 @@ jobs:
         with:
           left: 'release date'
           right: '${{ steps.version.outputs.reldate }}'
-          color: 'cb4b3b'
+          color: 'blue'
           filename: 'rel-date'
 
       - name: Time used badge

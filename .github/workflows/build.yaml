@@ -56,11 +56,6 @@ jobs:
       - name: Compile and test
         run: mvn install
 
-#      - name: Jacoco reporting
-#        uses: navikt/eresept-actions/jacoco-report@main
-#        with:
-#          jacoco-dir: target/site/jacoco
-
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
 
@@ -72,7 +67,7 @@ jobs:
         with:
           left: 'last commit'
           right: '${{ steps.vars.outputs.lastcommit }}'
-          color: 'cb4b3b'
+          color: 'blue'
           filename: 'last-commit'
 
       - name: Calculate execution time

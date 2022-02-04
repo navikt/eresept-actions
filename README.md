@@ -72,6 +72,8 @@ An example:
 The action creates badges for coverage (named `jacoco.svg`) and badges for lines (`lines.svg`) 
 and methods (`methods.svg`). All numbers are calculated from the `jacoco.csv` file.
 
+### coverage for multi-module projects
+
 If the file `jacoco.csv` is the result of a `jacoco aggregate` goal, 
 then badges are created for all modules as well. The badges for the modules 
 will be named `jacoco-module-name-1.svg`, `jacoco-module-name-2.svg`, `lines-module-name-1.svg`' and so on.
