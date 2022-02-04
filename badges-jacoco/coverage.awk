@@ -2,17 +2,17 @@ function colorize(p)
 {
    color = "lightgrey"
    if (p == 100) {
-      color = "4c1"
+      color = "brightgreen"
    } else if (p >= 90) {
-      color = "97ca00"
+      color = "green"
    } else if (p >= 80) {
-      color = "a4a61d"
+      color = "yellowgreen"
    } else if (p >= 70) {
-      color = "dfb317"
+      color = "yellow"
    } else if (p >= 60) {
-      color = "fe7d37"
+      color = "orange"
    } else {
-      color = "e05d44"
+      color = "red"
    }
    return color
 }

@@ -40,7 +40,7 @@ runs:
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       shell: bash
       run: |
-        l=$(echo ${{ inputs.left }} | sed 's/-/--/g')
-        r=$(echo ${{ inputs.right }} | sed 's/-/--/g')
+        l=$(echo ${{ inputs.left }} | sed 's/-/--/g;s/_/__/g')
+        r=$(echo ${{ inputs.right }} | sed 's/-/--/g;s/_/__/g')
         b=$($GITHUB_ACTION_PATH/../src/urlencode.sh "$l-$r-${{ inputs.color }}")
         curl -s https://img.shields.io/badge/$b > badges/${{ inputs.filename }}.svg
