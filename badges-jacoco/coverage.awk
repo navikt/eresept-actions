@@ -19,7 +19,7 @@ function colorize(p)
 
 BEGIN { FS = ","; }
 NR != 1 {
-	gsub(/report\//,"-");
+	gsub(/report\//,"");
 	m += $4;
 	c += $5;
 	mm[$1] += $4
@@ -30,6 +30,6 @@ END {
 	print "curl -s https://img.shields.io/badge/coverage-"s"%25-"colorize(s)" > badges/jacoco.svg";
 	for (i in mm) {
 	    ss[i] = sprintf("%.2f", cc[i] / (mm[i] + cc[i]) * 100);
-		print "curl -s https://img.shields.io/badge/coverage-"ss[i]"%25-"colorize(ss[i])" > badges/jacoco"i".svg"
+		print "curl -s https://img.shields.io/badge/coverage-"ss[i]"%25-"colorize(ss[i])" > badges/jacoco-"i".svg"
 	}
 }
