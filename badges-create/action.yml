@@ -41,4 +41,4 @@ runs:
       shell: bash
       run: |
         b=$($GITHUB_ACTION_PATH/../src/urlencode "${{ inputs.left }}-${{ inputs.right}}-${{ inputs.color }}")
-        curl -s https://img.shields.io/badge/$b > badges/${{ input.filename }}.svg
+        curl -s https://img.shields.io/badge/$b > badges/${{ inputs.filename }}.svg
