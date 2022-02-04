@@ -1,0 +1,44 @@
+# In this workflow, we use a dedicated branch for storing the badges.
+# It assumes that the badges branch already exists. That branch can otherwise
+# be empty, as its only purpose is to store the coverage badges. Why? Well, if
+# our main branch has required checks or reviews, the default GITHUB_TOKEN won't
+# be able to push to it. By storing the badges in a dedicated branch, this is not
+# an issue (just don't put any required checks or required reviews on the badges
+# branch). Note that since we won't be storing anything else in the badges branch,
+# we just put them in the root of that branch.
+#
+# IMPORTANT: Take note of the 2 checkout steps that are necessary for this variation.
+# The first is the usual checkout step. The second checks out the dedicated badges branch
+# (see the ref input) nested inside of the other in the path badges (see the path input).
+# So locally within the rest of this workflow run, we'll have access to the badges branch
+# within a badges directory.
+#
+# It does nothing if the badges branch doesn't exist.
+
+name: 'creates a badge'
+description: 'creates a badge by calling shields.io and storing the result in the badges directory'
+inputs:
+  left:
+    description: 'text on the left side of the badge'
+    required: true
+    default: 'none'
+  right:
+    description: 'text on the right side of the badge'
+    required: true
+    default: 'none'
+  color:
+    description: 'the color, text (eg. blue) or rgb (eg. 97ca00 or 4c1)'
+    required: true
+    default: 'blue'
+  filename:
+    description: 'the filename, without extension'
+    required: false
+    default: 'badge'
+runs:
+  using: "composite"
+  steps:
+    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
+      shell: bash
+      run: |
+        b=$($GITHUB_ACTION_PATH/../src/urlencode "${{ inputs.left }}-${{ inputs.right}}-${{ inputs.color }}")
+        curl -s https://img.shields.io/badge/$b > badges/${{ input.filename }}.svg

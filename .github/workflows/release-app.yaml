@@ -67,6 +67,7 @@ jobs:
           echo "::set-output name=relversion::$RELVERSION"
           echo "::set-output name=nextversion::$(echo $RELVERSION|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT"
           echo "::set-output name=appver::${{ inputs.application }}:$RELVERSION"
+          echo "::set-output name=reldate::$(date '+%Y-%m-%d %H:%M:%S')"
           # multiline output
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
@@ -96,11 +97,41 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Checkout badges
+        uses: navikt/eresept-actions/badges-checkout@main
+
       - name: Calculate execution time
         id: exectime
         run: |
           END_TIME=$(date +%s)
           echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
+
+      - name: Version badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: 'version'
+          right: '${{ steps.version.outputs.relversion }}'
+          color: 'blue'
+          filename: 'version'
+
+      - name: Release date badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: 'release date'
+          right: '${{ steps.version.outputs.reldate }}'
+          color: 'cb4b3b'
+          filename: 'rel-date'
+
+      - name: Time used badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: 'release execution time'
+          right: '${{ steps.exectime.outputs.exectime }}'
+          color: 'blue'
+          filename: 'rel-exec-time'
+
+      - name: Commit badges
+        uses: navikt/eresept-actions/badges-commit@main
 
       - name: Report success?
         if: success()

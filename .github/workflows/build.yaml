@@ -34,11 +34,12 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
-      - name: Start time and timezone
-        id: starttime
+      - name: Set some variables
+        id: vars
         run: |
           echo "::set-output name=starttime::$(date +%s)"
           sudo timedatectl set-timezone "Europe/Oslo"
+          echo "::set-output name=lastcommit::$(git log -1 --date=format:'%Y-%m-%d %T' --format=%cd)"
 
       - name: Get deploy message
         id: deploy-message
@@ -55,16 +56,41 @@ jobs:
       - name: Compile and test
         run: mvn install
 
-      - name: Jacoco reporting
-        uses: navikt/eresept-actions/jacoco-report@main
+#      - name: Jacoco reporting
+#        uses: navikt/eresept-actions/jacoco-report@main
+#        with:
+#          jacoco-dir: target/site/jacoco
+
+      - name: Checkout badges
+        uses: navikt/eresept-actions/badges-checkout@main
+
+      - name: Create coverage badges
+        uses: navikt/eresept-actions/badges-jacoco@main
+
+      - name: Last commit badge
+        uses: navikt/eresept-actions/badges-create@main
         with:
-          jacoco-dir: target/site/jacoco
+          left: 'last commit'
+          right: '${{ steps.vars.outputs.lastcommit }}'
+          color: 'cb4b3b'
+          filename: 'last-commit'
 
       - name: Calculate execution time
         id: exectime
         run: |
           END_TIME=$(date +%s)
-          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
+          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.vars.outputs.starttime }} ))"
+
+      - name: Time used badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: 'build execution time'
+          right: '${{ steps.exectime.outputs.exectime }}'
+          color: 'blue'
+          filename: 'build-exec-time'
+
+      - name: Commit badges
+        uses: navikt/eresept-actions/badges-commit@main
 
       - name: Report success?
         if: success()
