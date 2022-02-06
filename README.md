@@ -7,6 +7,11 @@ as they could change or disappear any time. Make your own copy if you find them 
 
 To use and create the badges in the `badges-*` actions you need an empty branch 
 in your repository called badges.
+```
+git switch --orphan badges
+git commit --allow-empty -m "Initial commit on badges orphan branch"
+git push -u origin badges
+```
 
 Several actions are needed to create a badge. One to check out the branch. 
 One or more actions to create the badge(s). 
