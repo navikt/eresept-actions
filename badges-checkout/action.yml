@@ -17,6 +17,10 @@
 
 name: 'checks out badges branch'
 description: 'checks if we have a dedicated badges branch, and if so checks it out'
+inputs:
+  repo:
+    description: 'the repository'
+    required: true
 runs:
   using: "composite"
   steps:
@@ -25,6 +29,7 @@ runs:
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       uses: actions/checkout@v2 # checks out the branch that stores the badges
       with:
+        repository: navikt/${{ inputs.repo }}
         fetch-depth: 1
         ref: badges
         path: badges
