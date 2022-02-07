@@ -25,6 +25,6 @@ runs:
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       uses: actions/checkout@v2 # checks out the branch that stores the badges
       with:
-        depth: 1
+        fetch-depth: 1
         ref: badges
         path: badges
