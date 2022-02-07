@@ -74,6 +74,7 @@ jobs:
           POTSFIX=$(if [ '${{ matrix.environment }}' != 'p' -a '${{ matrix.environment }}' != 'q1' ]; then echo '-${{ matrix.environment }}'; fi)
           echo "::set-output name=deployapp::${{ matrix.application }}$POSTFIX"
           echo "::set-output name=deployappver::${{ matrix.application }}$POSTFIX:$RELVERSION"
+          echo "::set-output name=deploydate::$(date '+%Y-%m-%d %H:%M:%S')"
 
       - name: Deploy ${{ steps.vals.outputs.deployapp }} to ${{matrix.environment }}
         uses: nais/deploy/actions/deploy@v1
@@ -88,6 +89,7 @@ jobs:
         id: exectime
         run: |
           END_TIME=$(date +%s)
+          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
           echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
 
       - name: Checkout badges
@@ -105,7 +107,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: '${{ matrix.environment }} date'
-          right: '${{ steps.version.outputs.reldate }}'
+          right: '${{ steps.vals.outputs.deploydate }}'
           color: 'blue'
           filename: 'deploy-date-${{ matrix.environment }}-${{ matrix.application }}'
 
