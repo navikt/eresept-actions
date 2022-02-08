@@ -27,5 +27,5 @@ runs:
   steps:
     - shell: bash
       run: |
-        curl -X POST "https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/actions/workflows/${{ inputs.action }}/dispatches" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" -H "Authorization: Bearer ${{ inputs.token }}" --data "{\"ref\":\"${{ inputs.ref }}\",\"inputs\": ${{ inputs.inputs }} }"
+        curl -X POST "https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/actions/workflows/${{ inputs.action }}/dispatches" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" -H "Authorization: Bearer ${{ inputs.token }}" --data '{"ref":"${{ inputs.ref }}","inputs": ${{ inputs.inputs }} }'
 #        $GITHUB_ACTION_PATH/dispatch.sh "${{ inputs.owner }}" "${{ inputs.repo }}" "${{ inputs.action }}" "${{ inputs.token }}" "${{ inputs.ref }}" "${{ inputs.inputs }}"
