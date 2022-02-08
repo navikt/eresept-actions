@@ -1,5 +1,5 @@
-# Jacoco report
-This action creates a badge.
+# Bagdes checkout
+This action checks out the badges branch.
 A branch named badges must exist.
 
 In this workflow, we use a dedicated branch for storing the badges.

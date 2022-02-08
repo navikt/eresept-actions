@@ -1,5 +1,5 @@
 # Jacoco report
-This action reports jacoco coverage, makes badge and upload coverage report.
+This action makes badges out of jacoco coverage reports and uploads coverage report.
 A branch named badges must exist.
 
 In this workflow, we use a dedicated branch for storing the badges.

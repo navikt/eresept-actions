@@ -1,0 +1,43 @@
+name: Deploy applications, re-usable
+on:
+  workflow_call:
+      applications:
+        description: 'The applications to deploy (stringified JSON object listing application, eg: "[\"foo\",\"bar\"]")'
+        required: true
+        type: string
+        # no default
+      application-version:
+        description: 'The version to deploy'
+        required: false
+        type: string
+        # no default
+      environments:
+        description: 'The environments to deploy applications to (stringified JSON object listing application, eg: "[\"q1\",\"p\"]")'
+        required: true
+        type: string
+        # no default
+    secrets:
+      webhook:
+        description: 'Slack webhook'
+        required: true
+      deploy-key:
+        description: 'NAIS deploy apikey'
+        required: true
+      token:
+        description: 'token'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        application: ${{ fromJson(inputs.applications) }}
+        environment: ${{ fromJson(inputs.environments) }}
+    name: Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ matrix.environment }}
+    steps:
+      - uses: navikt/eresept-actions/dispatch@main
+        with:
+          repo: '${{ matrix.application }}'
+          action: '03_deploy.yaml'
+          inputs: '{"application-version": "${{ inputs.application-version }}", "environment": "${{ matrix.environment }}" }"

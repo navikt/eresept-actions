@@ -1,4 +1,4 @@
-# Jacoco report
+# Badges create
 This action creates a badge.
 A branch named badges must exist.
 
