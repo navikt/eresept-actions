@@ -31,12 +31,6 @@ jobs:
         environment: ${{ fromJson(inputs.environments) }}
     name: Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ matrix.environment }}
     steps:
-      - uses: navikt/github-app-token-generator@v1
-        id: get-token
-        with:
-          private-key: ${{ secrets.private-key }}
-          app-id: ${{ secrets.app-id }}
-          repo: navikt/${{ matrix.application }}
       - shell: bash
         run: |
           curl -X POST -u "x-access-token:${{ secrets.token }}" \
