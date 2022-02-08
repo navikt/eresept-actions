@@ -5,7 +5,7 @@ REPO=$2
 ACTION=$3
 TOKEN=$4
 REF=$5
-INPUTS=$6
+INPUTS="$6"
 
 echo curl -X POST "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$ACTION/dispatches" \
     -H "Accept: application/vnd.github.v3+json" \
