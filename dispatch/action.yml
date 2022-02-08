@@ -27,4 +27,5 @@ runs:
   steps:
     - shell: bash
       run: |
-        $GITHUB_ACTION_PATH/dispatch.sh "${{ inputs.owner }}" "${{ inputs.repo }}" "${{ inputs.action }}" "${{ inputs.token }}" "${{ inputs.ref }}" "${{ inputs.inputs }}"
+        curl -X POST "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$ACTION/dispatches" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" -H "Authorization: Bearer ${{ inputs.token }}" --data "{\"ref\":\"${{ inputs.ref }}\",\"inputs\": ${{ inputs.input }} }"
+#        $GITHUB_ACTION_PATH/dispatch.sh "${{ inputs.owner }}" "${{ inputs.repo }}" "${{ inputs.action }}" "${{ inputs.token }}" "${{ inputs.ref }}" "${{ inputs.inputs }}"
