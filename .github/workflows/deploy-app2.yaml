@@ -40,4 +40,4 @@ jobs:
         with:
           repo: '${{ matrix.application }}'
           action: '03_deploy.yaml'
-          inputs: '{"application-version": "${{ inputs.application-version }}", "environment": "${{ matrix.environment }}" }"
+          inputs: '{"application-version": "${{ inputs.application-version }}", "environment": "${{ matrix.environment }}" }'
