@@ -18,11 +18,8 @@ on:
         type: string
         # no default
     secrets:
-      app-id:
-        description: 'App ID'
-        required: true
-      private-key:
-        description: 'Private key'
+      token:
+        description: 'Secret token'
         required: true
 
 jobs:
@@ -42,7 +39,7 @@ jobs:
           repo: navikt/${{ matrix.application }}
       - shell: bash
         run: |
-          curl -X POST -u "x-access-token:${{ steps.get-token.outputs.token }}" \
+          curl -X POST -u "x-access-token:${{ secrets.token }}" \
           https://api.github.com/repos/navikt/${{ matrix.application }}/actions/workflows/03_deploy.yaml/dispatches \
           -H "Accept: application/vnd.github.v3+json" \
           -H "Content-Type: application/json" \
