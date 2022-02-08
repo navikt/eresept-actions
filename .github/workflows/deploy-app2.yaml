@@ -1,6 +1,7 @@
 name: Deploy applications, re-usable
 on:
   workflow_call:
+    inputs:
       applications:
         description: 'The applications to deploy (stringified JSON object listing application, eg: "[\"foo\",\"bar\"]")'
         required: true
