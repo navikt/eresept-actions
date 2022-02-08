@@ -33,10 +33,11 @@ jobs:
     steps:
       - shell: bash
         run: |
-          curl -X POST -u "x-access-token:${{ github.token }}" \
+          curl -X POST \
           https://api.github.com/repos/navikt/${{ matrix.application }}/actions/workflows/03_deploy.yaml/dispatches \
           -H "Accept: application/vnd.github.v3+json" \
           -H "Content-Type: application/json" \
+          -H "Authorization: token ${{ secrets.token }}
           -d '{"ref":"main", "inputs": {"application-version":"${{ inputs.application-version }}", "environment":"${{ matrix.environment }}" }'
 #      - uses: navikt/eresept-actions/dispatch@main
 #        with:
