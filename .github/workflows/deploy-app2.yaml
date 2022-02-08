@@ -18,14 +18,11 @@ on:
         type: string
         # no default
     secrets:
-      webhook:
-        description: 'Slack webhook'
+      app-id:
+        description: 'App ID'
         required: true
-      deploy-key:
-        description: 'NAIS deploy apikey'
-        required: true
-      token:
-        description: 'token'
+      private-key:
+        description: 'Private key'
         required: true
 
 jobs:
@@ -37,13 +34,19 @@ jobs:
         environment: ${{ fromJson(inputs.environments) }}
     name: Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ matrix.environment }}
     steps:
-    - shell: bash
-      run: |
-        curl -X POST -u "x-access-token:${{ secrets.token }}" \
-        https://api.github.com/repos/navikt/${{ matrix.application }}/actions/workflows/03_deploy.yaml/dispatches \
-        -H "Accept: application/vnd.github.v3+json" \
-        -H "Content-Type: application/json" \
-        -d '{"ref":"main", "inputs": {"application-version":"${{ inputs.application-version }}", "environment":"${{ matrix.environment }}" }'
+      - uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          private-key: ${{ secrets.private-key }}
+          app-id: ${{ secrets.app-id }}
+          repo: navikt/${{ matrix.application }}
+      - shell: bash
+        run: |
+          curl -X POST -u "x-access-token:${{ steps.get-token.outputs.token }}" \
+          https://api.github.com/repos/navikt/${{ matrix.application }}/actions/workflows/03_deploy.yaml/dispatches \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Content-Type: application/json" \
+          -d '{"ref":"main", "inputs": {"application-version":"${{ inputs.application-version }}", "environment":"${{ matrix.environment }}" }'
 #      - uses: navikt/eresept-actions/dispatch@main
 #        with:
 #          repo: '${{ matrix.application }}'
