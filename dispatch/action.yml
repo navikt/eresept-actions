@@ -15,6 +15,9 @@ inputs:
     description: 'the reference of the workflow run. The reference can be a branch, tag, or a commit SHA'
     required: false
     default: 'main'
+  token:
+    description: 'the Github access token with access to the repository.'
+    required: true
   inputs:
     description: 'inputs to pass to the workflow, must be a JSON string'
     required: false
@@ -24,4 +27,4 @@ runs:
   steps:
     - shell: bash
       run: |
-        $GITHUB_ACTION_PATH/dispatch.sh "${{ inputs.owner }}" "${{ inputs.repo }}" "${{ inputs.action }}" "${{ secrets.GITHUB_TOKEN }}" "${{ inputs.ref }}" "${{ inputs.inputs }}"
+        $GITHUB_ACTION_PATH/dispatch.sh "${{ inputs.owner }}" "${{ inputs.repo }}" "${{ inputs.action }}" "${{ inputs.token }}" "${{ inputs.ref }}" "${{ inputs.inputs }}"
