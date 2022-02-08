@@ -1,5 +1,8 @@
 name: 'dispatch action'
 description: 'dispatches an action'
+branding:
+  icon: 'arrow-right'
+  color: 'yellow'
 inputs:
   owner:
     description: 'the repository owner'

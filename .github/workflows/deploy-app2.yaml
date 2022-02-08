@@ -37,9 +37,16 @@ jobs:
         environment: ${{ fromJson(inputs.environments) }}
     name: Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ matrix.environment }}
     steps:
-      - uses: navikt/eresept-actions/dispatch@main
-        with:
-          repo: '${{ matrix.application }}'
-          action: '03_deploy.yaml'
-          token:  '${{ secrets.token }}'
-          inputs: '{"application-version": "${{ inputs.application-version }}", "environment": "${{ matrix.environment }}" }'
+    - shell: bash
+      run: |
+        curl -X POST -u "x-access-token:${{ secrets.token }}" \
+        https://api.github.com/repos/navikt/${{ matrix.application }}/actions/workflows/03_deploy.yaml/dispatches \
+        -H "Accept: application/vnd.github.v3+json" \
+        -H "Content-Type: application/json" \
+        -d '{"ref":"main", "inputs": {"application-version":"${{ inputs.application-version }}", "environment":"${{ matrix.environment }}" }'
+#      - uses: navikt/eresept-actions/dispatch@main
+#        with:
+#          repo: '${{ matrix.application }}'
+#          action: '03_deploy.yaml'
+#          token:  '${{ secrets.token }}'
+#          inputs: '{"application-version": "${{ inputs.application-version }}", "environment": "${{ matrix.environment }}" }'
