@@ -17,4 +17,5 @@ curl -X POST "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$ACTIO
     -H "Accept: application/vnd.github.v3+json" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $TOKEN" \
-    --data "{\"ref\":\"${REF}\",\"inputs\":\"${INPUTS}\"}"
+    -H "Authorization: Bearer $TOKEN" \
+    --data "{\"ref\":\"${REF}\",\"inputs\":${INPUTS}}"
