@@ -11,11 +11,10 @@ echo curl -X POST "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$
     -H "Accept: application/vnd.github.v3+json" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer XXX" \
-    --data "{\"ref\":\"${REF}\",\"inputs\":\"${INPUTS}\"}"
+    --data "{\"ref\":\"${REF}\",\"inputs\":${INPUTS}}"
 
 curl -X POST "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$ACTION/dispatches" \
     -H "Accept: application/vnd.github.v3+json" \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $TOKEN" \
     -H "Authorization: Bearer $TOKEN" \
     --data "{\"ref\":\"${REF}\",\"inputs\":${INPUTS}}"
