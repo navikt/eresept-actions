@@ -42,4 +42,4 @@ jobs:
           repo: '${{ matrix.application }}'
           action: '03_deploy.yaml'
           token:  '${{ secrets.token }}'
-          inputs: "{\"application-version\": \"${{ inputs.application-version }}\", \"environment\": \"${{ matrix.environment }}\" }"
+          inputs: '{"application-version": "${{ inputs.application-version }}", "environment": "${{ matrix.environment }}" }'
