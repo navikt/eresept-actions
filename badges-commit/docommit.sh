@@ -8,8 +8,7 @@ function doOneCommit() {
   git add *.svg
   git commit -m "Generated badges" *.svg
   git push
-
-}}
+}
 
 function commit() {
   local cnt=5
