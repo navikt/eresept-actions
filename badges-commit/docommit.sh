@@ -2,19 +2,20 @@
 
 # does the commit
 function doOneCommit() {
-  git config user.name "GitHub Actions Bot (${{ github.actor }})"
+  git config user.name "GitHub Actions Bot ($1)"
   git config user.email "actions@github.com"
   git pull
   git add *.svg
   git commit -m "Generated badges" *.svg
   git push
-}
+
+}}
 
 function commit() {
   local cnt=5
   while [ $cnt -gt 0 ];
   do
-    doOneCommit
+    doOneCommit $1
     if [ $? -eq 0 ];
     then
       cnt=0
@@ -26,4 +27,4 @@ function commit() {
   done
 }
 
-commit
+commit $1
