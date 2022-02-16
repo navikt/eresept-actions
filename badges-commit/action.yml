@@ -23,11 +23,11 @@ runs:
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       shell: bash
       run: |
+        # TODO handle errors 
+        # To https://github.com/navikt/eresept-m18
+        # ! [remote rejected] badges -> badges (cannot lock ref 'refs/heads/badges': is at 9575d98aa8ca44981fbd7669b755c3142cf1b97e but expected 919913bc106000b16f59b3013ae4442c61a83a63)
+        # error: failed to push some refs to 'https://github.com/navikt/eresept-m18'
         cd badges
         if [[ `git status --porcelain *.svg` ]]; then
-          git config user.name "GitHub Actions Bot (${{ github.actor }})"
-          git config user.email "actions@github.com"
-          git add *.svg
-          git commit -m "Generated badges" *.svg
-          git push
+          $GITHUB_ACTION_PATH/docommit.sh
         fi
