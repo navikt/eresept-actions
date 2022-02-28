@@ -4,7 +4,7 @@
 function doOneCommit() {
   git config user.name "GitHub Actions Bot ($1)"
   git config user.email "actions@github.com"
-  git pull
+  git pull --rebase
   git add *.svg
   git commit -m "Generated badges" *.svg
   git push
