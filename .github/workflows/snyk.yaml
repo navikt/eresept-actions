@@ -5,12 +5,20 @@ on:
     secrets:
       snyk-token:
         required: true
+      token:
+        description: 'github token'
+        required: true
 
 jobs:
   snyk-monitor:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+      - name: create settings.xml
+        uses: whelk-io/maven-settings-xml-action@v20
+        with:
+          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
       - name: creates a project in your Snyk account to be continuously monitored
         uses: snyk/actions/maven@master
         env:
@@ -25,6 +33,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+      - name: create settings.xml
+        uses: whelk-io/maven-settings-xml-action@v20
+        with:
+          repositories: '[{ "id": "github", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
       - name: run Snyk to test dependencies for vulnerabilities
         uses: snyk/actions/maven@master
         env:
