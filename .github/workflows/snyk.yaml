@@ -26,7 +26,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: monitor
-          args: --org=teameresept --project-name=${{ github.event.repository.name }} --severity-threshold=high --all-projects -- --settings snyk-settings.xml
+          args: --org=teameresept --project-name=${{ github.event.repository.name }} --severity-threshold=high -- --settings snyk-settings.xml
 
   snyk-test:
     runs-on: ubuntu-latest
@@ -44,4 +44,4 @@ jobs:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: test
-          args: --org=teameresept --project-name=${{ github.event.repository.name }} --severity-threshold=high --all-projects -- --settings snyk-settings.xml
+          args: --org=teameresept --project-name=${{ github.event.repository.name }} --severity-threshold=high -- --settings snyk-settings.xml
