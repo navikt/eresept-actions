@@ -1,16 +1,14 @@
-name: Snyk scanning, re-usable
+name: cleanup docker images, re-usable
 
 on:
   workflow_call:
     secrets:
-      snyk-token:
-        required: true
       token:
         description: 'github token'
         required: true
 
 jobs:
-  snyk-monitor:
+  clean:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -26,7 +24,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: monitor
-          args: --org=teameresept --severity-threshold=high -- --settings snyk-settings.xml
+          args: --org=teameresept --project-name=${{ github.event.repository.name }} -- --settings snyk-settings.xml
 
   snyk-test:
     runs-on: ubuntu-latest
@@ -44,4 +42,4 @@ jobs:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: test
-          args: --org=teameresept --severity-threshold=high -- --settings snyk-settings.xml
+          args: --org=teameresept --project-name=${{ github.event.repository.name }} --severity-threshold=high -- --settings snyk-settings.xml
