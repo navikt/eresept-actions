@@ -3,15 +3,11 @@ name: Snyk scanning, re-usable
 on:
   workflow_call:
     inputs:
-      exclude:
-        description: 'exclude options, eg: dir1,dir2'
+      threshold:
+        description: 'severity threshold, default high'
         type: string
         required: false
-      build:
-        description: 'flag to indicate if we need to build project before calling snyk, typically done on multi-module projects'
-        type: boolean
-        required: false
-        default: false
+        default: 'high'
     secrets:
       snyk-token:
         required: true
@@ -30,19 +26,10 @@ jobs:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
           output_file: snyk-settings.xml
-      - uses: actions/setup-java@v2
-        if: ${{ inputs.build }}
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-      - name: build
-        if: ${{ inputs.build }}
-        run: mvn install -DskipTests -Dgitlog.phase=none -s snyk-settings.xml
       - name: run Snyk to test dependencies for vulnerabilities
         uses: snyk/actions/maven@master
         env:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: test
-          args: --org=teameresept --severity-threshold=high --all-projects --exclude=report,${{ inputs.exclude }} -- --settings snyk-settings.xml
+          args: --org=teameresept --severity-threshold=${{ inputs.threshold }} --all-projects --exclude=report -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
