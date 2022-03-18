@@ -30,22 +30,22 @@ jobs:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
           output_file: snyk-settings.xml
+      - name: backup JAVA_HOME
+        id: java-home
+        run: echo "::set-output jhome::$(echo $JAVA_HOME)"
       - uses: actions/setup-java@v2
         if: ${{ inputs.build }}
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
-      - run: |
-          echo "debug stuff"
-          echo "$JAVA_HOME"
-          ls -lL $JAVA_HOME
       - name: build
         if: ${{ inputs.build }}
         run: mvn install -DskipTests -Dgitlog.phase=none -s snyk-settings.xml
       - name: creates a project in your Snyk account to be continuously monitored
         uses: snyk/actions/maven@master
         env:
+          JAVA_HOME: ${{ steps.java-home.outputs.jhome }}
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: monitor
