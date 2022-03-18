@@ -43,7 +43,7 @@ jobs:
         if: ${{ inputs.build }}
         run: mvn install -DskipTests -Dgitlog.phase=none -s snyk-settings.xml
       - name: creates a project in your Snyk account to be continuously monitored
-        uses: snyk/actions/maven@master
+        uses: snyk/actions/maven-3-jdk-11@master
         env:
           JAVA_HOME: ${{ steps.java-home.outputs.jhome }}
           SNYK_TOKEN: ${{ secrets.snyk-token }}
