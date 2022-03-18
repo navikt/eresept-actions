@@ -1,4 +1,4 @@
-name: Snyk scanning, re-usable
+name: Snyk test, re-usable
 
 on:
   workflow_call:
