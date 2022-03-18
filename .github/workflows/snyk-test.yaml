@@ -30,6 +30,12 @@ jobs:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
           output_file: snyk-settings.xml
+      - uses: actions/setup-java@v2
+        if: ${{ inputs.build }}
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
       - name: build
         if: ${{ inputs.build }}
         run: mvn install -DskipTests -Dgitlog.phase=none -s snyk-settings.xml
