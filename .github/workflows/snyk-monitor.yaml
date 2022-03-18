@@ -32,7 +32,7 @@ jobs:
           output_file: snyk-settings.xml
       - name: backup JAVA_HOME
         id: java-home
-        run: echo "::set-output jhome::$(echo $JAVA_HOME)"
+        run: echo "::set-output name=jhome::$(echo $JAVA_HOME)"
       - uses: actions/setup-java@v2
         if: ${{ inputs.build }}
         with:
