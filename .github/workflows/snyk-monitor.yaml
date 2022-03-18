@@ -3,20 +3,11 @@ name: Snyk scanning, re-usable
 on:
   workflow_call:
     inputs:
-      exclude:
-        description: 'exclude options, eg: dir1,dir2'
-        type: string
-        required: false
       threshold:
         description: 'severity threshold, default high'
         type: string
         required: false
         default: 'high'
-      all-projects:
-        description: 'flag to indicate if we should search for projects'
-        type: boolean
-        required: false
-        default: true
     secrets:
       snyk-token:
         required: true
@@ -35,20 +26,10 @@ jobs:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
           output_file: snyk-settings.xml
-      - name: set options
-        id: snyk-options
-        run: |
-          if [ "${{ inputs.all-projects }}" == "false" ]
-          then 
-            echo "::set-output name=opts::$(echo '')"
-          else
-            echo "::set-output name=opts::$(echo --all-projects --exclude=report,${{ inputs.exclude }})"
-          fi
       - name: creates a project in your Snyk account to be continuously monitored
         uses: snyk/actions/maven@master
         env:
-          JAVA_HOME: ${{ steps.java-home.outputs.jhome }}
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: monitor
-          args: --org=teameresept --severity-threshold=${{ inputs.threshold }} ${{ steps.snyk-options.outputs.opts }} -- --settings snyk-settings.xml
+          args: --org=teameresept --severity-threshold=${{ inputs.threshold }} --all-projects --exclude=report -- --settings snyk-settings.xml -DskipTests -Dmdep.phase=none -Dgitlog.phase=none
