@@ -38,7 +38,7 @@ jobs:
       - name: set options
         id: snyk-options
         run: |
-          if [ "${{ inputs.all-projects }}" -eq "false" ]
+          if [ "${{ inputs.all-projects }}" == "false" ]
           then 
             echo "::set-output name=opts::$(echo '')"
           else
