@@ -32,7 +32,7 @@ jobs:
           output_file: snyk-settings.xml
       - name: build
         if: ${{ inputs.build }}
-        run: mvn install -DskipTests -s snyk-settings.xml
+        run: mvn install -DskipTests -Dgitlog.phase=none -s snyk-settings.xml
       - name: run Snyk to test dependencies for vulnerabilities
         uses: snyk/actions/maven@master
         env:
