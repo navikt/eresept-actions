@@ -39,7 +39,7 @@ jobs:
       - run: |
           echo "debug stuff"
           echo "$JAVA_HOME"
-          ls -l $JAVA_HOME
+          ls -lL $JAVA_HOME
       - name: build
         if: ${{ inputs.build }}
         run: mvn install -DskipTests -Dgitlog.phase=none -s snyk-settings.xml
