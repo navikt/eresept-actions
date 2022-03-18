@@ -7,11 +7,16 @@ on:
         description: 'exclude options, eg: dir1,dir2'
         type: string
         required: false
-      build:
-        description: 'flag to indicate if we need to build project before calling snyk, typically done on multi-module projects'
+      threshold:
+        description: 'severity threshold, default high'
+        type: string
+        required: false
+        default: 'high'
+      all-projects:
+        description: 'flag to indicate if we should search for projects'
         type: boolean
         required: false
-        default: false
+        default: true
     secrets:
       snyk-token:
         required: true
@@ -30,23 +35,20 @@ jobs:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
           output_file: snyk-settings.xml
-      - name: backup JAVA_HOME
-        id: java-home
-        run: echo "::set-output name=jhome::$(echo $JAVA_HOME)"
-      - uses: actions/setup-java@v2
-        if: ${{ inputs.build }}
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-      - name: build
-        if: ${{ inputs.build }}
-        run: mvn install -DskipTests -Dgitlog.phase=none -s snyk-settings.xml
+      - name: set options
+        id: snyk-options
+        run: |
+          if [ "${{ inputs.all-projects }}" -eq "false" ]
+          then 
+            echo "::set-output name=opts::$(echo '')"
+          else
+            echo "::set-output name=opts::$(echo --all-projects --exclude=report,${{ inputs.exclude }})"
+          fi
       - name: creates a project in your Snyk account to be continuously monitored
-        uses: snyk/actions/maven-3-jdk-11@master
+        uses: snyk/actions/maven@master
         env:
           JAVA_HOME: ${{ steps.java-home.outputs.jhome }}
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: monitor
-          args: --org=teameresept --severity-threshold=high --all-projects --exclude=report,${{ inputs.exclude }} -- --settings snyk-settings.xml
+          args: --org=teameresept --severity-threshold=${{ inputs.threshold }} ${{ steps.snyk-options.outputs.opts }} -- --settings snyk-settings.xml
