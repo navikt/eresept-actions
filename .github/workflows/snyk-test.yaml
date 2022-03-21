@@ -70,7 +70,7 @@ jobs:
           SLACK_ICON_EMOJI: ":snyk:"
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: "See https://${{ github.repository }}/actions/run/${{ github.run_id }} for details"
-      uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@v2
       - name: Report cancellation?
         if: cancelled()
         env:
