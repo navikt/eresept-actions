@@ -8,11 +8,24 @@ on:
         type: string
         required: false
         default: 'high'
+      channel:
+        description: 'slack channel'
+        required: false
+        type: string
+        default: 'eresept'
+      footer:
+        description: 'slack footer'
+        required: false
+        type: string
+        default: 'eresept © 2022'
     secrets:
       snyk-token:
         required: true
       token:
         description: 'github token'
+        required: true
+      webhook:
+        description: 'slack webhook'
         required: true
 
 jobs:
@@ -33,3 +46,41 @@ jobs:
         with:
           command: test
           args: --org=teameresept --severity-threshold=${{ inputs.threshold }} --all-projects --exclude=report -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
+      - name: Report success?
+        if: success()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "snyk-test ${{ github.event.repository.name }}"
+          SLACK_TITLE: "Snyk test of _*${{ github.event.repository.name }}*_ passed"
+          SLACK_COLOR: "good"
+          SLACK_ICON_EMOJI: ":snyk:"
+          SLACK_FOOTER: "${{ inputs.footer }}"
+          SLACK_MESSAGE: ""
+          MSG_MINIMAL: true
+        uses: rtCamp/action-slack-notify@v2
+      - name: Report failure?
+        if: failure()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "snyk-test ${{ github.event.repository.name }}"
+          SLACK_TITLE: "Snyk test of _*${{ github.event.repository.name }}*_ failed"
+          SLACK_COLOR: "danger"
+          SLACK_ICON_EMOJI: ":snyk:"
+          SLACK_FOOTER: "${{ inputs.footer }}"
+          SLACK_MESSAGE: "See https://${{ github.repository }}/actions/run/${{ github.run_id }} for details"
+      uses: rtCamp/action-slack-notify@v2
+      - name: Report cancellation?
+        if: cancelled()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "snyk-test ${{ github.event.repository.name }}"
+          SLACK_TITLE: "Snyk test of _*${{ github.event.repository.name }}*_ was cancelled"
+          SLACK_COLOR: "warning"
+          SLACK_ICON_EMOJI: ":snyk:"
+          SLACK_FOOTER: "${{ inputs.footer }}"
+          SLACK_MESSAGE: ""
+          MSG_MINIMAL: true
+        uses: rtCamp/action-slack-notify@v2
