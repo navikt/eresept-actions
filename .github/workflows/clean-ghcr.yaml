@@ -46,11 +46,11 @@ jobs:
                   config.name,
                   config.type,
                   pkg.id);
+                }
+                core.info(`✅ package #${pkg.id} deleted.`);
               }
-              core.info(`✅ package #${pkg.id} deleted.`);
+
+              core.endGroup();
             }
 
-            core.endGroup();
-          }
-
-          module.exports = { deleteTagRegexMatchOrderGreaterThan };
+            module.exports = { deleteTagRegexMatchOrderGreaterThan };
