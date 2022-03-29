@@ -51,7 +51,7 @@ runs:
     - uses: actions/github-script@v6
       with:
         script: |
-          const utils = require("./utils");
+          const utils = require("./utils")(github, context, core);
                       
           async function deleteTagRegexMatchOrderGreaterThan(config, octokit) {
             core.info(`🔎 finding latest tagged ${config.taggedKeepLatest} packages matching regex ${config.tagRegex}. Also finding latest untagged ${config.untaggedKeepLatest} packages...`);
