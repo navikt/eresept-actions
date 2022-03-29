@@ -159,4 +159,12 @@ module.exports = (github, context, core) => {
         });
     };
 
+    module.exports = {
+        getConfig,
+        deletePackageVersion,
+        findPackageVersionsTagRegexMatchOrderGreaterThan,
+        sleep,
+    };
+
+
 }
