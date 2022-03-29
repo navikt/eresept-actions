@@ -52,4 +52,5 @@ runs:
       with:
         script: |
           const index = require("./index")(github, context, core);
+          core.info(`✅ foo`);
           index.run();
