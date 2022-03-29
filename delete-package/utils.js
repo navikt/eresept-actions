@@ -1,5 +1,3 @@
-const core = require("@actions/core");
-
 /**
  * Parse input from env.
  * @returns Config
