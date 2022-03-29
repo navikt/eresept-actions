@@ -51,6 +51,7 @@ runs:
     - uses: actions/github-script@v6
       with:
         script: |
-          const index = require("./index")(github, context, core);
+          core.info(`✅ foo`);
+          const index = require("./index.js")(github, context, core);
           core.info(`✅ foo`);
           index.run();
