@@ -34,6 +34,11 @@ inputs:
     description: 'the filename, without extension'
     required: false
     default: 'badge'
+  logo:
+    description: 'the logo to use in badge, eg: data:image/svg+xml,base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My...'
+    required: false
+    default: ''
+
 runs:
   using: "composite"
   steps:
@@ -42,5 +47,6 @@ runs:
       run: |
         l=$(echo ${{ inputs.left }} | sed 's/-/--/g;s/_/__/g')
         r=$(echo ${{ inputs.right }} | sed 's/-/--/g;s/_/__/g')
-        b=$($GITHUB_ACTION_PATH/../src/urlencode.sh "$l-$r-${{ inputs.color }}")
+        logo=$(if [ "${{ inputs.logo }}" == "" ]; then echo "" else echo "?logo=${{ input.logo }}; fi") 
+        b=$($GITHUB_ACTION_PATH/../src/urlencode.sh "$l-$r-${{ inputs.color }}$logo")
         curl -s https://img.shields.io/badge/$b > badges/${{ inputs.filename }}.svg

@@ -29,6 +29,7 @@ An example:
           right: 'some value, maybe from an output from an earlier step'
           color: 'blue'
           filename: 'silly'
+          logo: 'logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMS4xIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNOTYgMzJDOTYgMTQuMzMgMTEwLjMgMCAxMjggMEMxNDUuNyAwIDE2MCAxNC4zMyAxNjAgMzJWNjRIMjg4VjMyQzI4OCAxNC4zMyAzMDIuMyAwIDMyMCAwQzMzNy43IDAgMzUyIDE0LjMzIDM1MiAzMlY2NEg0MDBDNDI2LjUgNjQgNDQ4IDg1LjQ5IDQ0OCAxMTJWMTYwSDBWMTEyQzAgODUuNDkgMjEuNDkgNjQgNDggNjRIOTZWMzJ6TTQ0OCA0NjRDNDQ4IDQ5MC41IDQyNi41IDUxMiA0MDAgNTEySDQ4QzIxLjQ5IDUxMiAwIDQ5MC41IDAgNDY0VjE5Mkg0NDhWNDY0eiIvPjwvc3ZnPg=='
 
       - name: Another silly badge
         uses: navikt/eresept-actions/badges-create@main

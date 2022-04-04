@@ -102,6 +102,7 @@ jobs:
           right: '${{ steps.vals.outputs.relversion }}'
           color: 'blue'
           filename: 'deploy-version-${{ matrix.environment }}'
+          logo: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMS4xIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNNDggMzJIMTk3LjVDMjE0LjUgMzIgMjMwLjcgMzguNzQgMjQyLjcgNTAuNzVMNDE4LjcgMjI2LjdDNDQzLjcgMjUxLjcgNDQzLjcgMjkyLjMgNDE4LjcgMzE3LjNMMjg1LjMgNDUwLjdDMjYwLjMgNDc1LjcgMjE5LjcgNDc1LjcgMTk0LjcgNDUwLjdMMTguNzUgMjc0LjdDNi43NDMgMjYyLjcgMCAyNDYuNSAwIDIyOS41VjgwQzAgNTMuNDkgMjEuNDkgMzIgNDggMzJMNDggMzJ6TTExMiAxNzZDMTI5LjcgMTc2IDE0NCAxNjEuNyAxNDQgMTQ0QzE0NCAxMjYuMyAxMjkuNyAxMTIgMTEyIDExMkM5NC4zMyAxMTIgODAgMTI2LjMgODAgMTQ0QzgwIDE2MS43IDk0LjMzIDE3NiAxMTIgMTc2eiIvPjwvc3ZnPg=='
 
       - name: Deploy date badge
         uses: navikt/eresept-actions/badges-create@main
@@ -110,6 +111,7 @@ jobs:
           right: '${{ steps.vals.outputs.deploydate }}'
           color: 'blue'
           filename: 'deploy-date-${{ matrix.environment }}'
+          logo: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMS4xIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNOTYgMzJDOTYgMTQuMzMgMTEwLjMgMCAxMjggMEMxNDUuNyAwIDE2MCAxNC4zMyAxNjAgMzJWNjRIMjg4VjMyQzI4OCAxNC4zMyAzMDIuMyAwIDMyMCAwQzMzNy43IDAgMzUyIDE0LjMzIDM1MiAzMlY2NEg0MDBDNDI2LjUgNjQgNDQ4IDg1LjQ5IDQ0OCAxMTJWMTYwSDBWMTEyQzAgODUuNDkgMjEuNDkgNjQgNDggNjRIOTZWMzJ6TTQ0OCA0NjRDNDQ4IDQ5MC41IDQyNi41IDUxMiA0MDAgNTEySDQ4QzIxLjQ5IDUxMiAwIDQ5MC41IDAgNDY0VjE5Mkg0NDhWNDY0eiIvPjwvc3ZnPg=='
 
       - name: Commit badges
         uses: navikt/eresept-actions/badges-commit@main
