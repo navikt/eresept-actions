@@ -47,6 +47,6 @@ runs:
       run: |
         l=$(echo ${{ inputs.left }} | sed 's/-/--/g;s/_/__/g')
         r=$(echo ${{ inputs.right }} | sed 's/-/--/g;s/_/__/g')
-        logo=$(if [ "${{ inputs.logo }}" == "" ]; then echo "" else echo "?logo=${{ input.logo }}; fi") 
+        logo=$(if [ "${{ inputs.logo }}" == "" ]; then echo "" else echo "?logo=${{ inputs.logo }}; fi") 
         b=$($GITHUB_ACTION_PATH/../src/urlencode.sh "$l-$r-${{ inputs.color }}$logo")
         curl -s https://img.shields.io/badge/$b > badges/${{ inputs.filename }}.svg
