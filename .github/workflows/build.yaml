@@ -15,7 +15,7 @@ on:
     secrets:
       webhook:
         description: 'slack webhook'
-        required: true
+        required: false
       token:
         description: 'github token'
         required: true
@@ -90,7 +90,7 @@ jobs:
         uses: navikt/eresept-actions/badges-commit@main
 
       - name: Report success?
-        if: success()
+        if: ${{ success() && ${{ secrets.webhook != '' }}
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
@@ -102,7 +102,7 @@ jobs:
           SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
         uses: rtCamp/action-slack-notify@v2
       - name: Report failure?
-        if: failure()
+        if: ${{ failure() && ${{ secrets.webhook != '' }}
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
@@ -114,7 +114,7 @@ jobs:
           SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
         uses: rtCamp/action-slack-notify@v2
       - name: Report cancellation?
-        if: cancelled()
+        if: ${{ cancelled() && ${{ secrets.webhook != '' }}
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
