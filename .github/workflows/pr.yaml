@@ -4,7 +4,7 @@ on:
 
 jobs:
   build:
-    name: Build ${{ github.event.repository.name }}
+    name: Build pull request ${{ github.event.repository.name }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3 # checks out the ordinary branch
