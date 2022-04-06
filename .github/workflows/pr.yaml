@@ -33,4 +33,4 @@ jobs:
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
 
       - name: Compile and test
-        run: mvn test
+        run: mvn install
