@@ -30,7 +30,7 @@ jobs:
         uses: whelk-io/maven-settings-xml-action@v20
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN }}" }]'
+          servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
 
       - name: Compile and test
         run: mvn test
