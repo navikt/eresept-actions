@@ -13,6 +13,8 @@
 # So locally within the rest of this workflow run, we'll have access to the badges branch
 # within a badges directory.
 #
+# calls https://img.shields.io/badge
+#
 # It does nothing if the badges branch doesn't exist.
 
 name: 'creates a badge'
@@ -35,7 +37,7 @@ inputs:
     required: false
     default: 'badge'
   logo:
-    description: 'the logo to use in badge, eg: data:image/svg+xml,base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My...'
+    description: 'the logo to use in badge, one of the predefined (tag, stopwatch, calendar, code) or options to img.shields.io, eg: ?logo=data:image/svg+xml,base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My... or one of the predfined: '
     required: false
     default: ''
 
@@ -47,6 +49,6 @@ runs:
       run: |
         l=$(echo ${{ inputs.left }} | sed 's/-/--/g;s/_/__/g')
         r=$(echo ${{ inputs.right }} | sed 's/-/--/g;s/_/__/g')
-        logo=$(if [ -z "${{ inputs.logo }}" ]; then echo ""; else echo "?logo=${{ inputs.logo }}"; fi) 
+        logo=$($GITHUB_ACTION_PATH/../src/getlogo.sh "${{ inputs.logo }}") 
         b=$($GITHUB_ACTION_PATH/../src/urlencode.sh "$l-$r-${{ inputs.color }}")
         curl -s "https://img.shields.io/badge/$b$logo" > badges/${{ inputs.filename }}.svg
