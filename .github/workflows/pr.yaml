@@ -1,11 +1,30 @@
 name: Build push requests, re-usable
 on:
   workflow_call:
-
+    inputs:
+      channel:
+        description: 'slack channel'
+        required: false
+        type: string
+        default: 'eresept'
+      footer:
+        description: 'slack footer'
+        required: false
+        type: string
+        default: 'eresept © 2022'
+    secrets:
+      webhook:
+        description: 'slack webhook'
+        required: false
+      token:
+        description: 'github token'
+        required: true
 jobs:
   build:
     name: Build pull request ${{ github.event.repository.name }}
     runs-on: ubuntu-latest
+    env:
+      slack_webhook: ${{ secrets.webhook }}
     steps:
       - uses: actions/checkout@v3 # checks out the ordinary branch
         with:
@@ -30,7 +49,45 @@ jobs:
         uses: whelk-io/maven-settings-xml-action@v20
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
+          servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
 
       - name: Compile and test
         run: mvn install
+
+      - name: Report success?
+        if: ${{ success() && env.slack_webhook != '' }}
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "build PR ${{ github.event.repository.name }}"
+          SLACK_TITLE: "Built PR _*${{ github.event.repository.name }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_COLOR: "good"
+          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_FOOTER: "${{ inputs.footer }}"
+          SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
+        uses: rtCamp/action-slack-notify@v2
+      - name: Report failure?
+        if: ${{ failure() && env.slack_webhook != '' }}
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "build PR ${{ github.event.repository.name }}"
+          SLACK_TITLE: "Build PR failure in _*${{ github.event.repository.name }}*_"
+          SLACK_COLOR: "danger"
+          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_FOOTER: "${{ inputs.footer }}"
+          SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
+        uses: rtCamp/action-slack-notify@v2
+      - name: Report cancellation?
+        if: ${{ cancelled() && env.slack_webhook != '' }}
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "build PR ${{ github.event.repository.name }}"
+          SLACK_TITLE: "Build PR of _*${{ github.event.repository.name }}*_ was cancelled"
+          SLACK_COLOR: "warning"
+          SLACK_ICON: https://github.com/github.png?size=48
+          SLACK_FOOTER: "${{ inputs.footer }}"
+          SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
+        uses: rtCamp/action-slack-notify@v2
+
