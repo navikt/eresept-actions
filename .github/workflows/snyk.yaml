@@ -31,6 +31,7 @@ on:
 jobs:
   snyk-test:
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot'
     steps:
       - uses: actions/checkout@master
       - name: create settings.xml
