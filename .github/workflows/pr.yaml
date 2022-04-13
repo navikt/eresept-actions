@@ -38,6 +38,7 @@ jobs:
       - name: Set some variables
         id: vars
         run: |
+          echo "::set-output name=starttime::$(date +%s)"
           sudo timedatectl set-timezone "Europe/Oslo"
 
       - name: Get deploy message
@@ -53,6 +54,12 @@ jobs:
 
       - name: Compile and test
         run: mvn install
+
+      - name: Calculate execution time
+        id: exectime
+        run: |
+          END_TIME=$(date +%s)
+          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.vars.outputs.starttime }} ))"
 
       - name: Report success?
         if: ${{ success() && env.slack_webhook != '' }}
