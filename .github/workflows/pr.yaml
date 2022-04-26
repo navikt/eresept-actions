@@ -55,6 +55,15 @@ jobs:
       - name: Compile and test
         run: mvn install
 
+      - name: Add coverage comment to PR
+        uses: madrapps/jacoco-report@v1.2
+        if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
+        with:
+          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.token }}
+          min-coverage-overall: 0
+          min-coverage-changed-files: 0
+
       - name: Calculate execution time
         id: exectime
         run: |
