@@ -116,6 +116,9 @@ jobs:
       - name: Commit badges
         uses: navikt/eresept-actions/badges-commit@main
 
+      - name: Summary
+        run: echo "Deployed **${{ steps.vals.outputs.deployappver }}** to **${{ matrix.environment }}** in **${{ steps.vals.outputs.cluster }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+
       - name: Report success?
         if: success()
         env:
