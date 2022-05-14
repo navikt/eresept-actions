@@ -136,6 +136,9 @@ jobs:
       - name: Commit badges
         uses: navikt/eresept-actions/badges-commit@main
 
+      - name: Summary
+        run: echo "Released **${{ steps.version.outputs.appver }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+
       - name: Report success?
         if: success()
         env:

@@ -34,12 +34,14 @@ jobs:
     if: github.actor != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@master
+
       - name: create settings.xml
         uses: whelk-io/maven-settings-xml-action@v20
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
           output_file: snyk-settings.xml
+
       - name: creates a project in your Snyk account to be continuously monitored
         uses: snyk/actions/maven@master
         env:
@@ -47,6 +49,7 @@ jobs:
         with:
           command: monitor
           args: --org=teameresept --severity-threshold=${{ inputs.threshold }} --all-projects --exclude=report -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
+
       - name: run Snyk to test dependencies for vulnerabilities
         uses: snyk/actions/maven@master
         env:
@@ -54,6 +57,7 @@ jobs:
         with:
           command: test
           args: --org=teameresept --severity-threshold=${{ inputs.threshold }} --all-projects --exclude=report -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
+
       - name: Report success?
         if: success()
         env:

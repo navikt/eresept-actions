@@ -70,6 +70,9 @@ jobs:
           END_TIME=$(date +%s)
           echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.vars.outputs.starttime }} ))"
 
+      - name: Summary
+        run: echo "Built PR **${{ github.event.repository.name }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+
       - name: Report success?
         if: ${{ success() && env.slack_webhook != '' }}
         env:
