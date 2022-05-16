@@ -137,7 +137,12 @@ jobs:
         uses: navikt/eresept-actions/badges-commit@main
 
       - name: Summary
-        run: echo "Released **${{ steps.version.outputs.appver }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+        run: |
+          echo "### Released **${{ github.event.repository.name }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "|commit|description|" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-----------|" >> $GITHUB_STEP_SUMMARY
+          echo ${{ env.CHANGELOG }} | sed 's/^\([0-9a-f]*\) \(.*\)$/|\1|\2|/' >> $GITHUB_STEP_SUMMARY
 
       - name: Report success?
         if: success()

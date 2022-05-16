@@ -92,7 +92,7 @@ jobs:
         uses: navikt/eresept-actions/badges-commit@main
 
       - name: Summary
-        run: echo "Built **${{ github.event.repository.name }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+        run: echo "### Built **${{ github.event.repository.name }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
 
       - name: Report success?
         if: ${{ success() && env.slack_webhook != '' }}
