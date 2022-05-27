@@ -27,10 +27,10 @@ jobs:
     env:
       slack_webhook: ${{ secrets.webhook }}
     steps:
-      - uses: actions/checkout@v3 # checks out the ordinary branch
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  #v3 checks out the ordinary branch
         with:
           fetch-depth: 0
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@860f60056505705214d223b91ed7a30f173f6142 #v3.3.0
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -50,7 +50,7 @@ jobs:
           echo "::set-output name=commit_sha::$(git log -1 --format=%H)"
 
       - name: Create settings.xml
-        uses: whelk-io/maven-settings-xml-action@v20
+        uses: whelk-io/maven-settings-xml-action@8a613be18185c8521e1501081adad5041840f2c8 #v20
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
@@ -105,7 +105,7 @@ jobs:
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
       - name: Report failure?
         if: ${{ failure() && env.slack_webhook != '' }}
         env:
@@ -117,7 +117,7 @@ jobs:
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
       - name: Report cancellation?
         if: ${{ cancelled() && env.slack_webhook != '' }}
         env:
@@ -129,4 +129,4 @@ jobs:
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2

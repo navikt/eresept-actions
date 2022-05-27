@@ -33,17 +33,17 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3.0.2
 
       - name: create settings.xml
-        uses: whelk-io/maven-settings-xml-action@v20
+        uses: whelk-io/maven-settings-xml-action@8a613be18185c8521e1501081adad5041840f2c8 #v20
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
           output_file: snyk-settings.xml
 
       - name: creates a project in your Snyk account to be continuously monitored
-        uses: snyk/actions/maven@master
+        uses: snyk/actions/maven@dc22abdbe8ec00e2a925256fef96f319ca5510ce #master 2022-05-19
         env:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
@@ -51,7 +51,7 @@ jobs:
           args: --org=teameresept --severity-threshold=${{ inputs.threshold }} --all-projects --exclude=report -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
 
       - name: run Snyk to test dependencies for vulnerabilities
-        uses: snyk/actions/maven@master
+        uses: snyk/actions/maven@dc22abdbe8ec00e2a925256fef96f319ca5510ce #master 2022-05-19
         env:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
@@ -70,7 +70,7 @@ jobs:
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: ""
           MSG_MINIMAL: true
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
       - name: Report failure?
         if: failure()
         env:
@@ -82,7 +82,7 @@ jobs:
           SLACK_ICON_EMOJI: ":snyk:"
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
       - name: Report cancellation?
         if: cancelled()
         env:
@@ -95,4 +95,4 @@ jobs:
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: ""
           MSG_MINIMAL: true
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2

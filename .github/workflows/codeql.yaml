@@ -14,14 +14,14 @@ jobs:
       matrix:
         language: [ 'java' ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: github/codeql-action/init@v1
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3
+      - uses: github/codeql-action/init@1fae5bf71b0ecdc7d0a2ef0d0c28409d99693966 #v1 codeql-bundle-20220512
         with:
           languages: ${{ matrix.language }}
           config-file: .github/codeql/codeql-config.yml
 
       - name: Create settings.xml
-        uses: whelk-io/maven-settings-xml-action@v20
+        uses: whelk-io/maven-settings-xml-action@8a613be18185c8521e1501081adad5041840f2c8 #v20
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
@@ -30,4 +30,4 @@ jobs:
         run: mvn compile -B
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@1fae5bf71b0ecdc7d0a2ef0d0c28409d99693966 # v1 codeql-bundle-20220512

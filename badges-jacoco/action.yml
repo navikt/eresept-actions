@@ -29,7 +29,7 @@ runs:
       shell: bash
       run: $GITHUB_ACTION_PATH/mkbadges.sh ${{ inputs.jacoco-dir }}/jacoco.csv $GITHUB_ACTION_PATH ${{ runner.temp }}
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 #v3.1.0
       with:
         name: jacoco-report
         path: ${{ inputs.jacoco-dir }}
