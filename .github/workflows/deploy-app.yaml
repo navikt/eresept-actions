@@ -52,10 +52,6 @@ jobs:
           fetch-depth: 0
           repository: navikt/${{ matrix.application }}
           token: ${{ secrets.token }}
-      - uses: actions/setup-java@860f60056505705214d223b91ed7a30f173f6142 #v3.3.0
-        with:
-          distribution: 'temurin'
-          java-version: '17'
 
       - name: Start time and timezone
         id: starttime

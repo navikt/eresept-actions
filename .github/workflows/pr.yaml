@@ -29,11 +29,24 @@ jobs:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3 checks out the ordinary branch
         with:
           fetch-depth: 0
+
+      - name: Create settings.xml
+        uses: whelk-io/maven-settings-xml-action@8a613be18185c8521e1501081adad5041840f2c8 #v20
+        with:
+          repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
+
       - uses: actions/setup-java@860f60056505705214d223b91ed7a30f173f6142 #v3.3.0
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'maven'
+          overwrite-settings: false
+
+      - name: Cache local Maven repository
+        uses: actions/cache@30f413bfed0a2bc738fdfd409e5a9e96b24545fd # v3.0.3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
       - name: Set some variables
         id: vars
@@ -45,12 +58,6 @@ jobs:
         id: deploy-message
         run: |
           echo "::set-output name=commit_msg::$(git log -1 --format=%B)"
-
-      - name: Create settings.xml
-        uses: whelk-io/maven-settings-xml-action@8a613be18185c8521e1501081adad5041840f2c8 #v20
-        with:
-          repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
 
       - name: Compile and test
         run: mvn install
