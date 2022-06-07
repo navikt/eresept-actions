@@ -1,6 +1,6 @@
 # Contains common eresept actions
 
-_Disclaimer!_ I strongly advise against depending on these actions for other projects than eresept, 
+_Disclaimer!_ I advise against depending on these actions for other projects than eresept, 
 as they could change or disappear any time. Make your own copy if you find them useful.
 
 ## badges
@@ -81,8 +81,8 @@ and methods (`methods.svg`). All numbers are calculated from the `jacoco.csv` fi
 ### coverage for multi-module projects
 
 If the file `jacoco.csv` is the result of a `jacoco aggregate` goal, 
-then badges are created for all modules as well. The badges for the modules 
-will be named `jacoco-module-name-1.svg`, `jacoco-module-name-2.svg`, `lines-module-name-1.svg`' and so on.
+then badges are created for all modules as well. If the modules are named `module-name-1`, `module-name-2` etc 
+the badges for the modules will be named `jacoco-module-name-1.svg`, `jacoco-module-name-2.svg` and so on.
 
 To create an aggregate report you need a report module to be run after all the other modules. 
 This module will need all the other modules as dependencies. 
