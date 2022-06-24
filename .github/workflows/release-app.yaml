@@ -107,7 +107,7 @@ jobs:
         with:
           context: ${{ steps.tag.outputs.dockerdir }}
           push: true
-          build-args: version=${{ steps.version.outputs.relversion }} app_name=${{ inputs.application }}
+          build-args: version=${{ steps.version.outputs.relversion }},app_name=${{ inputs.application }}
           tags: ${{ steps.tag.outputs.dockerimg }}
 
       - name: Prepare for next
