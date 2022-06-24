@@ -92,7 +92,7 @@ jobs:
           git commit -am 'Commit new version ${{ steps.version.outputs.relversion }}, by ${{ github.actor }} [ci skip]'
           git tag -a v${{ steps.version.outputs.relversion }} -m 'tagging as v${{ steps.version.outputs.relversion }} [ci skip]'
           mvn --batch-mode clean install -DskipTests
-          DOCKER_IMG="ghcr.io/$REPO/${GITHUB_REPOSITORY#*/}:${{ steps.version.outputs.relversion }}"
+          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ steps.version.outputs.relversion }}"
           DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
           echo "::set-output name=dockerimg::$DOCKER_IMG"
           echo "::set-output name=dockerdir::$DIR"
