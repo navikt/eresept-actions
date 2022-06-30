@@ -48,7 +48,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: monitor
-          args: --org=teameresept --severity-threshold=${{ inputs.threshold }} --exclude=report -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
+          args: --org=teameresept --severity-threshold=${{ inputs.threshold }} -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
 
       - name: run Snyk to test dependencies for vulnerabilities
         uses: snyk/actions/maven@dc22abdbe8ec00e2a925256fef96f319ca5510ce #master 2022-05-19
@@ -56,7 +56,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
           command: test
-          args: --org=teameresept --severity-threshold=${{ inputs.threshold }} --exclude=report -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
+          args: --org=teameresept --severity-threshold=${{ inputs.threshold }} -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
 
       - name: Report success?
         if: success()
