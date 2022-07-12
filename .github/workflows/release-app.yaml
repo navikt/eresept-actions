@@ -33,7 +33,7 @@ jobs:
     name: Release ${{ inputs.application }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3.0.2
         with:
           fetch-depth: 0
           repository: navikt/${{ inputs.application }}
@@ -44,7 +44,7 @@ jobs:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
 
-      - uses: actions/setup-java@16cca5479d7c6b6843f6a6515640ba33c6501543 #v3.4.0
+      - uses: actions/setup-java@2c7a4878f5d120bd643426d54ae1209b29cc01a3 #v3.4.1
         with:
           distribution: 'temurin'
           java-version: '17'
