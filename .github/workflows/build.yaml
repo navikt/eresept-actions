@@ -56,8 +56,8 @@ jobs:
           sudo timedatectl set-timezone "Europe/Oslo"
           echo "::set-output name=lastcommit::$(git log -1 --date=format:'%Y-%m-%d %T' --format=%cd)"
 
-      - name: Get deploy message
-        id: deploy-message
+      - name: Get commit message
+        id: commit-message
         run: |
           echo "::set-output name=commit_msg::$(git log -1 --format=%B)"
           echo "::set-output name=commit_sha::$(git log -1 --format=%H)"
@@ -111,7 +111,7 @@ jobs:
           SLACK_COLOR: "good"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
+          SLACK_MESSAGE: "${{ steps.commit-message.outputs.commit_msg }}"
         uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
       - name: Report failure?
         if: ${{ failure() && env.slack_webhook != '' }}
@@ -135,5 +135,5 @@ jobs:
           SLACK_COLOR: "warning"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: "${{ steps.deploy-message.outputs.commit_msg }}"
+          SLACK_MESSAGE: "${{ steps.commit-message.outputs.commit_msg }}"
         uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
