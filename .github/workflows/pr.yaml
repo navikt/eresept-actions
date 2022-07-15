@@ -60,7 +60,7 @@ jobs:
           echo "::set-output name=commit_msg::$(git log -1 --format=%B)"
 
      - name: Compile and test
-        run: mvn install
+       run: mvn install
 
       - name: Add coverage comment to PR
         uses: madrapps/jacoco-report@fd4800e8a81e21bdf373438e5918b975df041d15 #v1.2
