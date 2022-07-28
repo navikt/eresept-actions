@@ -36,6 +36,7 @@ jobs:
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
+          output_file: maven-settings.xml
 
       - uses: actions/setup-java@2c7a4878f5d120bd643426d54ae1209b29cc01a3 #v3.4.1
         with:
@@ -66,12 +67,15 @@ jobs:
         run: mvn install
 
       - name: Checkout badges
+        if: ${{ github.event_name != 'pull_request' }}
         uses: navikt/eresept-actions/badges-checkout@main
 
       - name: Create coverage badges
+        if: ${{ github.event_name != 'pull_request' }}
         uses: navikt/eresept-actions/badges-jacoco@main
 
       - name: Last commit badge
+        if: ${{ github.event_name != 'pull_request' }}
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'last commit'
@@ -87,6 +91,7 @@ jobs:
           echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.vars.outputs.starttime }} ))"
 
       - name: Time used badge
+        if: ${{ github.event_name != 'pull_request' }}
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'build execution time'
@@ -96,6 +101,7 @@ jobs:
           logo: 'stopwatch'
 
       - name: Commit badges
+        if: ${{ github.event_name != 'pull_request' }}
         uses: navikt/eresept-actions/badges-commit@main
 
       - name: Summary
