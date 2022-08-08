@@ -67,7 +67,7 @@ jobs:
           RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION}|sed 's/-.*//')
           echo "::set-output name=relversion::$RELVERSION"
           echo "::set-output name=cluster::$(if [ "${{ matrix.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)"
-          $POSTFIX=$(if [ '${{ matrix.environment }}' != 'p' -a '${{ matrix.environment }}' != 'q1' ]; then echo '-${{ matrix.environment }}'; fi)
+          $POSTFIX=$(if [ '${{ matrix.environment }}' != 'p' -a '${{ matrix.environment }}' != 'q1' ]; then echo '-${{ matrix.environment }}'; else ''; fi)
           echo "::set-output name=deployapp::${{ matrix.application }}$POSTFIX"
           echo "::set-output name=deployappver::${{ matrix.application }}$POSTFIX:$RELVERSION"
           echo "::set-output name=deploydate::$(date '+%Y-%m-%d %H:%M:%S')"
