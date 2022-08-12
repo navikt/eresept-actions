@@ -45,7 +45,7 @@ jobs:
           overwrite-settings: false
 
       - name: Cache local Maven repository
-        uses: actions/cache@a7c34adf76222e77931dedbf4a45b2e4648ced19 # v3.0.6
+        uses: actions/cache@a7c34adf76222e77931dedbf4a45b2e4648ced19 # v3.0.7
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
