@@ -1,3 +1,11 @@
+potential-bugs:
+  DoubleMutabilityForCollection:
+    excludes: ['**/test/**']
+  MapGetWithNotNullAssertionOperator:
+    excludes: ['**/test/**']
+  UnsafeCallOnNullableType:
+    active: false
+
 style:
   VarCouldBeVal:
-    active: false
+    excludes: ['**/test/**']
