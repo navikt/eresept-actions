@@ -145,3 +145,8 @@ Example:
 
 The other actions in the `.github/workflows` directory are ordinary build and release actions 
 intended for eresept projects.
+
+## build configs
+
+The directory `configs` does not contain things related to actions, but some common config files 
+that are served with https://raw.githubusercontent.com/. 
