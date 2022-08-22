@@ -15,7 +15,7 @@ jobs:
         language: [ 'java' ]
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
-      - uses: github/codeql-action/init@f5d217be74900c6ac8fbbe53f3c10376ba4e64da # v2.1.18
+      - uses: github/codeql-action/init@f5d217be74900c6ac8fbbe53f3c10376ba4e64da # v2.1.19
         with:
           languages: ${{ matrix.language }}
           config-file: .github/codeql/codeql-config.yml
