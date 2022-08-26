@@ -52,7 +52,7 @@ jobs:
           fi
           TOTAL=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" | jq 'length')
           echo "package has $TOTAL versions (100 means 100 or more) before cleanup" >> $GITHUB_STEP_SUMMARY
-          TAIL=$(expr $TOTAL - ${{ inputs.versions-to-keep }} )
+          TAIL=$(echo $TOTAL - ${{ inputs.versions-to-keep }} | bc)
           echo $TAIL
           if [ $TAIL -gt ${{ inputs.old-versions-to-delete }} ]
           then
