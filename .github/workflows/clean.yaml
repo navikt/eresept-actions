@@ -1,0 +1,71 @@
+name: Clean, re-usable
+on:
+  workflow_call:
+    inputs:
+      package:
+        description: 'the package to clean, if type is container the repo name and colon must be omitted'
+        required: true
+        type: string
+      type:
+        description: 'the package type, only container and maven is supported'
+        required: true
+        type: string
+        default: 'container'
+      old-versions-to-delete:
+        description: 'the maximum number of old versions to delete'
+        required: false
+        default: 1
+        type: number
+      versions-to-keep:
+        description: 'the minimum number of old versions to keep'
+        required: false
+        default: 20
+        type: number
+      dry-run:
+        description: 'false if cleaning should be done, true if do a dry run without deleting packages'
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      token:
+        description: 'github token'
+        required: true
+
+jobs:
+  clean:
+    name: clean ${{ github.event.repository.name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: clean
+        run: |
+          if [ "${{ inputs.type }}" != "container" ] && [ "${{ inputs.type }}" != "maven" ]
+          then
+            echo "invalid package type, only container and maven is supported"
+            exit 1
+          fi
+          SUB="${{ github.event.repository.name }}%2F${{ inputs.package }}"
+          if [ "${{ inputs.type }}" = "maven" ]
+          then
+            SUB="${{ inputs.package }}"
+          fi
+          TOTAL=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions?per_page=100" | jq 'length')
+          TAIL=$(expr $TOTAL - ${{ inputs.versions-to-keep }} )
+          if [ "$TAIL" -gt "${{ inputs.old-versions-to-delete }}"]
+          then
+            TAIL=${{ inputs.old-versions-to-delete }}
+          fi
+          if [ "$TAIL" -gt "0" ]
+          then
+            TRANSFORMED=$(curl  -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions?per_page=100" | jq "[.[] |{id: .id, created_at: .created_at, version: .metadata.container.tags[0] }]" | jq ".[-$TAIL:]")
+            echo "will delete the following packages from ${{ github.event.repository.name }}:"
+            echo $TRANSFORMED | jq
+            VERSIONS=$(echo $TRANSFORMED | jq ".[] .id" | tr '\012' ' ')
+            for v in $VERSIONS
+            do
+              echo deleting $v
+              if [ "${{ inputs.dry-run }}" != "false" ]
+              then
+                curl -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions/$v"
+              fi
+            done
+          fi
