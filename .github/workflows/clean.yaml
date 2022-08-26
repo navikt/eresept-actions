@@ -46,6 +46,7 @@ jobs:
             exit 1
           fi
           PKG="${{ github.event.repository.name }}%2F${{ inputs.package }}"
+          echo $PKG
           if [ "${{ inputs.type }}" = "maven" ]
           then
             PKG="${{ inputs.package }}"
