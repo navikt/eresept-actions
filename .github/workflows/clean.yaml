@@ -53,17 +53,9 @@ jobs:
           TOTAL=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" | jq 'length')
           echo "package has $TOTAL versions (100 means 100 or more) before cleanup" >> $GITHUB_STEP_SUMMARY
           TAIL=$(echo $TOTAL - ${{ inputs.versions-to-keep }} | bc)
-          echo $TAIL
           if [ $TAIL -gt ${{ inputs.old-versions-to-delete }} ]
           then
             TAIL=${{ inputs.old-versions-to-delete }}
-          fi
-          echo $TAIL
-          if [ $TAIL -gt 0 ]
-          then
-            echo ja
-          else
-            echo nei
           fi
           if [ $TAIL -gt 0 ]
           then
@@ -81,6 +73,7 @@ jobs:
               fi
             done
             if [ "${{ inputs.dry-run }}" = "false" ]
+            then
               echo "$TAIL versions deleted" >> $GITHUB_STEP_SUMMARY
             else
               echo "dry run: 0 versions deleted" >> $GITHUB_STEP_SUMMARY
