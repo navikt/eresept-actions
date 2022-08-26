@@ -45,14 +45,14 @@ jobs:
             echo "invalid package type, only container and maven is supported"
             exit 1
           fi
-          SUB="${{ github.event.repository.name }}%2F${{ inputs.package }}"
+          PKG="${{ github.event.repository.name }}%2F${{ inputs.package }}"
           if [ "${{ inputs.type }}" = "maven" ]
           then
-            SUB="${{ inputs.package }}"
+            PKG="${{ inputs.package }}"
           fi
-          JSON=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions?per_page=100")
+          JSON=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100")
           echo $JSON
-          TOTAL=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions?per_page=100" | jq 'length')
+          TOTAL=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" | jq 'length')
           echo "### package has $TOTAL versions (100 means 100 or more)" >> $GITHUB_STEP_SUMMARY
           TAIL=$(expr $TOTAL - ${{ inputs.versions-to-keep }} )
           if [ "$TAIL" -gt "${{ inputs.old-versions-to-delete }}" ]
@@ -62,7 +62,7 @@ jobs:
           if [ "$TAIL" -gt "0" ]
           then
             echo "will attempt to delete $TAIL versions" >> $GITHUB_STEP_SUMMARY
-            TRANSFORMED=$(curl  -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions?per_page=100" | jq "[.[] |{id: .id, created_at: .created_at, version: .metadata.container.tags[0] }]" | jq ".[-$TAIL:]")
+            TRANSFORMED=$(curl  -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" | jq "[.[] |{id: .id, created_at: .created_at, version: .metadata.container.tags[0] }]" | jq ".[-$TAIL:]")
             echo "will delete the following packages from ${{ github.event.repository.name }}:"
             echo $TRANSFORMED | jq
             VERSIONS=$(echo $TRANSFORMED | jq ".[] .id" | tr '\012' ' ')
@@ -71,7 +71,7 @@ jobs:
               echo deleting $v
               if [ "${{ inputs.dry-run }}" = "false" ]
               then
-                curl -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions/$v"
+                curl -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions/$v"
               fi
             done
             echo "$TAIL versions deleted" >> $GITHUB_STEP_SUMMARY
