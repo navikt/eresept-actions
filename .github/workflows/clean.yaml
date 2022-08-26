@@ -52,7 +52,7 @@ jobs:
           fi
           TOTAL=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions?per_page=100" | jq 'length')
           TAIL=$(expr $TOTAL - ${{ inputs.versions-to-keep }} )
-          if [ "$TAIL" -gt "${{ inputs.old-versions-to-delete }}"]
+          if [ "$TAIL" -gt "${{ inputs.old-versions-to-delete }}" ]
           then
             TAIL=${{ inputs.old-versions-to-delete }}
           fi
