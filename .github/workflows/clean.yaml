@@ -1,4 +1,6 @@
 name: Clean, re-usable
+# deletes packages. does no pagination, so if package has more than 100 versions the oldest
+# versions will not be deleted before the number of versions is below 101
 on:
   workflow_call:
     inputs:
