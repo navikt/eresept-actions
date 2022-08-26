@@ -51,14 +51,14 @@ jobs:
           then
             PKG="${{ inputs.package }}"
           fi
-          TOTAL=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" | jq 'length')
+          TOTAL=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" | jq 'length')
           echo "package has $TOTAL versions (100 means 100 or more) before cleanup" >> $GITHUB_STEP_SUMMARY
           TAIL=$(expr $TOTAL - ${{ inputs.versions-to-keep }} )
-          if [ "$TAIL" -gt "${{ inputs.old-versions-to-delete }}" ]
+          if [ $TAIL -gt ${{ inputs.old-versions-to-delete }} ]
           then
             TAIL=${{ inputs.old-versions-to-delete }}
           fi
-          if [ "$TAIL" -gt "0" ]
+          if [ $TAIL -gt 0 ]
           then
             echo "will attempt to delete $TAIL versions" >> $GITHUB_STEP_SUMMARY
             TRANSFORMED=$(curl  -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" | jq "[.[] |{id: .id, created_at: .created_at, version: .metadata.container.tags[0] }]" | jq ".[-$TAIL:]")
