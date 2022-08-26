@@ -51,10 +51,8 @@ jobs:
           then
             PKG="${{ inputs.package }}"
           fi
-          JSON=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100")
-          echo "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100"
           TOTAL=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" | jq 'length')
-          echo "### package has $TOTAL versions (100 means 100 or more)" >> $GITHUB_STEP_SUMMARY
+          echo "package has $TOTAL versions (100 means 100 or more) before cleanup" >> $GITHUB_STEP_SUMMARY
           TAIL=$(expr $TOTAL - ${{ inputs.versions-to-keep }} )
           if [ "$TAIL" -gt "${{ inputs.old-versions-to-delete }}" ]
           then
@@ -75,5 +73,11 @@ jobs:
                 curl -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions/$v"
               fi
             done
-            echo "$TAIL versions deleted" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ inputs.dry-run }}" = "false" ]
+              echo "$TAIL versions deleted" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "dry run: 0 versions deleted" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+              echo "no versions to delete" >> $GITHUB_STEP_SUMMARY
           fi
