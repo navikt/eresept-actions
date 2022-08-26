@@ -50,6 +50,8 @@ jobs:
           then
             SUB="${{ inputs.package }}"
           fi
+          JSON=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions?per_page=100")
+          echo $JSON
           TOTAL=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions?per_page=100" | jq 'length')
           echo "### package has $TOTAL versions (100 means 100 or more)" >> $GITHUB_STEP_SUMMARY
           TAIL=$(expr $TOTAL - ${{ inputs.versions-to-keep }} )
@@ -67,7 +69,7 @@ jobs:
             for v in $VERSIONS
             do
               echo deleting $v
-              if [ "${{ inputs.dry-run }}" != "false" ]
+              if [ "${{ inputs.dry-run }}" = "false" ]
               then
                 curl -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$SUB/versions/$v"
               fi
