@@ -10,7 +10,7 @@ on:
         type: string
       type:
         description: 'the package type, only container and maven is supported'
-        required: true
+        required: false
         type: string
         default: 'container'
       old-versions-to-delete:
