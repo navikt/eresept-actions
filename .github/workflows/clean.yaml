@@ -55,9 +55,9 @@ jobs:
             fi
             PKG="${{ inputs.package }}"
           else
-            if [ -z ""${{ inputs.package }}" ]
+            if [ -z "${{ inputs.package }}" ]
             then
-              PKG="$REPOSITORY_NAME%2FREPOSITORY_NAME"
+              PKG="$REPOSITORY_NAME%2F$REPOSITORY_NAME"
             else
               PKG="$REPOSITORY_NAME%2F${{ inputs.package }}"
             fi
