@@ -46,6 +46,8 @@ jobs:
             exit 1
           fi
           echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+          echo "1 $REPOSITORY_NAME"
+          echo "2 ${{ env.REPOSITORY_NAME }}"
           if [ "${{ inputs.type }}" = "maven" ]
           then
             if [ -z ""${{ inputs.package }}" ]
