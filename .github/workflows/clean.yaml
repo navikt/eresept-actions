@@ -45,7 +45,7 @@ jobs:
             echo "invalid package type, only container and maven is supported"
             exit 1
           fi
-          echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+          REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}
           echo "0 $GITHUB_REPOSITORY"
           echo "1 $REPOSITORY_NAME"
           echo "2 ${{ env.REPOSITORY_NAME }}"
