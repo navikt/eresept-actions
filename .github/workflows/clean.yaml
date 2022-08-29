@@ -70,7 +70,7 @@ jobs:
               head -n -1 tmp.json
               exit 1
           fi
-          cat tmp.json | tail -n -1 > tmp2.json
+          cat tmp.json | head -n -1 > tmp2.json
           TOTAL=$(cat tmp2.json | jq 'length')
           echo "package has $TOTAL versions (100 means 100 or more) before cleanup" >> $GITHUB_STEP_SUMMARY
           TAIL=$(echo $TOTAL - ${{ inputs.versions-to-keep }} | bc)
