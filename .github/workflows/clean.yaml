@@ -57,9 +57,9 @@ jobs:
           else
             if [ -z "${{ inputs.package }}" ]
             then
-              PKG="$REPOSITORY_NAME%2F$REPOSITORY_NAME"
+              PKG="${REPOSITORY_NAME}%2F${REPOSITORY_NAME}"
             else
-              PKG="$REPOSITORY_NAME%2F${{ inputs.package }}"
+              PKG="${REPOSITORY_NAME}%2F${{ inputs.package }}"
             fi
           fi
           TOTAL=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" | jq 'length')
