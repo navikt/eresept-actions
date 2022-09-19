@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         # no default
+      skip-tests:
+        description: 'if execution of tests should be skipped'
+        required: false
+        type: boolean
+        default: false
     secrets:
       webhook:
         required: true
@@ -63,7 +68,9 @@ jobs:
           sudo timedatectl set-timezone "Europe/Oslo"
 
       - name: Compile and test
-        run: mvn install
+        run: |
+          SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests"; else echo ""; fi) 
+          mvn install $SKIPTESTS
 
       - name: Get version numbers and changelog
         id: version
