@@ -15,7 +15,7 @@ jobs:
         language: [ 'java' ]
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
-      - uses: github/codeql-action/init@904260d7d935dff982205cbdb42025ce30b7a34f # v2.1.24
+      - uses: github/codeql-action/init@86f3159a697a097a813ad9bfa0002412d97690a4 # v2.1.24
         with:
           languages: ${{ matrix.language }}
           config-file: .github/codeql/codeql-config.yml
@@ -30,4 +30,4 @@ jobs:
         run: mvn compile -B
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@904260d7d935dff982205cbdb42025ce30b7a34f # v2.1.24
+        uses: github/codeql-action/analyze@86f3159a697a097a813ad9bfa0002412d97690a4 # v2.1.24
