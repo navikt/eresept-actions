@@ -64,7 +64,7 @@ jobs:
           INPUT_VERSION=${{ inputs.application-version }}
           RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION}|sed 's/-.*//')
           echo "relversion=$RELVERSION" >> $GITHUB_ENV
-          echo "cluster=$(if [ "${{ matrix.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)"
+          echo "cluster=$(if [ "${{ matrix.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)" >> $GITHUB_ENV
           POSTFIX=$(if [ '${{ matrix.environment }}' != 'p' -a '${{ matrix.environment }}' != 'q1' ]; then echo '-${{ matrix.environment }}'; else echo ''; fi)
           echo "deployapp=${{ matrix.application }}$POSTFIX" >> $GITHUB_ENV
           echo "deployappver=${{ matrix.application }}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
