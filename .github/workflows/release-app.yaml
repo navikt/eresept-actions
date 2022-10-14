@@ -56,7 +56,7 @@ jobs:
           overwrite-settings: false
 
       - name: Cache local Maven repository
-        uses: actions/cache@56461b9eb0f8438fd15c7a9968e3c9ebb18ceff1 # v3.0.10
+        uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # v3.0.11
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -104,13 +104,13 @@ jobs:
           echo "::set-output name=dockerimg::$DOCKER_IMG"
           echo "::set-output name=dockerdir::$DIR"
 
-      - uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b # v2.0.0
+      - uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
         with:
           registry: ghcr.io
           username: navikt/${{ inputs.application }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94 # v3.1.1
+      - uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5 # v3.2.0
         with:
           context: ${{ steps.tag.outputs.dockerdir }}
           push: true
