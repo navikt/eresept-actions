@@ -58,16 +58,15 @@ An example:
         uses: navikt/eresept-actions/badges-jacoco@main
 
       - name: Calculate execution time
-        id: exectime
         run: |
           END_TIME=$(date +%s)
-          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
+          echo "exectime=$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))" >> $GITHUB_ENV
 
       - name: Time used badge
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'build execution time'
-          right: '${{ steps.exectime.outputs.exectime }}'
+          right: '${{ env.exectime }}'
           color: 'blue'
           filename: 'rel-exec-time'
 

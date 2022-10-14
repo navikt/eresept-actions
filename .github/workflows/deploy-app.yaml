@@ -54,39 +54,35 @@ jobs:
           token: ${{ secrets.token }}
 
       - name: Start time and timezone
-        id: starttime
         run: |
-          echo "::set-output name=starttime::$(date +%s)"
+          echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
 
       - name: Get version numbers and cluster
-        id: vals
         run: |
           LASTVERSION=$(git tag --sort=-version:refname|head -1|tr -d 'v')
           INPUT_VERSION=${{ inputs.application-version }}
           RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION}|sed 's/-.*//')
-          echo "::set-output name=relversion::$RELVERSION"
-          echo "::set-output name=cluster::$(if [ "${{ matrix.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)"
+          echo "relversion=$RELVERSION" >> $GITHUB_ENV
+          echo "cluster=$(if [ "${{ matrix.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)"
           POSTFIX=$(if [ '${{ matrix.environment }}' != 'p' -a '${{ matrix.environment }}' != 'q1' ]; then echo '-${{ matrix.environment }}'; else echo ''; fi)
-          echo "::set-output name=deployapp::${{ matrix.application }}$POSTFIX"
-          echo "::set-output name=deployappver::${{ matrix.application }}$POSTFIX:$RELVERSION"
-          echo "::set-output name=deploydate::$(date '+%Y-%m-%d %H:%M:%S')"
+          echo "deployapp=${{ matrix.application }}$POSTFIX" >> $GITHUB_ENV
+          echo "deployappver=${{ matrix.application }}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
+          echo "deploydate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
 
-      - name: Deploy ${{ steps.vals.outputs.deployapp }} to ${{matrix.environment }}
+      - name: Deploy ${{ env.deployapp }} to ${{matrix.environment }}
         uses: nais/deploy/actions/deploy@e36511e00cb9aaa8ef867a2bb7a092fc5b222e8b #v1
         env:
           APIKEY: ${{ secrets.deploy-key }}
-          CLUSTER: ${{ steps.vals.outputs.cluster }}
+          CLUSTER: ${{ env.cluster }}
           RESOURCE: .nais/nais.yaml
           VARS: .nais/nais.vars.${{ matrix.environment }}.yaml
-          IMAGE: ghcr.io/navikt/${{ matrix.application }}/${{ matrix.application }}:${{ steps.vals.outputs.relversion }}
+          IMAGE: ghcr.io/navikt/${{ matrix.application }}/${{ matrix.application }}:${{ env.relversion }}
 
       - name: Calculate execution time
-        id: exectime
         run: |
           END_TIME=$(date +%s)
-          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
-          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
+          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
@@ -95,7 +91,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: '${{ matrix.environment }} version'
-          right: '${{ steps.vals.outputs.relversion }}'
+          right: '${{ env.relversion }}'
           color: 'blue'
           filename: 'deploy-version-${{ matrix.environment }}'
           logo: 'tag'
@@ -104,7 +100,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: '${{ matrix.environment }} date'
-          right: '${{ steps.vals.outputs.deploydate }}'
+          right: '${{ env.deploydate }}'
           color: 'blue'
           filename: 'deploy-date-${{ matrix.environment }}'
           logo: 'calendar'
@@ -113,16 +109,16 @@ jobs:
         uses: navikt/eresept-actions/badges-commit@main
 
       - name: Summary
-        run: echo "### Deployed **${{ steps.vals.outputs.deployappver }}** to **${{ matrix.environment }}** in **${{ steps.vals.outputs.cluster }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+        run: echo "### Deployed **${{ env.deployappver }}** to **${{ matrix.environment }}** in **${{ env.cluster }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
 
       - name: Report success?
         if: success()
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "deploy ${{ steps.vals.outputs.deployappver }} -> ${{ matrix.environment }}"
-          SLACK_TITLE: "Deployed _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
-          SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
+          SLACK_USERNAME: "deploy ${{ env.deployappver }} -> ${{ matrix.environment }}"
+          SLACK_TITLE: "Deployed _*${{ env.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ env.cluster }}*_ in ${{ env.exectime }} seconds"
+          SLACK_MESSAGE: "${{ env.deployappver }}"
           SLACK_COLOR: "good"
           SLACK_ICON_EMOJI: ":nais:"
           MSG_MINIMAL: true
@@ -133,8 +129,8 @@ jobs:
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "deploy ${{ steps.vals.outputs.deployappver }} -> ${{ matrix.environment }}"
-          SLACK_TITLE: "Deploy of _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ steps.vals.outputs.cluster }}*_ failed"
+          SLACK_USERNAME: "deploy ${{ env.deployappver }} -> ${{ matrix.environment }}"
+          SLACK_TITLE: "Deploy of _*${{ env.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ env.cluster }}*_ failed"
           SLACK_COLOR: "danger"
           SLACK_ICON_EMOJI: ":nais:"
           SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
@@ -145,9 +141,9 @@ jobs:
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "deploy ${{ steps.vals.outputs.deployappver }} -> ${{ matrix.environment }}"
-          SLACK_TITLE: "Deploy of _*${{ steps.vals.outputs.deployappver }}*_ to _*${{ steps.vals.outputs.cluster }}*_ in _*${{ steps.vals.outputs.cluster }}*_ was cancelled"
-          SLACK_MESSAGE: "${{ steps.vals.outputs.deployappver }}"
+          SLACK_USERNAME: "deploy ${{ env.deployappver }} -> ${{ matrix.environment }}"
+          SLACK_TITLE: "Deploy of _*${{ env.deployappver }}*_ to _*${{ env.cluster }}*_ in _*${{ env.cluster }}*_ was cancelled"
+          SLACK_MESSAGE: "${{ env.deployappver }}"
           SLACK_COLOR: "warning"
           SLACK_ICON_EMOJI: ":nais:"
           MSG_MINIMAL: true

@@ -62,9 +62,8 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
       - name: Get start time
-        id: starttime
         run: |
-          echo "::set-output name=starttime::$(date +%s)"
+          echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
 
       - name: Compile and test
@@ -73,15 +72,14 @@ jobs:
           mvn install $SKIPTESTS
 
       - name: Get version numbers and changelog
-        id: version
         run: |
           CURVERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           INPUT_VERSION=${{ inputs.application-version }}
           RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')
-          echo "::set-output name=relversion::$RELVERSION"
-          echo "::set-output name=nextversion::$(echo $RELVERSION|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT"
-          echo "::set-output name=appver::${{ inputs.application }}:$RELVERSION"
-          echo "::set-output name=reldate::$(date '+%Y-%m-%d %H:%M:%S')"
+          echo "relversion=$RELVERSION" >> $GITHUB_ENV
+          echo "nextversion=$(echo $RELVERSION|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT" >> $GITHUB_ENV
+          echo "appver=${{ inputs.application }}:$RELVERSION" >> $GITHUB_ENV
+          echo "reldate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
           # multiline output
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
@@ -93,16 +91,15 @@ jobs:
           git config user.email "actions@github.com"
 
       - name: Publish, tag
-        id: tag
         run: |
-          mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.relversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
-          git commit -am 'Commit new version ${{ steps.version.outputs.relversion }}, by ${{ github.actor }} [ci skip]'
-          git tag -a v${{ steps.version.outputs.relversion }} -m 'tagging as v${{ steps.version.outputs.relversion }} [ci skip]'
+          mvn --batch-mode versions:set -DnewVersion=${{ env.relversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
+          git commit -am 'Commit new version ${{ env.relversion }}, by ${{ github.actor }} [ci skip]'
+          git tag -a v${{ env.relversion }} -m 'tagging as v${{ env.relversion }} [ci skip]'
           mvn --batch-mode clean install -DskipTests
-          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ steps.version.outputs.relversion }}"
+          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
           DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
-          echo "::set-output name=dockerimg::$DOCKER_IMG"
-          echo "::set-output name=dockerdir::$DIR"
+          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
+          echo "dockerdir=$DIR" >> $GITHUB_ENV
 
       - uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
         with:
@@ -112,34 +109,33 @@ jobs:
 
       - uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5 # v3.2.0
         with:
-          context: ${{ steps.tag.outputs.dockerdir }}
+          context: ${{ env.dockerdir }}
           push: true
           pull: true
           build-args: |
-            "version=${{ steps.version.outputs.relversion }}"
+            "version=${{ env.relversion }}"
             "app_name=${{ inputs.application }}"
-          tags: ${{ steps.tag.outputs.dockerimg }}
+          tags: ${{ env.dockerimg }}
 
       - name: Prepare for next
         run: |
-          mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.nextversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
-          git commit -am 'Updated to new dev-version ${{ steps.version.outputs.nextversion }} after release by ${{ github.actor }} [ci skip]'
-          git push -f origin v${{ steps.version.outputs.relversion }} main
+          mvn --batch-mode versions:set -DnewVersion=${{ env.nextversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
+          git commit -am 'Updated to new dev-version ${{ env.nextversion }} after release by ${{ github.actor }} [ci skip]'
+          git push -f origin v${{ env.relversion }} main
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
 
       - name: Calculate execution time
-        id: exectime
         run: |
           END_TIME=$(date +%s)
-          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.starttime.outputs.starttime }} ))"
+          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
 
       - name: Version badge
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'version'
-          right: '${{ steps.version.outputs.relversion }}'
+          right: '${{ env.relversion }}'
           color: 'blue'
           filename: 'version'
           logo: 'tag'
@@ -148,7 +144,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'release date'
-          right: '${{ steps.version.outputs.reldate }}'
+          right: '${{ env.reldate }}'
           color: 'blue'
           filename: 'rel-date'
           logo: 'calendar'
@@ -157,7 +153,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'release execution time'
-          right: '${{ steps.exectime.outputs.exectime }}'
+          right: '${{ env.exectime }}'
           color: 'blue'
           filename: 'rel-exec-time'
           logo: 'stopwatch'
@@ -167,15 +163,15 @@ jobs:
 
       - name: Summary
         run: |
-          echo "### Released **${{ github.event.repository.name }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+          echo "### Released **${{ github.event.repository.name }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
 
       - name: Report success?
         if: success()
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "release ${{ steps.version.outputs.appver }}"
-          SLACK_TITLE: "Released _*${{ steps.version.outputs.appver }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_USERNAME: "release ${{ env.appver }}"
+          SLACK_TITLE: "Released _*${{ env.appver }}*_ in ${{ env.exectime }} seconds"
           SLACK_MESSAGE: "```${{ env.CHANGELOG }}```"
           SLACK_COLOR: "good"
           SLACK_ICON_EMOJI: ":docker:"

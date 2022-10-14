@@ -51,27 +51,24 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
       - name: Set some variables
-        id: vars
         run: |
-          echo "::set-output name=starttime::$(date +%s)"
+          echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
 
       - name: Get commit message
-        id: commit-message
         run: |
-          echo "::set-output name=commit_msg::$(git log -1 --format=%B)"
+          echo "commit_msg=$(git log -1 --format=%B)" >> $GITHUB_ENV
 
       - name: Compile and test
         run: mvn install --settings maven-settings.xml
 
       - name: Calculate execution time
-        id: exectime
         run: |
           END_TIME=$(date +%s)
-          echo "::set-output name=exectime::$(( $END_TIME - ${{ steps.vars.outputs.starttime }} ))"
+          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
 
       - name: Summary
-        run:  echo "### Built PR **${{ github.event.repository.name }}** in ${{ steps.exectime.outputs.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+        run:  echo "### Built PR **${{ github.event.repository.name }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
 
       - name: Report success?
         if: ${{ success() && env.slack_webhook != '' }}
@@ -79,11 +76,11 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
           SLACK_USERNAME: "build PR ${{ github.event.repository.name }}"
-          SLACK_TITLE: "Built PR _*${{ github.event.repository.name }}*_ in ${{ steps.exectime.outputs.exectime }} seconds"
+          SLACK_TITLE: "Built PR _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
           SLACK_COLOR: "good"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: "${{ steps.commit-message.outputs.commit_msg }}"
+          SLACK_MESSAGE: "${{ env.commit_msg }}"
         uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
       - name: Report failure?
         if: ${{ failure() && env.slack_webhook != '' }}
@@ -107,6 +104,6 @@ jobs:
           SLACK_COLOR: "warning"
           SLACK_ICON: https://github.com/github.png?size=48
           SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: "${{ steps.commit-message.outputs.commit_msg }}"
+          SLACK_MESSAGE: "${{ env.outputs.commit_msg }}"
         uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
 
