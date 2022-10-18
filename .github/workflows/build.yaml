@@ -61,7 +61,11 @@ jobs:
 
       - name: Get commit message
         run: |
-          echo "commit_msg=$(git log -1 --format=%B)" >> $GITHUB_ENV
+          # could be multiline output
+          delim="EOF--$(date +%s)"
+          echo "commit_msg<<$delim" >> $GITHUB_ENV
+          git log $(git log -1 --format=%B) >> $GITHUB_ENV
+          echo "$delim" >> $GITHUB_ENV
           echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
 
       - name: Compile and test

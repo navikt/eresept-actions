@@ -81,9 +81,10 @@ jobs:
           echo "appver=${{ inputs.application }}:$RELVERSION" >> $GITHUB_ENV
           echo "reldate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
           # multiline output
-          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          delim="EOF--$(date +%s)"
+          echo "CHANGELOG<<$delim" >> $GITHUB_ENV
           git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          echo "$delim" >> $GITHUB_ENV
 
       - name: Configure git user
         run: |
