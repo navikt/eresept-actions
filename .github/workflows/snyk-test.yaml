@@ -40,7 +40,7 @@ jobs:
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
           output_file: snyk-settings.xml
       - name: run Snyk to test dependencies for vulnerabilities
-        uses: snyk/actions/maven@dc22abdbe8ec00e2a925256fef96f319ca5510ce #master 2022-05-19
+        uses: snyk/actions/maven@a8dd587d8a94f5663fa3d67d51abd0cc66aff244 #master 2022-05-19
         env:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
