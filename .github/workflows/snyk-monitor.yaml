@@ -27,7 +27,7 @@ jobs:
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
           output_file: snyk-settings.xml
       - name: creates a project in your Snyk account to be continuously monitored
-        uses: snyk/actions/maven@1cc9026f51d822442cb4b872d8d7ead8cc69a018 #master 2022-10-28
+        uses: snyk/actions/maven@1cc9026f51d822442cb4b872d8d7ead8cc69a018 #master 2022-11-29
         env:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
