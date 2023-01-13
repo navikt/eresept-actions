@@ -71,7 +71,7 @@ jobs:
           echo "deploydate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
 
       - name: Deploy ${{ env.deployapp }} to ${{matrix.environment }}
-        uses: nais/deploy/actions/deploy@bbde7c730cd5b363a94ebab9d123489fa5bef5a9 #v1
+        uses: nais/deploy/actions/deploy@b8f4a51b3526b46ce68577a66bb4d6533a914eeb #v1
         env:
           APIKEY: ${{ secrets.deploy-key }}
           CLUSTER: ${{ env.cluster }}
