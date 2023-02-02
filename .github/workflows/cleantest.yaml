@@ -95,7 +95,7 @@ jobs:
           cat tmp.json | head -n -1 > tmp2.json
           TOTAL=$(cat tmp2.json | jq 'length')
           echo "package has $TOTAL versions (100 means 100 or more) before cleanup" >> $GITHUB_STEP_SUMMARY
-          if [ -z "${{ inputs.version}" ]
+          if [ -z "${{ inputs.version }}" ]
           then
             TAIL=$(echo $TOTAL - ${{ inputs.versions-to-keep }} | bc)
             if [ $TAIL -gt ${{ inputs.old-versions-to-delete }} ]
