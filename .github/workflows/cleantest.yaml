@@ -126,7 +126,7 @@ jobs:
             echo "will attempt to delete version $version" >> $GITHUB_STEP_SUMMARY
             TAIL=$TOTAL
             TRANSFORMED=$(transform)
-            VERSION=$(echo $TRANSFORMED | jq '.[] | select(.version == "${{ inputs.version }}")' | jq .id'
+            VERSION=$(echo $TRANSFORMED | jq '.[] | select(.version == "${{ inputs.version }}")' | jq '.id')
             if [ -z "$VERSION" ]
             then
               echo "version ${{ inputs.version }} not found" >> $GITHUB_STEP_SUMMARY
