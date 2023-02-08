@@ -43,7 +43,7 @@ jobs:
           output_file: snyk-settings.xml
 
       - name: creates a project in your Snyk account to be continuously monitored
-        uses: snyk/actions/maven@e25b2e6f5658d1bb7a6671b113260f13134cc3af #master 2022-11-29
+        uses: snyk/actions/maven@9c6dde2db83c301ca0ad0910dead8f39c9f426a0 #master 2022-11-29
         env:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
@@ -51,7 +51,7 @@ jobs:
           args: --org=teameresept --severity-threshold=${{ inputs.threshold }} --all-projects --exclude=report -- --settings snyk-settings.xml -DskipTests -Dmdep.skip=true -Dgitlog.phase=none
 
       - name: run Snyk to test dependencies for vulnerabilities
-        uses: snyk/actions/maven@e25b2e6f5658d1bb7a6671b113260f13134cc3af #master 2022-11-29
+        uses: snyk/actions/maven@9c6dde2db83c301ca0ad0910dead8f39c9f426a0 #master 2022-11-29
         env:
           SNYK_TOKEN: ${{ secrets.snyk-token }}
         with:
