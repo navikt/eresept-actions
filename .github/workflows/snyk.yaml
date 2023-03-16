@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c #v3.3.0
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f #v3.4.0
 
       - name: create settings.xml
         uses: whelk-io/maven-settings-xml-action@7c60eb95b2d5ec18f2e0e29f34c9ed69475e7a96 #v21
