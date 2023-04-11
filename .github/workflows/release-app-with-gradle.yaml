@@ -1,0 +1,194 @@
+name: Release application, re-usable
+on:
+  workflow_call:
+    inputs:
+      channel:
+        description: 'Slack channel'
+        required: false
+        type: string
+        default: 'eresept'
+      footer:
+        description: 'Slack footer'
+        required: false
+        type: string
+        default: 'eresept © 2023'
+      application:
+        description: 'The application to release'
+        required: true
+        type: string
+        # no default
+      application-version:
+        description: 'The version to release'
+        required: false
+        type: string
+        # no default
+      skip-tests:
+        description: 'if execution of tests should be skipped'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      webhook:
+        required: true
+      token:
+        required: true
+
+jobs:
+  release:
+    name: Release ${{ inputs.application }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 #v3.5.0
+        with:
+          fetch-depth: 0
+          repository: navikt/${{ inputs.application }}
+
+      - uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2 #v3.11.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+
+      - name: Get start time
+        run: |
+          echo "starttime=$(date +%s)" >> $GITHUB_ENV
+          sudo timedatectl set-timezone "Europe/Oslo"
+
+      - name: Compile and test
+        run: |
+          BLD=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "assemble"; else echo "build"; fi) 
+          ./gradlew $BLD --no-daemon
+
+      - name: Get version numbers and changelog
+        run: |
+          CURVERSION=$(grep -v '^#' gradle.properties | grep '^version=' | cut -d '=' -f2)
+          INPUT_VERSION=${{ inputs.application-version }}
+          RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')
+          echo "curversion=$CURVERSION" >> $GITHUB_ENV
+          echo "relversion=$RELVERSION" >> $GITHUB_ENV
+          echo "nextversion=$(echo $RELVERSION|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT" >> $GITHUB_ENV
+          echo "appver=${{ inputs.application }}:$RELVERSION" >> $GITHUB_ENV
+          echo "reldate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          # multiline output
+          delim="EOF--$(date +%s)"
+          echo "CHANGELOG<<$delim" >> $GITHUB_ENV
+          git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
+          echo "$delim" >> $GITHUB_ENV
+
+      - name: Configure git user
+        run: |
+          git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions"
+
+      - name: Publish, tag
+        run: |
+          sed -ie 's/^version=${{ env.curversion }}/version=${{ env.relversion }}/' gradle.properties
+          ./gradlew assemble --no-daemon
+          git commit -m 'Commit new version ${{ env.relversion }}, by ${{ github.actor }} [ci skip]' gradle.properties
+          git tag -a v${{ env.relversion }} -m 'tagging as v${{ env.relversion }} [ci skip]'
+          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
+          DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
+          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
+          echo "dockerdir=$DIR" >> $GITHUB_ENV
+
+      - uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+        with:
+          registry: ghcr.io
+          username: navikt/${{ inputs.application }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
+        with:
+          context: ${{ env.dockerdir }}
+          push: true
+          pull: true
+          build-args: |
+            "version=${{ env.relversion }}"
+            "app_name=${{ inputs.application }}"
+          tags: ${{ env.dockerimg }}
+
+      - name: Prepare for next
+        run: |
+          sed -ie 's/^version=${{ env.relversion }}/version=${{ env.nextversion }}-SNAPSHOT/' gradle.properties
+          git commit -am 'Updated to new dev-version ${{ env.nextversion }} after release by ${{ github.actor }} [ci skip]' gradle.properties
+          git push -f origin v${{ env.relversion }} main
+
+      - name: Checkout badges
+        uses: navikt/eresept-actions/badges-checkout@main
+
+      - name: Calculate execution time
+        run: |
+          END_TIME=$(date +%s)
+          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
+
+      - name: Version badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: 'version'
+          right: '${{ env.relversion }}'
+          color: 'blue'
+          filename: 'version'
+          logo: 'tag'
+
+      - name: Release date badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: 'release date'
+          right: '${{ env.reldate }}'
+          color: 'blue'
+          filename: 'rel-date'
+          logo: 'calendar'
+
+      - name: Time used badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: 'release execution time'
+          right: '${{ env.exectime }}'
+          color: 'blue'
+          filename: 'rel-exec-time'
+          logo: 'stopwatch'
+
+      - name: Commit badges
+        uses: navikt/eresept-actions/badges-commit@main
+
+      - name: Summary
+        run: |
+          echo "### Released **${{ github.event.repository.name }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+
+      - name: Report success?
+        if: success()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "release ${{ env.appver }}"
+          SLACK_TITLE: "Released _*${{ env.appver }}*_ in ${{ env.exectime }} seconds"
+          SLACK_MESSAGE: "```${{ env.CHANGELOG }}```"
+          SLACK_COLOR: "good"
+          SLACK_ICON_EMOJI: ":docker:"
+          MSG_MINIMAL: true
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
+      - name: Report failure?
+        if: failure()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "release ${{ inputs.application }}"
+          SLACK_TITLE: "Release of _*${{ inputs.application }}*_ failed"
+          SLACK_COLOR: "danger"
+          SLACK_ICON_EMOJI: ":docker:"
+          SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
+      - name: Report cancellation?
+        if: cancelled()
+        env:
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_WEBHOOK: ${{ secrets.webhook }}
+          SLACK_USERNAME: "release ${{ inputs.application }}"
+          SLACK_TITLE: "Release of _*${{ inputs.application }}*_ was cancelled"
+          SLACK_MESSAGE: " "
+          SLACK_COLOR: "warning"
+          SLACK_ICON_EMOJI: ":docker:"
+          MSG_MINIMAL: true
+          SLACK_FOOTER: "${{ inputs.footer }}"
+        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
