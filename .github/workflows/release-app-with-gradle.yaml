@@ -108,7 +108,7 @@ jobs:
 
       - name: Prepare for next
         run: |
-          sed -ie 's/^version=${{ env.relversion }}/version=${{ env.nextversion }}-SNAPSHOT/' gradle.properties
+          sed -ie 's/^version=${{ env.relversion }}/version=${{ env.nextversion }}/' gradle.properties
           git commit -m 'Updated to new dev-version ${{ env.nextversion }} after release by ${{ github.actor }} [ci skip]' gradle.properties
           git push -f origin v${{ env.relversion }} main
 
