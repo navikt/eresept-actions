@@ -26,18 +26,18 @@ jobs:
           languages: ${{ matrix.language }}
 
       - name: Create settings.xml
-        if: !inputs.gradle
+        if: ${{ inputs.gradle == "false" }}
         uses: whelk-io/maven-settings-xml-action@7c60eb95b2d5ec18f2e0e29f34c9ed69475e7a96 #v21
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
 
       - name: Compile with maven for CodeQL scan
-        if: !inputs.gradle
+        if: ${{ inputs.gradle == "false" }}
         run: mvn compile -B
 
       - name: Compile with gradle for CodeQL scan
-        if: inputs.gradle
+        if: ${{ inputs.gradle == "true" }}
         run: ./gradlew build --no-daemon
 
       - name: Perform CodeQL Analysis
