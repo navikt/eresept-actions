@@ -1,4 +1,4 @@
-name: Release application, re-usable
+name: maven release application, re-usable
 on:
   workflow_call:
     inputs:
