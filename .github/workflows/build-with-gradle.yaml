@@ -61,6 +61,9 @@ jobs:
       - name: Create coverage badges
         if: ${{ github.event_name != 'pull_request' }}
         uses: navikt/eresept-actions/badges-jacoco@main
+        with:
+          jacoco-dir: build/reports/jacoco/test
+          jacoco-name: jacocoTestReport.csv
 
       - name: Last commit badge
         if: ${{ github.event_name != 'pull_request' }}

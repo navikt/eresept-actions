@@ -19,15 +19,19 @@ name: 'create coverage badge and publish jacoco reports'
 description: 'creates a coverage badge to stick on README files, saves it in a badges branch and uploads the jacoco coverage report as workflow artifact'
 inputs:
   jacoco-dir:
-    description: 'where is the jacoco coverage reports and csv file'
+    description: 'location of the jacoco coverage reports and csv file'
     required: false
     default: 'target/site/jacoco'
+  jacoco-name:
+    description: 'the name of the csv file'
+    required: false
+    default: 'jacoco.csv'
 runs:
   using: "composite"
   steps:
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       shell: bash
-      run: $GITHUB_ACTION_PATH/mkbadges.sh ${{ inputs.jacoco-dir }}/jacoco.csv $GITHUB_ACTION_PATH ${{ runner.temp }}
+      run: $GITHUB_ACTION_PATH/mkbadges.sh ${{ inputs.jacoco-dir }}/${{ inputs.jacoco-name }} $GITHUB_ACTION_PATH ${{ runner.temp }}
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 #v3.1.0
       with:
