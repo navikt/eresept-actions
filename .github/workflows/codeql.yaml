@@ -54,7 +54,7 @@ jobs:
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
 
       - name: Compile for CodeQL scan
-        run: mvn compile -B -skipTests
+        run: mvn compile -B -DskipTests
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@d186a2a36cc67bfa1b860e6170d37fb9634742c7 # v2.2.11
