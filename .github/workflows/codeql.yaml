@@ -24,6 +24,7 @@ on:
 jobs:
   analyze:
     runs-on: ubuntu-latest
+    if: !(github.actor == 'dependabot[bot]' && github.event_name == 'push')
     strategy:
       fail-fast: false
       matrix:
