@@ -54,7 +54,7 @@ jobs:
           category: "/language:${{matrix.language}}"
 
       - name: Report success?
-        if: success()
+        if: success() && github.event_name != 'schedule'
         env:
           SLACK_CHANNEL: ${{ inputs.channel }}
           SLACK_WEBHOOK: ${{ secrets.webhook }}
