@@ -1,0 +1,84 @@
+name: 'slack notify'
+description: 'send message to slack channel'
+inputs:
+  channel:
+    description: 'slack channel'
+    required: false
+    default: 'eresept'
+  username:
+    description: 'slack usernamme'
+    required: false
+    default: 'eresept ${{ github.event.repository.name }}'
+  icon:
+    description: 'slack icon emoji'
+    required: false
+    default: ':slack:'
+  title-success:
+    description: 'slack success title'
+    required: false
+    default: ''
+  title-failure:
+    description: 'slack failure title'
+    required: false
+    default: ''
+  title-cancelled:
+    description: 'slack cancelled title'
+    required: false
+    default: ''
+  message-success:
+    description: 'slack success message'
+    required: false
+    default: ''
+  message-failure:
+    description: 'slack failure message'
+    required: false
+    default: ''
+  message-cancelled:
+    description: 'slack cancelled message'
+    required: false
+    default: ''
+  footer:
+    description: 'slack footer'
+    required: false
+    default: 'eresept © 2023'
+  webhook:
+    description: 'slack webhook'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - if: success() && github.event_name != 'schedule'
+      env:
+        SLACK_CHANNEL: ${{ inputs.channel }}
+        SLACK_WEBHOOK: ${{ inputs.webhook }}
+        SLACK_USERNAME: "${{ inputs.username  }}"
+        SLACK_TITLE: "${{ inputs.title-success }}"
+        SLACK_COLOR: "good"
+        SLACK_ICON_EMOJI: "${{ inputs.icon }}"
+        SLACK_FOOTER: "${{ inputs.footer }}"
+        SLACK_MESSAGE: "${{ inputs.message-success }}"
+      uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
+    - if: failure()
+      env:
+        SLACK_CHANNEL: ${{ inputs.channel }}
+        SLACK_WEBHOOK: ${{ inputs.webhook }}
+        SLACK_USERNAME: "${{ inputs.username  }}"
+        SLACK_TITLE: "${{ inputs.title-failure }}"
+        SLACK_COLOR: "danger"
+        SLACK_ICON_EMOJI: "${{ inputs.icon }}"
+        SLACK_FOOTER: "${{ inputs.footer }}"
+        SLACK_MESSAGE: "${{ inputs.message-failure }}"
+      uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
+    - if: cancelled()
+      env:
+        SLACK_CHANNEL: ${{ inputs.channel }}
+        SLACK_WEBHOOK: ${{ inputs.webhook }}
+        SLACK_USERNAME: "${{ inputs.username  }}"
+        SLACK_TITLE: "${{ inputs.title-cancelled }}"
+        SLACK_COLOR: "warning"
+        SLACK_ICON_EMOJI: "${{ inputs.icon }}"
+        SLACK_FOOTER: "${{ inputs.footer }}"
+        SLACK_MESSAGE: "${{ inputs.message-cancelled }}"
+      uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
+
