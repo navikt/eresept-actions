@@ -16,15 +16,15 @@ inputs:
   title-success:
     description: 'slack success title'
     required: false
-    default: ''
+    default: ' '
   title-failure:
     description: 'slack failure title'
     required: false
-    default: ''
+    default: ' '
   title-cancelled:
     description: 'slack cancelled title'
     required: false
-    default: ''
+    default: ' '
   message-success:
     description: 'slack success message'
     required: false
@@ -41,6 +41,10 @@ inputs:
     description: 'slack footer'
     required: false
     default: 'eresept © 2023'
+  minimal:
+    description: 'If set to true, removes: Ref, Event,  Actions URL and Commit from the message. You can optionally whitelist any of these 4 removed values by passing it comma separated to the variable instead of true'
+    required: false
+    default: 'false'
   webhook:
     description: 'slack webhook'
     required: true
@@ -48,6 +52,9 @@ inputs:
 runs:
   using: composite
   steps:
+    - run: echo "minimal=$( if [ ('${{ github.event_name }}' != 'push' && '${{ github.event_name }}' != 'pull_request' }}) || '${{ inputs.minimal }}' = 'true' ]; then echo true; else echo ${{ inputs.minimal }} fi)"  >> $GITHUB_ENV
+      shell: bash
+
     - if: success() && github.event_name != 'schedule'
       env:
         SLACK_CHANNEL: ${{ inputs.channel }}
@@ -58,6 +65,7 @@ runs:
         SLACK_ICON_EMOJI: "${{ inputs.icon }}"
         SLACK_FOOTER: "${{ inputs.footer }}"
         SLACK_MESSAGE: "${{ inputs.message-success }}"
+        MSG_MINIMAL: ${{ env.minimal }}
       uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
     - if: failure()
       env:
@@ -69,6 +77,7 @@ runs:
         SLACK_ICON_EMOJI: "${{ inputs.icon }}"
         SLACK_FOOTER: "${{ inputs.footer }}"
         SLACK_MESSAGE: "${{ inputs.message-failure }}"
+        MSG_MINIMAL: ${{ env.minimal }}
       uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
     - if: cancelled()
       env:
@@ -80,5 +89,6 @@ runs:
         SLACK_ICON_EMOJI: "${{ inputs.icon }}"
         SLACK_FOOTER: "${{ inputs.footer }}"
         SLACK_MESSAGE: "${{ inputs.message-cancelled }}"
+        MSG_MINIMAL: ${{ env.minimal }}
       uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
 
