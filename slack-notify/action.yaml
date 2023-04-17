@@ -28,15 +28,15 @@ inputs:
   message-success:
     description: 'slack success message'
     required: false
-    default: ''
+    default: ' '
   message-failure:
     description: 'slack failure message'
     required: false
-    default: ''
+    default: ' '
   message-cancelled:
     description: 'slack cancelled message'
     required: false
-    default: ''
+    default: ' '
   footer:
     description: 'slack footer'
     required: false
