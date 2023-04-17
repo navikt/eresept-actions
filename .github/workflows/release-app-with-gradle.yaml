@@ -154,41 +154,12 @@ jobs:
         run: |
           echo "### Released **${{ github.event.repository.name }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
 
-      - name: Report success?
-        if: success()
-        env:
-          SLACK_CHANNEL: ${{ inputs.channel }}
-          SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "release ${{ env.appver }}"
-          SLACK_TITLE: "Released _*${{ env.appver }}*_ in ${{ env.exectime }} seconds"
-          SLACK_MESSAGE: "```${{ env.CHANGELOG }}```"
-          SLACK_COLOR: "good"
-          SLACK_ICON_EMOJI: ":docker:"
-          MSG_MINIMAL: true
-          SLACK_FOOTER: "${{ inputs.footer }}"
-        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-      - name: Report failure?
-        if: failure()
-        env:
-          SLACK_CHANNEL: ${{ inputs.channel }}
-          SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "release ${{ inputs.application }}"
-          SLACK_TITLE: "Release of _*${{ inputs.application }}*_ failed"
-          SLACK_COLOR: "danger"
-          SLACK_ICON_EMOJI: ":docker:"
-          SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
-          SLACK_FOOTER: "${{ inputs.footer }}"
-        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-      - name: Report cancellation?
-        if: cancelled()
-        env:
-          SLACK_CHANNEL: ${{ inputs.channel }}
-          SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "release ${{ inputs.application }}"
-          SLACK_TITLE: "Release of _*${{ inputs.application }}*_ was cancelled"
-          SLACK_MESSAGE: " "
-          SLACK_COLOR: "warning"
-          SLACK_ICON_EMOJI: ":docker:"
-          MSG_MINIMAL: true
-          SLACK_FOOTER: "${{ inputs.footer }}"
-        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
+      - name: report to slack
+        uses: navikt/eresept-actions/slack-notify@main
+        with:
+          username: "release ${{ env.appver }}"
+          icon: ":docker:"
+          title-success: "Released _*${{ env.appver }}*_ in ${{ env.exectime }} seconds"
+          title-failure: "Release of _*${{ inputs.application }}*_ failed"
+          title-cancelled: "Release of _*${{ inputs.application }}*_ was cancelled"
+          webhook: ${{ secrets.webhook }}

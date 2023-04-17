@@ -97,39 +97,14 @@ jobs:
       - name: Summary
         run: echo "### Built **${{ github.event.repository.name }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
 
-      - name: Report success?
-        if: ${{ success() && env.slack_webhook != '' }}
-        env:
-          SLACK_CHANNEL: ${{ inputs.channel }}
-          SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "build ${{ github.event.repository.name }}"
-          SLACK_TITLE: "Built _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
-          SLACK_COLOR: "good"
-          SLACK_ICON: https://github.com/github.png?size=48
-          SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: "${{ env.commit_msg }}"
-        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-      - name: Report failure?
-        if: ${{ failure() && env.slack_webhook != '' }}
-        env:
-          SLACK_CHANNEL: ${{ inputs.channel }}
-          SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "build ${{ github.event.repository.name }}"
-          SLACK_TITLE: "Build failure in _*${{ github.event.repository.name }}*_"
-          SLACK_COLOR: "danger"
-          SLACK_ICON: https://github.com/github.png?size=48
-          SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
-        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-      - name: Report cancellation?
-        if: ${{ cancelled() && env.slack_webhook != '' }}
-        env:
-          SLACK_CHANNEL: ${{ inputs.channel }}
-          SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "build ${{ github.event.repository.name }}"
-          SLACK_TITLE: "Build of _*${{ github.event.repository.name }}*_ was cancelled"
-          SLACK_COLOR: "warning"
-          SLACK_ICON: https://github.com/github.png?size=48
-          SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: "${{ env.commit_msg }}"
-        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
+      - name: report to slack
+        uses: navikt/eresept-actions/slack-notify@main
+        with:
+          username: "build ${{ github.event.repository.name }}"
+          icon: https://github.com/github.png?size=48
+          title-success: "Built _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
+          title-failure: "Build failure in _*${{ github.event.repository.name }}*_"
+          title-cancelled: "Build of _*${{ github.event.repository.name }}*_ was cancelled"
+          message-success: "${{ env.commit_msg }}"
+          message-cancelled: "${{ env.commit_msg }}"
+          webhook: ${{ secrets.webhook }}

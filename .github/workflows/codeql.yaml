@@ -62,42 +62,12 @@ jobs:
         with:
           category: "/language:${{matrix.language}}"
 
-      - name: Report success?
-        if: success() && github.event_name != 'schedule'
-        env:
-          SLACK_CHANNEL: ${{ inputs.channel }}
-          SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "codeql ${{ github.event.repository.name }}"
-          SLACK_TITLE: "CodeQL scan of _*${{ github.event.repository.name }}*_ passed"
-          SLACK_COLOR: "good"
-          SLACK_ICON_EMOJI: ":lock:"
-          SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: ""
-          MSG_MINIMAL: true
-        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-      - name: Report failure?
-        if: failure()
-        env:
-          SLACK_CHANNEL: ${{ inputs.channel }}
-          SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "codeql ${{ github.event.repository.name }}"
-          SLACK_TITLE: "CodeQL scan of _*${{ github.event.repository.name }}*_ failed"
-          SLACK_COLOR: "danger"
-          SLACK_ICON_EMOJI: ":lock:"
-          SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
-        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-      - name: Report cancellation?
-        if: cancelled()
-        env:
-          SLACK_CHANNEL: ${{ inputs.channel }}
-          SLACK_WEBHOOK: ${{ secrets.webhook }}
-          SLACK_USERNAME: "codeql ${{ github.event.repository.name }}"
-          SLACK_TITLE: "CodeQL scan of _*${{ github.event.repository.name }}*_ was cancelled"
-          SLACK_COLOR: "warning"
-          SLACK_ICON_EMOJI: ":lock:"
-          SLACK_FOOTER: "${{ inputs.footer }}"
-          SLACK_MESSAGE: ""
-          MSG_MINIMAL: true
-        uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-
+      - name: report to slack
+        uses: navikt/eresept-actions/slack-notify@main
+        with:
+          username: "codeql ${{ github.event.repository.name }}"
+          icon: ":lock:"
+          title-success: "CodeQL scan of _*${{ github.event.repository.name }}*_ passed"
+          title-failure: "CodeQL scan of _*${{ github.event.repository.name }}*_ failed"
+          title-cancelled: "CodeQL scan of _*${{ github.event.repository.name }}*_ was cancelled"
+          webhook: ${{ secrets.webhook }}
