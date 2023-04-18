@@ -44,7 +44,7 @@ inputs:
   minimal:
     description: 'If set to true, removes: Ref, Event,  Actions URL and Commit from the message. You can optionally whitelist any of these 4 removed values by passing it comma separated to the variable instead of true'
     required: false
-    default: 'false'
+    default: ''
   webhook:
     description: 'slack webhook'
     required: true
@@ -91,4 +91,3 @@ runs:
         SLACK_MESSAGE: "${{ inputs.message-cancelled }}"
         MSG_MINIMAL: ${{ env.minimal }}
       uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-

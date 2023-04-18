@@ -174,4 +174,5 @@ jobs:
           title-success: "Released _*${{ env.appver }}*_ in ${{ env.exectime }} seconds"
           title-failure: "Release of _*${{ inputs.application }}*_ failed"
           title-cancelled: "Release of _*${{ inputs.application }}*_ was cancelled"
+          message-success: "```${{ env.CHANGELOG }}```"
           webhook: ${{ secrets.webhook }}
