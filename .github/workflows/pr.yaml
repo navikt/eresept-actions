@@ -74,7 +74,7 @@ jobs:
         uses: navikt/eresept-actions/slack-notify@main
         with:
           username: "build PR ${{ github.event.repository.name }}"
-          icon: ":github""
+          icon: ":github:"
           title-success: "Built PR _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
           title-failure: "Build PR failure in _*${{ github.event.repository.name }}*_"
           title-cancelled: "Build PR of _*${{ github.event.repository.name }}*_ was cancelled"
