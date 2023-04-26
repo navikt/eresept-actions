@@ -60,7 +60,7 @@ jobs:
         uses: navikt/eresept-actions/slack-notify@main
         with:
           username: "codeql ${{ github.event.repository.name }}"
-          icon: ":lock:"
+          icon: ":mag:"
           title-success: "CodeQL scan of _*${{ github.event.repository.name }}*_ passed"
           title-failure: "CodeQL scan of _*${{ github.event.repository.name }}*_ failed"
           title-cancelled: "CodeQL scan of _*${{ github.event.repository.name }}*_ was cancelled"
