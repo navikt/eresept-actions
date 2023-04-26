@@ -28,8 +28,10 @@ jobs:
       group: ${{ github.workflow }}-${{ github.event.repository.name }}-${{ github.ref }}
       cancel-in-progress: true
     if: github.actor != 'dependabot[bot]' || github.event_name != 'push'
-    permissions: # The Dependency Submission API requires write permission
-      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'java' ]
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab #v3.5.2
 
