@@ -2,6 +2,10 @@ name: maven CodeQL analysis, re-usable
 
 on:
   workflow_call:
+    secrets:
+      token:
+        description: 'github token'
+        required: true
 
 jobs:
   submission:
@@ -12,6 +16,18 @@ jobs:
     if: github.actor != 'dependabot[bot]' || github.event_name != 'push'
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab #v3.5.2
+
+      - name: Cache local Maven repository
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ github.event.repository.name }}
+
+      - name: Create settings.xml
+        uses: whelk-io/maven-settings-xml-action@7c60eb95b2d5ec18f2e0e29f34c9ed69475e7a96 #v21
+        with:
+          repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
 
       - name: Submit Dependency Snapshot
         uses: advanced-security/maven-dependency-submission-action@d682d5d68a398c90e9b35f8c564cd8e1918d6a24 #v3.0.1
