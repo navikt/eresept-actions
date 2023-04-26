@@ -31,8 +31,6 @@ jobs:
       slack_webhook: ${{ secrets.webhook }}
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab #v3.5.2
-        with:
-          fetch-depth: 0
 
       - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@7c60eb95b2d5ec18f2e0e29f34c9ed69475e7a96 #v21
