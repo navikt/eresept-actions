@@ -112,6 +112,7 @@ jobs:
         run: echo "### Deployed **${{ env.deployappver }}** to **${{ matrix.environment }}** in **${{ env.cluster }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
 
       - name: report to slack
+        if: always()
         uses: navikt/eresept-actions/slack-notify@main
         with:
           username: "deploy ${{ env.deployappver }} -> ${{ matrix.environment }}"

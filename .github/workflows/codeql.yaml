@@ -66,6 +66,7 @@ jobs:
           category: "/language:${{matrix.language}}"
 
       - name: report to slack
+        if: always()
         uses: navikt/eresept-actions/slack-notify@main
         with:
           username: "codeql ${{ github.event.repository.name }}"
