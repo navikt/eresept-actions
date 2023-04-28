@@ -60,7 +60,7 @@ jobs:
           echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
 
       - name: test
-        run: mvn test -Dgroups=${{ inputs.groups }} --settings maven-settings.xml
+        run: mvn test -Dexcluded.groups= -Dgroups=${{ inputs.groups }} --settings maven-settings.xml
 
       - name: Summary
         run: echo "### Tested tests in group ${{ inputs.groups }} **${{ github.event.repository.name }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
