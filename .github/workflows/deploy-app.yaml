@@ -2,16 +2,6 @@ name: Deploy applications, re-usable
 on:
   workflow_call:
     inputs:
-      channel:
-        description: 'Slack channel'
-        required: false
-        type: string
-        default: 'eresept'
-      footer:
-        description: 'Slack footer'
-        required: false
-        type: string
-        default: 'eresept © 2022'
       applications:
         description: 'The applications to deploy (stringified JSON object listing application, eg: "[\"foo\",\"bar\"]")'
         required: true

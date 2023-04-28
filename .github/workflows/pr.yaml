@@ -1,17 +1,6 @@
 name: Build push requests, re-usable
 on:
   workflow_call:
-    inputs:
-      channel:
-        description: 'slack channel'
-        required: false
-        type: string
-        default: 'eresept'
-      footer:
-        description: 'slack footer'
-        required: false
-        type: string
-        default: 'eresept © 2022'
     secrets:
       webhook:
         description: 'slack webhook'

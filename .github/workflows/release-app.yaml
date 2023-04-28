@@ -2,16 +2,6 @@ name: maven release application, re-usable
 on:
   workflow_call:
     inputs:
-      channel:
-        description: 'Slack channel'
-        required: false
-        type: string
-        default: 'eresept'
-      footer:
-        description: 'Slack footer'
-        required: false
-        type: string
-        default: 'eresept © 2022'
       application:
         description: 'The application to release'
         required: true
