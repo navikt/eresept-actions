@@ -1,0 +1,79 @@
+name: maven build, re-usable
+on:
+  workflow_call:
+    inputs:
+      groups:
+        description: 'groups of test to execute'
+        required: false
+        type: string
+        default: 'slow'
+    secrets:
+      webhook:
+        description: 'slack webhook'
+        required: false
+      token:
+        description: 'github token'
+        required: true
+
+jobs:
+  build:
+    name: Build ${{ github.event.repository.name }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ inputs.groups }}-${{ github.event.repository.name }}-${{ github.ref }}
+      cancel-in-progress: true
+    env:
+      slack_webhook: ${{ secrets.webhook }}
+    steps:
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab #v3.5.2
+        with:
+          fetch-depth: 0
+
+      - name: Create settings.xml
+        uses: whelk-io/maven-settings-xml-action@7c60eb95b2d5ec18f2e0e29f34c9ed69475e7a96 #v21
+        with:
+          repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
+          servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
+          output_file: maven-settings.xml
+
+      - uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2 #v3.11.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          overwrite-settings: false
+
+      - name: Cache local Maven repository
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ github.event.repository.name }}
+
+      - name: Set some variables
+        run: |
+          echo "starttime=$(date +%s)" >> $GITHUB_ENV
+          sudo timedatectl set-timezone "Europe/Oslo"
+          echo "lastcommit=$(git log -1 --date=format:'%Y-%m-%d %T' --format=%cd)" >> $GITHUB_ENV
+
+      - name: Get commit message
+        run: |
+          echo "commit_msg=$(git log -1 --oneline)" >> $GITHUB_ENV
+          echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
+
+      - name: test
+        run: mvn test -Dgroups=${{ inputs.groups }} --settings maven-settings.xml
+
+      - name: Summary
+        run: echo "### Tested tests in group ${{ inputs.groups }} **${{ github.event.repository.name }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+
+      - name: report to slack
+        if: always()
+        uses: navikt/eresept-actions/slack-notify@main
+        with:
+          username: "build ${{ github.event.repository.name }}"
+          icon: ":github:"
+          title-success: "Tested tests in group ${{ inputs.groups }} in _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
+          title-failure: "Testing tests in group ${{ inputs.groups }} in _*${{ github.event.repository.name }}*_ failed"
+          title-cancelled: "Testing tests in group ${{ inputs.groups }} of _*${{ github.event.repository.name }}*_ was cancelled"
+          message-success: "${{ env.commit_msg }}"
+          message-cancelled: "${{ env.commit_msg }}"
+          webhook: ${{ secrets.webhook }}
