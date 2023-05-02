@@ -2,11 +2,13 @@ name: Gradle CodeQL analysis, re-usable
 
 on:
   workflow_call:
-    inputs:
+    secrets:
+      token:
+        description: 'github token'
+        required: true
       webhook:
         description: 'slack webhook'
-        required: false
-        default: ''
+        required: true
 
 jobs:
   analyze:
@@ -41,7 +43,7 @@ jobs:
           category: "/language:${{matrix.language}}"
 
       - name: report to slack
-        if: always() && ${{ secrets.webhook != '' }}
+        if: always()
         uses: navikt/eresept-actions/slack-notify@main
         with:
           username: "codeql ${{ github.event.repository.name }}"
