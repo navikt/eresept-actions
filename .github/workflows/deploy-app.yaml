@@ -106,7 +106,7 @@ jobs:
         uses: navikt/eresept-actions/slack-notify@main
         with:
           username: "deploy ${{ env.deployappver }} -> ${{ matrix.environment }}"
-          icon: ":nais:"
+          icon: ":naiser:"
           title-success: "Deployed _*${{ env.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ env.cluster }}*_ in ${{ env.exectime }} seconds"
           title-failure: "Deploy of _*${{ env.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ env.cluster }}*_ failed"
           title-cancelled: "Deploy of _*${{ env.deployappver }}*_ to _*${{ env.cluster }}*_ in _*${{ env.cluster }}*_ was cancelled"

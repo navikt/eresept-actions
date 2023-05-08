@@ -89,7 +89,7 @@ jobs:
         uses: navikt/eresept-actions/slack-notify@main
         with:
           username: "build ${{ github.event.repository.name }}"
-          icon: ":github:"
+          icon: ":github2:"
           title-success: "Built _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
           title-failure: "Build failure in _*${{ github.event.repository.name }}*_"
           title-cancelled: "Build of _*${{ github.event.repository.name }}*_ was cancelled"
