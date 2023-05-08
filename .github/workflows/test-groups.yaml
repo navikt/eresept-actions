@@ -62,6 +62,11 @@ jobs:
       - name: test
         run: mvn test -Dexcluded.groups= -Dgroups=${{ inputs.groups }} --settings maven-settings.xml
 
+      - name: Calculate execution time
+        run: |
+          END_TIME=$(date +%s)
+          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
+
       - name: Summary
         run: echo "### Tested tests in group ${{ inputs.groups }} **${{ github.event.repository.name }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
 
