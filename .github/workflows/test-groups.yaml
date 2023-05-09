@@ -75,7 +75,7 @@ jobs:
         uses: navikt/eresept-actions/slack-notify@main
         with:
           status: "${{ job.status }}"
-          username: "build ${{ github.event.repository.name }}"
+          username: "test ${{ github.event.repository.name }}"
           icon: ":github2:"
           title-success: "Tested tests in group ${{ inputs.groups }} in _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
           title-failure: "Testing tests in group ${{ inputs.groups }} in _*${{ github.event.repository.name }}*_ failed"
