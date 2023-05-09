@@ -105,6 +105,7 @@ jobs:
         if: always()
         uses: navikt/eresept-actions/slack-notify@main
         with:
+          status: "${{ job.status }}"
           username: "deploy ${{ env.deployappver }} -> ${{ matrix.environment }}"
           icon: ":naiser:"
           title-success: "Deployed _*${{ env.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ env.cluster }}*_ in ${{ env.exectime }} seconds"

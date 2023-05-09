@@ -148,6 +148,7 @@ jobs:
         if: always()
         uses: navikt/eresept-actions/slack-notify@main
         with:
+          status: "${{ job.status }}"
           username: "release ${{ env.appver }}"
           icon: ":docker:"
           title-success: "Released _*${{ env.appver }}*_ in ${{ env.exectime }} seconds"

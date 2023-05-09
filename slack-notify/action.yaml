@@ -48,6 +48,10 @@ inputs:
   webhook:
     description: 'slack webhook'
     required: true
+  status:
+    description: failure, success or cancelled
+    required: false
+    default: 'success'
 
 runs:
   using: composite
@@ -55,7 +59,7 @@ runs:
     - run: echo "minimal=$( if ([ '${{ github.event_name }}' != 'push' ] && [ '${{ github.event_name }}' != 'pull_request' ]) || [ '${{ inputs.minimal }}' = 'true' ]; then echo true; else echo ${{ inputs.minimal }}; fi)"  >> $GITHUB_ENV
       shell: bash
 
-    - if: success() && github.event_name != 'schedule'
+    - if: ${{ inputs.status == 'success' }} && github.event_name != 'schedule'
       env:
         SLACK_CHANNEL: ${{ inputs.channel }}
         SLACK_WEBHOOK: ${{ inputs.webhook }}
@@ -67,7 +71,7 @@ runs:
         SLACK_MESSAGE: "${{ inputs.message-success }}"
         MSG_MINIMAL: ${{ env.minimal }}
       uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-    - if: failure()
+    - if: ${{ inputs.status == 'failure' }}
       env:
         SLACK_CHANNEL: ${{ inputs.channel }}
         SLACK_WEBHOOK: ${{ inputs.webhook }}
@@ -79,7 +83,7 @@ runs:
         SLACK_MESSAGE: "${{ inputs.message-failure }}"
         MSG_MINIMAL: ${{ env.minimal }}
       uses: rtCamp/action-slack-notify@12e36fc18b0689399306c2e0b3e0f2978b7f1ee7 # v2
-    - if: cancelled()
+    - if: ${{ inputs.status == 'cancelled' }}
       env:
         SLACK_CHANNEL: ${{ inputs.channel }}
         SLACK_WEBHOOK: ${{ inputs.webhook }}

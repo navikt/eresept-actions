@@ -61,6 +61,7 @@ jobs:
         if: always()
         uses: navikt/eresept-actions/slack-notify@main
         with:
+          status: "${{ job.status }}"
           username: "build PR ${{ github.event.repository.name }}"
           icon: ":github2:"
           title-success: "Built PR _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"

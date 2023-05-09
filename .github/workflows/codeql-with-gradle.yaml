@@ -46,6 +46,7 @@ jobs:
         if: always()
         uses: navikt/eresept-actions/slack-notify@main
         with:
+          status: "${{ job.status }}"
           username: "codeql ${{ github.event.repository.name }}"
           icon: ":mag:"
           title-success: "CodeQL scan of _*${{ github.event.repository.name }}*_ passed"
