@@ -58,7 +58,7 @@ jobs:
 
       - name: Compile and test
         run: |
-          SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests"; else echo ""; fi) 
+          SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests -Ddetekt.skip=true"; else echo ""; fi) 
           mvn install $SKIPTESTS
 
       - name: Get version numbers and changelog
@@ -86,7 +86,7 @@ jobs:
           mvn --batch-mode versions:set -DnewVersion=${{ env.relversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
           git commit -am 'Commit new version ${{ env.relversion }}, by ${{ github.actor }} [ci skip]'
           git tag -a v${{ env.relversion }} -m 'tagging as v${{ env.relversion }} [ci skip]'
-          mvn --batch-mode clean install -DskipTests
+          mvn --batch-mode clean install -DskipTests -Ddetekt.skip=true
           DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
           DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
           echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
