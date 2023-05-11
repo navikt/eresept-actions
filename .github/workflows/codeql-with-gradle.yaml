@@ -41,6 +41,7 @@ jobs:
         uses: github/codeql-action/analyze@29b1f65c5e92e24fe6b6647da1eaabe529cec70f # v2.3.3
         with:
           category: "/language:${{matrix.language}}"
+          queries: security-extended,security-and-quality
 
       - name: report to slack
         if: always()
