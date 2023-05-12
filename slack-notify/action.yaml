@@ -59,7 +59,7 @@ runs:
     - run: echo "minimal=$( if ([ '${{ github.event_name }}' != 'push' ] && [ '${{ github.event_name }}' != 'pull_request' ]) || [ '${{ inputs.minimal }}' = 'true' ]; then echo true; else echo ${{ inputs.minimal }}; fi)"  >> $GITHUB_ENV
       shell: bash
 
-    - if: ${{ inputs.status == 'success' }} && github.event_name != 'schedule'
+    - if: ${{ inputs.status == 'success' && github.event_name != 'schedule' }}
       env:
         SLACK_CHANNEL: ${{ inputs.channel }}
         SLACK_WEBHOOK: ${{ inputs.webhook }}
