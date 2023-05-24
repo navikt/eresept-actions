@@ -54,7 +54,7 @@ jobs:
           echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
 
       - name: Compile and test
-        run: mvn install --settings maven-settings.xml
+        run: mvn install --no-transfer-progress --settings maven-settings.xml
 
       - name: Checkout badges
         if: ${{ github.event_name != 'pull_request' }}

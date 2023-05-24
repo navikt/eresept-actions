@@ -47,7 +47,7 @@ jobs:
           echo "commit_msg=$(git log -1 --oneline)" >> $GITHUB_ENV
 
       - name: Compile and test
-        run: mvn install --settings maven-settings.xml
+        run: mvn install --no-transfer-progress --settings maven-settings.xml
 
       - name: Calculate execution time
         run: |

@@ -59,7 +59,7 @@ jobs:
       - name: Compile and test
         run: |
           SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests -Ddetekt.skip=true"; else echo ""; fi) 
-          mvn install $SKIPTESTS
+          mvn install --no-transfer-progress $SKIPTESTS
 
       - name: Get version numbers and changelog
         run: |

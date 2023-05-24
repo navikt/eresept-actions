@@ -60,7 +60,7 @@ jobs:
           echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
 
       - name: test
-        run: mvn test -Dexcluded.groups= -Dgroups=${{ inputs.groups }} --settings maven-settings.xml
+        run: mvn test -Dexcluded.groups= -Dgroups=${{ inputs.groups }} --no-transfer-progress --settings maven-settings.xml
 
       - name: Calculate execution time
         run: |
