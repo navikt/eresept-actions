@@ -87,26 +87,37 @@ jobs:
           git commit -am 'Commit new version ${{ env.relversion }}, by ${{ github.actor }} [ci skip]'
           git tag -a v${{ env.relversion }} -m 'tagging as v${{ env.relversion }} [ci skip]'
           mvn --batch-mode clean install -DskipTests -Ddetekt.skip=true
-          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
-          DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
-          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
-          echo "dockerdir=$DIR" >> $GITHUB_ENV
+#          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
+#          DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
+#          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
+#          echo "dockerdir=$DIR" >> $GITHUB_ENV
 
-      - uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+      - name: Docker build and push
+        uses: nais/docker-build-push@70a17eca8bd2f5c57235c72d977372be9efa0586 # v0.7.0
         with:
-          registry: ghcr.io
-          username: navikt/${{ inputs.application }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          team: teameresept
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          tag: ${{ env.relversion }}
+          build_args: |
+            version=${{ env.relversion }}
+            app_name=${{ inputs.application }}
 
-      - uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
-        with:
-          context: ${{ env.dockerdir }}
-          push: true
-          pull: true
-          build-args: |
-            "version=${{ env.relversion }}"
-            "app_name=${{ inputs.application }}"
-          tags: ${{ env.dockerimg }}
+#      - uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+#        with:
+#          registry: ghcr.io
+#          username: navikt/${{ inputs.application }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
+#        with:
+#          context: ${{ env.dockerdir }}
+#          push: true
+#          pull: true
+#          build-args: |
+#            "version=${{ env.relversion }}"
+#            "app_name=${{ inputs.application }}"
+#          tags: ${{ env.dockerimg }}
 
       - name: Prepare for next
         run: |
