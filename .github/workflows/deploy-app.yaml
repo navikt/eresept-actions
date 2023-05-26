@@ -17,10 +17,6 @@ on:
         required: true
         type: string
         # no default
-      project-id:
-        description: 'the project id'
-        required: true
-        type: string
     secrets:
       webhook:
         description: 'Slack webhook'
@@ -37,6 +33,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         application: ${{ fromJson(inputs.applications) }}
@@ -72,7 +71,7 @@ jobs:
         with:
           team: teameresept
           identity_provider: ${{ secrets.identity-provider }}
-          project_id: ${{ inputs.project-id }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
       - name: Deploy ${{ env.deployapp }} to ${{matrix.environment }}
         uses: nais/deploy/actions/deploy@f58c71347255c2e7f7d2955a6ec13d37bcd57b54 #v1

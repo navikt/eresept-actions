@@ -17,10 +17,6 @@ on:
         required: false
         type: boolean
         default: false
-      project-id:
-        description: 'the project id'
-        required: true
-        type: string
     secrets:
       webhook:
         required: true
@@ -34,6 +30,9 @@ jobs:
   release:
     name: Release ${{ inputs.application }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab #v3.5.2
         with:
@@ -104,7 +103,7 @@ jobs:
         with:
           team: teameresept
           identity_provider: ${{ secrets.identity-provider }}
-          project_id: ${{ inputs.project-id }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           tag: ${{ env.relversion }}
           build_args: |
             version=${{ env.relversion }}
