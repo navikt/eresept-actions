@@ -94,9 +94,9 @@ jobs:
           git tag -a v${{ env.relversion }} -m 'tagging as v${{ env.relversion }} [ci skip]'
           mvn --batch-mode clean install -DskipTests -Ddetekt.skip=true
 #          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
-#          DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
+          DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
 #          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
-#          echo "dockerdir=$DIR" >> $GITHUB_ENV
+          echo "dockerdir=$DIR" >> $GITHUB_ENV
 
       - name: Docker build and push
         uses: nais/docker-build-push@70a17eca8bd2f5c57235c72d977372be9efa0586 # v0.7.0
@@ -106,6 +106,7 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           tag: ${{ env.relversion }}
           build_args: |
+            docker_context: ${{ env.dockerdir }}
             version=${{ env.relversion }}
             app_name=${{ inputs.application }}
 
