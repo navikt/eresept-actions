@@ -80,10 +80,10 @@ jobs:
           ./gradlew assemble --no-daemon
           git commit -m 'Commit new version ${{ env.relversion }}, by ${{ github.actor }} [ci skip]' gradle.properties
           git tag -a v${{ env.relversion }} -m 'tagging as v${{ env.relversion }} [ci skip]'
-#          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
           DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
-#          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
           echo "dockerdir=$DIR" >> $GITHUB_ENV
+#          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
+#          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
 
       - name: Docker build and push
         uses: nais/docker-build-push@70a17eca8bd2f5c57235c72d977372be9efa0586 # v0.7.0
