@@ -90,6 +90,7 @@ jobs:
         with:
           team: teameresept
           docker_context: ${{ env.dockerdir }}
+          dockerfile: ${{ env.dockerdir }}/Dockerfile
           identity_provider: ${{ secrets.identity-provider }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           tag: ${{ env.relversion }}
