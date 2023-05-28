@@ -89,11 +89,11 @@ jobs:
         uses: nais/docker-build-push@70a17eca8bd2f5c57235c72d977372be9efa0586 # v0.7.0
         with:
           team: teameresept
+          docker_context: ${{ env.dockerdir }}
           identity_provider: ${{ secrets.identity-provider }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           tag: ${{ env.relversion }}
           build_args: |
-            docker_context: ${{ env.dockerdir }}
             version=${{ env.relversion }}
             app_name=${{ inputs.application }}
 
