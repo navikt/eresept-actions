@@ -62,11 +62,6 @@ jobs:
           echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
 
-      - name: Compile and test
-        run: |
-          SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests -Ddetekt.skip=true"; else echo ""; fi) 
-          mvn install --no-transfer-progress $SKIPTESTS
-
       - name: Get version numbers and changelog
         run: |
           CURVERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -89,10 +84,11 @@ jobs:
 
       - name: Publish, tag
         run: |
+          SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests -Ddetekt.skip=true"; else echo ""; fi) 
           mvn --batch-mode versions:set -DnewVersion=${{ env.relversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
           git commit -am 'Commit new version ${{ env.relversion }}, by ${{ github.actor }} [ci skip]'
           git tag -a v${{ env.relversion }} -m 'tagging as v${{ env.relversion }} [ci skip]'
-          mvn --batch-mode clean install -DskipTests -Ddetekt.skip=true
+          mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${{ inputs.skip-tests }}
           DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
           echo "dockerdir=$DIR" >> $GITHUB_ENV
 #          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
