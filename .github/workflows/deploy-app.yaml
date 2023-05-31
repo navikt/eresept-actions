@@ -32,7 +32,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest-4-cores
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
