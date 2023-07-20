@@ -17,6 +17,7 @@ on:
 
 jobs:
   build:
+    timeout-minutes: 50
     name: Build ${{ github.event.repository.name }}
     runs-on: ubuntu-latest
     concurrency:

@@ -27,6 +27,7 @@ on:
 
 jobs:
   release:
+    timeout-minutes: 40
     name: Release ${{ inputs.application }}
     runs-on: ubuntu-latest
     permissions:

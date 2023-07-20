@@ -12,6 +12,7 @@ on:
 
 jobs:
   analyze:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.repository.name }}-${{ github.ref }}
