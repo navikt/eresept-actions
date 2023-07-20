@@ -16,8 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 #v3.5.3
 
-      - name: Run snapshot action
-        uses: mikepenz/gradle-dependency-submission@aa82af7186ba17eb630a7d47c840ba8a3185ac91 #v0.8.6
+      - uses: gradle/gradle-build-action@915a66c096a03101667f9df2e56c9efef558b165 #v2.6.1
+        env: # exclude test dependencies
+          DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: compileClasspath|runtimeClasspath
         with:
-          fail-on-error: true
-          gradle-dependency-path: "build.gradle.kts"
+          dependency-graph: generate-and-submit
+          arguments: --configuration-cache build
+
