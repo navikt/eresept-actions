@@ -48,7 +48,7 @@ jobs:
         run: |
           echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
-          echo "buildarg=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "assemble"; else echo "build"; fi) >> $GITHUB_ENV 
+          echo "buildarg=$(if [ '${{ inputs.skip-tests }}' = 'true' ]; then echo 'assemble'; else echo 'build'; fi)" >> $GITHUB_ENV 
 
       - name: Compile and test
         id: compile
