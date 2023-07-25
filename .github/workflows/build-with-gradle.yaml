@@ -19,6 +19,7 @@ jobs:
       cancel-in-progress: true
     permissions:
       contents: write
+      checks: write
     env:
       slack_webhook: ${{ secrets.webhook }}
     steps:
@@ -28,7 +29,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '19'
-          cache: gradle
 
       - name: Set some variables
         run: |

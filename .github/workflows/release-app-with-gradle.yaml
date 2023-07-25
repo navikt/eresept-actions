@@ -43,17 +43,19 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '19'
-          cache: gradle
 
-      - name: Get start time
+      - name: Set some variables
         run: |
           echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
+          echo "buildarg=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "assemble"; else echo "build"; fi) >> $GITHUB_ENV 
 
       - name: Compile and test
-        run: |
-          BLD=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "assemble"; else echo "build"; fi) 
-          ./gradlew $BLD --no-daemon
+        id: compile
+        uses: gradle/gradle-build-action@a4cf152f482c7ca97ef56ead29bf08bcd953284c #v2.7.0
+        with:
+          dependency-graph: generate-and-submit
+          arguments: --configuration-cache ${{ env.buildarg }} --no-daemon
 
       - name: Get version numbers and changelog
         run: |
@@ -89,6 +91,7 @@ jobs:
       - name: Docker build and push
         uses: nais/docker-build-push@c1d05d5a796be7b24d59a2e76851acdcdbcaff7a # v0.9.0
         with:
+          byosbom: ${{ steps.compile.outputs.dependency-graph-file }}
           team: teameresept
           docker_context: ${{ env.dockerdir }}
           dockerfile: ${{ env.dockerdir }}/Dockerfile
