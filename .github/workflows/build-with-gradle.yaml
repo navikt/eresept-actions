@@ -41,8 +41,10 @@ jobs:
           echo "commit_msg=$(git log -1 --oneline)" >> $GITHUB_ENV
           echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
 
-      - name: Compile and test
-        run: ./gradlew build jacocoTestReport --no-daemon
+      - uses: gradle/gradle-build-action@a4cf152f482c7ca97ef56ead29bf08bcd953284c #v2.7.0
+        with:
+          dependency-graph: generate-and-submit
+          arguments: --configuration-cache build jacocoTestReport --no-daemon
 
       - name: Publish results (unit test)
         uses: EnricoMi/publish-unit-test-result-action@f0b5d2433f350eff587831d4ad22cb15aab75866 #v2.8.0
