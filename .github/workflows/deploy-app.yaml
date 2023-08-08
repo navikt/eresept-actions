@@ -75,7 +75,7 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
       - name: Deploy ${{ env.deployapp }} to ${{matrix.environment }}
-        uses: nais/deploy/actions/deploy@ecb5b6b481411bb37d8e93df02e7793d9d710925 #v1
+        uses: nais/deploy/actions/deploy@e558ed1a04819b79f93c6798f09f85cd96c11ada #v1
         env:
           APIKEY: ${{ secrets.deploy-key }}
           CLUSTER: ${{ env.cluster }}
