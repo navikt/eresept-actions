@@ -13,8 +13,8 @@ on:
 jobs:
   analyze:
     permissions:
+      actions: read
       contents: read
-      pull-requests: read
       security-events: write
     timeout-minutes: 15
     runs-on: ubuntu-latest
