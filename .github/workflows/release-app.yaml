@@ -96,7 +96,7 @@ jobs:
 #          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
 
       - name: Docker build and push
-        uses: nais/docker-build-push@c1d05d5a796be7b24d59a2e76851acdcdbcaff7a # v0.9.0
+        uses: nais/docker-build-push@3257289fd8cb0018ce0bda55db86ee54c21669b1 # v0.10.0
         with:
           team: teameresept
           docker_context: ${{ env.dockerdir }}
