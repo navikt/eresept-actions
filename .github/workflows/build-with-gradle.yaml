@@ -52,7 +52,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@283dea176069279a9076e77b548668a8e4f0c31b #v2.9.0
         if: success() || failure()
         with:
-          junit_files: "**/build/test-results/test/TEST-*.xml"
+          files: "**/build/test-results/test/TEST-*.xml"
 
       - name: Checkout badges
         if: ${{ github.event_name != 'pull_request' }}
