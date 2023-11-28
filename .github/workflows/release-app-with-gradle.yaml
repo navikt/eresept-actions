@@ -92,7 +92,6 @@ jobs:
       - name: Docker build and push
         uses: nais/docker-build-push@3257289fd8cb0018ce0bda55db86ee54c21669b1 # v0.10.0
         with:
-          byosbom: ${{ steps.compile.outputs.dependency-graph-file }}
           team: teameresept
           docker_context: ${{ env.dockerdir }}
           dockerfile: ${{ env.dockerdir }}/Dockerfile
@@ -102,6 +101,8 @@ jobs:
           build_args: |
             version=${{ env.relversion }}
             app_name=${{ inputs.application }}
+          # reenable when gradle 8.5 is released
+          #byosbom: ${{ steps.compile.outputs.dependency-graph-file }}
 
 #      - uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
 #        with:
