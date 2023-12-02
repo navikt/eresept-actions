@@ -53,6 +53,8 @@ jobs:
       - name: Compile and test
         id: compile
         uses: gradle/gradle-build-action@87a9a15658c426a54dd469d4fc7dc1a73ca9d4a6 #v2.10.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
         with:
           gradle-version: wrapper
           arguments: --configuration-cache ${{ env.buildarg }} --no-daemon
