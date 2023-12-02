@@ -20,6 +20,7 @@ jobs:
         env: # exclude test dependencies
           DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: compileClasspath|runtimeClasspath
         with:
+          gradle-version: wrapper
           arguments: --configuration-cache build -x test
           # uncomment when gradle 8.5 is released
           #dependency-graph: generate-and-submit
