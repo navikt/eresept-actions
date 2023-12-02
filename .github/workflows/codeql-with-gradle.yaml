@@ -40,6 +40,8 @@ jobs:
           languages: ${{ matrix.language }}
 
       - name: Compile for CodeQL scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
         run: ./gradlew assemble --no-daemon
 
       - name: Perform CodeQL Analysis
