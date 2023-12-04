@@ -85,6 +85,10 @@ jobs:
           next: ${{ steps.version-numbers.outputs.next-version }}
           file: ${{ steps.version-numbers.outputs.version-file }}
 
+      - name: Commit to git
+        run: |
+          git push -f origin v${{ steps.version-numbers.outputs.release-version }} main
+
       - name: Docker build and push
         uses: nais/docker-build-push@3257289fd8cb0018ce0bda55db86ee54c21669b1 # v0.10.0
         with:
