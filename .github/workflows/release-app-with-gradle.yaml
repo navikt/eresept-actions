@@ -50,18 +50,19 @@ jobs:
           sudo timedatectl set-timezone "Europe/Oslo"
           echo "buildarg=$(if [ '${{ inputs.skip-tests }}' = 'true' ]; then echo 'assemble'; else echo 'build'; fi)" >> $GITHUB_ENV 
 
-      - uses: navikt/eresept-actions/get-versions-gradle@main
+      - id: version-numbers
+        uses: navikt/eresept-actions/get-versions-gradle@main
         with:
           application: ${{ inputs.application }}
           application-version: ${{ inputs.application-version }}
 
-      - name: Gets version numbers and more
+      - name: Updates version numbers
         uses: navikt/eresept-actions/update-version-gradle@main
-        if: ${{ env.CURVERSION != env.RELVERSION }}
+        if: ${{ steps.version-numbers.outputs.current-version != steps.version-numbers.outputs.release-version }}
         with:
-          current: ${{ env.CURVERSION }}
-          next: ${{ env.RELVERSION }}
-          file: ${{ env.VERFILE }}
+          current: ${{ steps.version-numbers.outputs.current-version }}
+          next: ${{ steps.version-numbers.outputs.release-version }}
+          file: ${{ steps.version-numbers.outputs.version-file }}
 
       - name: Compile and test
         id: compile
@@ -75,26 +76,26 @@ jobs:
 
       - name: Tag
         run: |
-          git tag -a v${{ env.RELVERSION }} -m 'tagging as v${{ env.RELVERSION }} [ci skip]'
+          git tag -a v${{ steps.version-numbers.outputs.release-version }} -m 'tagging as v${{ steps.version-numbers.outputs.release-version }} [ci skip]'
 
       - name: Bumb version
         uses: navikt/eresept-actions/update-version-gradle@main
         with:
-          current: ${{ env.RELVERSION }}
-          next: ${{ env.NEXTVERSION }}
-          file: ${{ env.VERFILE }}
+          current: ${{ steps.version-numbers.outputs.release-version }}
+          next: ${{ steps.version-numbers.outputs.next-version }}
+          file: ${{ steps.version-numbers.outputs.version-file }}
 
       - name: Docker build and push
         uses: nais/docker-build-push@3257289fd8cb0018ce0bda55db86ee54c21669b1 # v0.10.0
         with:
           team: teameresept
-          docker_context: ${{ env.DOCKERDIR }}
-          dockerfile: ${{ env.DOCKERDIR }}/Dockerfile
+          docker_context: ${{ steps.version-numbers.outputs.docker-dir }}
+          dockerfile: ${{ steps.version-numbers.outputs.docker-dir }}/Dockerfile
           identity_provider: ${{ secrets.identity-provider }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          tag: ${{ env.RELVERSION }}
+          tag: ${{ steps.version-numbers.outputs.release-version }}
           build_args: |
-            version=${{ env.RELVERSION }}
+            version=${{ steps.version-numbers.outputs.release-version }}
             app_name=${{ inputs.application }}
           byosbom: ${{ steps.compile.outputs.dependency-graph-file }}
 
@@ -110,7 +111,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'version'
-          right: '${{ env.relversion }}'
+          right: '${{ steps.version-numbers.outputs.release-version }}'
           color: 'blue'
           filename: 'version'
           logo: 'tag'
@@ -119,7 +120,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'release date'
-          right: '${{ env.reldate }}'
+          right: '${{ steps.version-numbers.outputs.release-date }}'
           color: 'blue'
           filename: 'rel-date'
           logo: 'calendar'
@@ -145,10 +146,10 @@ jobs:
         uses: navikt/eresept-actions/slack-notify@main
         with:
           status: "${{ job.status }}"
-          username: "release ${{ env.appver }}"
+          username: "release ${{ steps.version-numbers.outputs.app-version }}"
           icon: ":docker:"
-          title-success: "Released _*${{ env.appver }}*_ in ${{ env.exectime }} seconds"
+          title-success: "Released _*${{ steps.version-numbers.outputs.app-version }}*_ in ${{ env.exectime }} seconds"
           title-failure: "Release of _*${{ inputs.application }}*_ failed"
           title-cancelled: "Release of _*${{ inputs.application }}*_ was cancelled"
-          message-success: "```${{ env.CHANGELOG }}```"
+          message-success: "```${{ steps.version-numbers.outputs.changelog }}```"
           webhook: ${{ secrets.webhook }}

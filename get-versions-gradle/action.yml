@@ -7,23 +7,52 @@ inputs:
   application-version:
     description: 'The version to release'
     required: false
+outputs:
+  version-file:
+    description: "file where version is defined"
+    value: ${{ steps.get-versions.outputs.version-file }}
+  current-version:
+    description: "the current version"
+    value: ${{ steps.get-versions.outputs.current-version }}
+  release-version:
+    description: "the release version"
+    value: ${{ steps.get-versions.outputs.release-version }}
+  next-version:
+    description: "the next version number"
+    value: ${{ steps.get-versions.outputs.next-version }}
+  app-version:
+    description: "application version"
+    value: ${{ steps.get-versions.outputs.app-version }}
+  release-date:
+    description: "release date"
+    value: ${{ steps.get-versions.outputs.release-date }}
+  docker-dir:
+    description: "directory of docker file"
+    value: ${{ steps.get-versions.outputs.docker-dir }}
+  changelog:
+    description: "Changelog"
+    value: ${{ steps.get-versions.outputs.changelog }}
 
 runs:
   using: "composite"
   steps:
-    - shell: bash
+    - id: get-versions
+      shell: bash
       run: |
         git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions"
-        echo "VERFILE=$($GITHUB_ACTION_PATH/../src/curversion-file-gradle.sh)" >> $GITHUB_ENV
-        echo "CURVERSION=$($GITHUB_ACTION_PATH/../src/curversion-gradle.sh ${{ env.VERFILE }})" >> $GITHUB_ENV
+        VERFILE=$($GITHUB_ACTION_PATH/../src/curversion-file-gradle.sh)
+        CURVERSION=$($GITHUB_ACTION_PATH/../src/curversion-gradle.sh $VERFILE)
         INPUT_VERSION=${{ inputs.application-version }}
-        echo "RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')" >> $GITHUB_ENV
-        echo "NEXTVERSION=$($GITHUB_ACTION_PATH/../src/nextversion.sh ${{ env.RELVERSION }})" >> $GITHUB_ENV
-        echo "appver=${{ inputs.application }}:$RELVERSION" >> $GITHUB_ENV
-        echo "reldate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-        echo "DOCKERDIR=$(dirname $(find . -name Dockerfile -maxdepth 2))" >> $GITHUB_ENV
+        RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')
+        echo "version-file=$VERFILE" >> $GITHUB_OUTPUT
+        echo "current-version=$CURVERSION" >> $GITHUB_OUTPUT
+        echo "release-version=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')" >> $GITHUB_OUTPUT
+        echo "next-version=$($GITHUB_ACTION_PATH/../src/nextversion.sh $RELVERSION)" >> $GITHUB_OUTPUT
+        echo "app-version=${{ inputs.application }}:$RELVERSION" >> $GITHUB_OUTPUT
+        echo "release-date=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+        echo "docker-dir=$(dirname $(find . -name Dockerfile -maxdepth 2))" >> $GITHUB_OUTPUT
         # multiline output
         delim="EOF--$(date +%s)"
-        echo "CHANGELOG<<$delim" >> $GITHUB_ENV
-        git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
-        echo "$delim" >> $GITHUB_ENV
+        echo "changelog<<$delim" >> $GITHUB_OUTPUT
+        git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_OUTPUT
+        echo "$delim" >> $GITHUB_OUTPUT
