@@ -15,4 +15,4 @@ runs:
   steps:
     - shell: bash
       run: |
-        $GITHUB_ACTION_PATH/../src/update-version-gradle.sh ${{ inputs.current }} ${ inputs.next }} ${{ inputs.file }} ${{ github.actor }}
+        $GITHUB_ACTION_PATH/../src/update-version-gradle.sh ${{ inputs.current }} ${{ inputs.next }} ${{ inputs.file }} ${{ github.actor }}
