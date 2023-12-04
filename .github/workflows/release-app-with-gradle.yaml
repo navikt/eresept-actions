@@ -50,23 +50,18 @@ jobs:
           sudo timedatectl set-timezone "Europe/Oslo"
           echo "buildarg=$(if [ '${{ inputs.skip-tests }}' = 'true' ]; then echo 'assemble'; else echo 'build'; fi)" >> $GITHUB_ENV 
 
-      - name: Get version numbers and changelog and more
-        run: |
-          git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions"
-          echo "VERFILE=$($GITHUB_ACTION_PATH/../src/curversion-file-gradle.sh)" >> $GITHUB_ENV
-          echo "CURVERSION=$($GITHUB_ACTION_PATH/../src/curversion-gradle.sh ${{ env.VERFILE }})" >> $GITHUB_ENV
-          INPUT_VERSION=${{ inputs.application-version }}
-          echo "RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')" >> $GITHUB_ENV
-          echo "NEXTVERSION=$($GITHUB_ACTION_PATH/../src/nextversion.sh ${{ env.RELVERSION }})" >> $GITHUB_ENV
-          echo "appver=${{ inputs.application }}:$RELVERSION" >> $GITHUB_ENV
-          echo "reldate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-          echo "DOCKERDIR=$(dirname $(find . -name Dockerfile -maxdepth 2))" >> $GITHUB_ENV
-          $GITHUB_ACTION_PATH/../src/update-version-gradle.sh ${{ env.CURVERSION }} ${ env.RELVERSION }} ${{ env.VERFILE }} ${{ github.actor }}
-          # multiline output
-          delim="EOF--$(date +%s)"
-          echo "CHANGELOG<<$delim" >> $GITHUB_ENV
-          git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
-          echo "$delim" >> $GITHUB_ENV
+      - uses: navikt/eresept-actions/get-versions-gradle@main
+        with:
+          application: ${{ inputs.application }}
+          application-version: ${{ inputs.application-version }}
+
+      - name: Gets version numbers and more
+        uses: navikt/eresept-actions/update-version-gradle@main
+        if: ${{ env.CURVERSION != env.RELVERSION }}
+        with:
+          current: ${{ env.CURVERSION }}
+          next: ${{ env.RELVERSION }}
+          file: ${{ env.VERFILE }}
 
       - name: Compile and test
         id: compile
@@ -78,10 +73,16 @@ jobs:
           arguments: --configuration-cache ${{ env.buildarg }} --no-daemon
           dependency-graph: generate-and-submit
 
-      - name: Tag and bump version
+      - name: Tag
         run: |
           git tag -a v${{ env.RELVERSION }} -m 'tagging as v${{ env.RELVERSION }} [ci skip]'
-          $GITHUB_ACTION_PATH/../src/update-version-gradle.sh ${{ env.RELVERSION }} ${ env.NEXTVERSION }} ${{ env.VERFILE }} ${{ github.actor }}
+
+      - name: Bumb version
+        uses: navikt/eresept-actions/update-version-gradle@main
+        with:
+          current: ${{ env.RELVERSION }}
+          next: ${{ env.NEXTVERSION }}
+          file: ${{ env.VERFILE }}
 
       - name: Docker build and push
         uses: nais/docker-build-push@3257289fd8cb0018ce0bda55db86ee54c21669b1 # v0.10.0

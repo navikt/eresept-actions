@@ -1,0 +1,18 @@
+name: 'updates version number'
+description: 'updates gradle version numbers and commits, if no change does nothing'
+inputs:
+  current:
+    description: 'the current version'
+    required: true
+  next:
+    description: 'the next version'
+    required: true
+  file:
+    description: 'the path to the file'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run:
+        $GITHUB_ACTION_PATH/../src/update-version-gradle.sh ${{ inputs.current }} ${ inputs.next }} ${{ inputs.file }} ${{ github.actor }}

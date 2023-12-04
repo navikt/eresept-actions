@@ -1,0 +1,28 @@
+name: 'gets version numbers and changelog and more'
+description: 'gets version numbers and more and outputs to github env'
+inputs:
+  application:
+    description: 'The application to release'
+    required: true
+  application-version:
+    description: 'The version to release'
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run:
+        git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions"
+        echo "VERFILE=$($GITHUB_ACTION_PATH/../src/curversion-file-gradle.sh)" >> $GITHUB_ENV
+        echo "CURVERSION=$($GITHUB_ACTION_PATH/../src/curversion-gradle.sh ${{ env.VERFILE }})" >> $GITHUB_ENV
+        INPUT_VERSION=${{ inputs.application-version }}
+        echo "RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')" >> $GITHUB_ENV
+        echo "NEXTVERSION=$($GITHUB_ACTION_PATH/../src/nextversion.sh ${{ env.RELVERSION }})" >> $GITHUB_ENV
+        echo "appver=${{ inputs.application }}:$RELVERSION" >> $GITHUB_ENV
+        echo "reldate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+        echo "DOCKERDIR=$(dirname $(find . -name Dockerfile -maxdepth 2))" >> $GITHUB_ENV
+        # multiline output
+        delim="EOF--$(date +%s)"
+        echo "CHANGELOG<<$delim" >> $GITHUB_ENV
+        git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
+        echo "$delim" >> $GITHUB_ENV
