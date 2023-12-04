@@ -50,6 +50,24 @@ jobs:
           sudo timedatectl set-timezone "Europe/Oslo"
           echo "buildarg=$(if [ '${{ inputs.skip-tests }}' = 'true' ]; then echo 'assemble'; else echo 'build'; fi)" >> $GITHUB_ENV 
 
+      - name: Get version numbers and changelog and more
+        run: |
+          git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions"
+          echo "VERFILE=$($GITHUB_ACTION_PATH/../src/curversion-file-gradle.sh)" >> $GITHUB_ENV
+          echo "CURVERSION=$($GITHUB_ACTION_PATH/../src/curversion-gradle.sh ${{ env.VERFILE }})" >> $GITHUB_ENV
+          INPUT_VERSION=${{ inputs.application-version }}
+          echo "RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')" >> $GITHUB_ENV
+          echo "NEXTVERSION=$($GITHUB_ACTION_PATH/../src/nextversion.sh ${{ env.RELVERSION }})" >> $GITHUB_ENV
+          echo "appver=${{ inputs.application }}:$RELVERSION" >> $GITHUB_ENV
+          echo "reldate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          echo "DOCKERDIR=$(dirname $(find . -name Dockerfile -maxdepth 2))" >> $GITHUB_ENV
+          $GITHUB_ACTION_PATH/../src/update-version-gradle.sh ${{ env.CURVERSION }} ${ env.RELVERSION }} ${{ env.VERFILE }} ${{ github.actor }}
+          # multiline output
+          delim="EOF--$(date +%s)"
+          echo "CHANGELOG<<$delim" >> $GITHUB_ENV
+          git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
+          echo "$delim" >> $GITHUB_ENV
+
       - name: Compile and test
         id: compile
         uses: gradle/gradle-build-action@87a9a15658c426a54dd469d4fc7dc1a73ca9d4a6 #v2.10.0
@@ -58,76 +76,26 @@ jobs:
         with:
           gradle-version: wrapper
           arguments: --configuration-cache ${{ env.buildarg }} --no-daemon
-          # uncomment when gradle 8.5 is released
-          #dependency-graph: generate-and-submit
+          dependency-graph: generate-and-submit
 
-      - name: Get version numbers and changelog
+      - name: Tag and bump version
         run: |
-          CURVERSION=$(grep -v '^#' gradle.properties | grep '^version=' | cut -d '=' -f2)
-          INPUT_VERSION=${{ inputs.application-version }}
-          RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')
-          echo "curversion=$CURVERSION" >> $GITHUB_ENV
-          echo "relversion=$RELVERSION" >> $GITHUB_ENV
-          echo "nextversion=$(echo $RELVERSION|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT" >> $GITHUB_ENV
-          echo "appver=${{ inputs.application }}:$RELVERSION" >> $GITHUB_ENV
-          echo "reldate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-          # multiline output
-          delim="EOF--$(date +%s)"
-          echo "CHANGELOG<<$delim" >> $GITHUB_ENV
-          git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
-          echo "$delim" >> $GITHUB_ENV
-
-      - name: Configure git user
-        run: |
-          git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions"
-
-      - name: Publish, tag
-        run: |
-          sed -ie 's/^version=${{ env.curversion }}/version=${{ env.relversion }}/' gradle.properties
-          ./gradlew assemble --no-daemon
-          git commit -m 'Commit new version ${{ env.relversion }}, by ${{ github.actor }} [ci skip]' gradle.properties
-          git tag -a v${{ env.relversion }} -m 'tagging as v${{ env.relversion }} [ci skip]'
-          DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
-          echo "dockerdir=$DIR" >> $GITHUB_ENV
-#          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
-#          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
+          git tag -a v${{ env.RELVERSION }} -m 'tagging as v${{ env.RELVERSION }} [ci skip]'
+          $GITHUB_ACTION_PATH/../src/update-version-gradle.sh ${{ env.RELVERSION }} ${ env.NEXTVERSION }} ${{ env.VERFILE }} ${{ github.actor }}
 
       - name: Docker build and push
         uses: nais/docker-build-push@3257289fd8cb0018ce0bda55db86ee54c21669b1 # v0.10.0
         with:
           team: teameresept
-          docker_context: ${{ env.dockerdir }}
-          dockerfile: ${{ env.dockerdir }}/Dockerfile
+          docker_context: ${{ env.DOCKERDIR }}
+          dockerfile: ${{ env.DOCKERDIR }}/Dockerfile
           identity_provider: ${{ secrets.identity-provider }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          tag: ${{ env.relversion }}
+          tag: ${{ env.RELVERSION }}
           build_args: |
-            version=${{ env.relversion }}
+            version=${{ env.RELVERSION }}
             app_name=${{ inputs.application }}
-          # reenable when gradle 8.5 is released
-          #byosbom: ${{ steps.compile.outputs.dependency-graph-file }}
-
-#      - uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
-#        with:
-#          registry: ghcr.io
-#          username: navikt/${{ inputs.application }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
-#        with:
-#          context: ${{ env.dockerdir }}
-#          push: true
-#          pull: true
-#          build-args: |
-#            "version=${{ env.relversion }}"
-#            "app_name=${{ inputs.application }}"
-#          tags: ${{ env.dockerimg }}
-
-      - name: Prepare for next
-        run: |
-          sed -ie 's/^version=${{ env.relversion }}/version=${{ env.nextversion }}/' gradle.properties
-          git commit -m 'Updated to new dev-version ${{ env.nextversion }} after release by ${{ github.actor }} [ci skip]' gradle.properties
-          git push -f origin v${{ env.relversion }} main
+          byosbom: ${{ steps.compile.outputs.dependency-graph-file }}
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
