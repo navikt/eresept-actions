@@ -17,5 +17,5 @@ if [ "$CURV" != "$NEXTV" ]; then
   else
     TXT="version"
   fi
-  git commit -m "Updated to new $TXT $NEXTV after release by $ACTOR [ci skip]"
+  git commit -m "Updated to new $TXT $NEXTV after release by $ACTOR [ci skip]" $FILE
 fi
