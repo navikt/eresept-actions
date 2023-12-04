@@ -9,7 +9,6 @@ CURV=$1
 NEXTV=$2
 FILE=$3
 ACTOR=$4
-BY
 if [ "$CURV" != "$NEXTV" ]; then
   sed -ie "s/^version.*=.*$CURV.*/version = \"$NEXTV\"/" $FILE
   echo $NEXTV | grep -q '-SNAPSHOT'
