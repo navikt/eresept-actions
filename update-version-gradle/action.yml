@@ -14,5 +14,5 @@ runs:
   using: "composite"
   steps:
     - shell: bash
-      run:
+      run: |
         $GITHUB_ACTION_PATH/../src/update-version-gradle.sh ${{ inputs.current }} ${ inputs.next }} ${{ inputs.file }} ${{ github.actor }}
