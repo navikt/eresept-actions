@@ -21,7 +21,7 @@ jobs:
           DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: compileClasspath|runtimeClasspath
         with:
           gradle-version: wrapper
-          arguments: --configuration-cache build -x test
+          arguments: build -x test
           dependency-graph: generate-and-submit
 
 

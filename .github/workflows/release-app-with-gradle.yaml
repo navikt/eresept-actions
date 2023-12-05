@@ -71,7 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.token }}
         with:
           gradle-version: wrapper
-          arguments: --configuration-cache ${{ env.buildarg }} --no-daemon
+          arguments: ${{ env.buildarg }} --no-daemon
           dependency-graph: generate-and-submit
 
       - name: Tag
