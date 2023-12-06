@@ -90,7 +90,7 @@ jobs:
           git push -f origin v${{ steps.version-numbers.outputs.release-version }} main
 
       - name: Docker build and push
-        uses: nais/docker-build-push@3257289fd8cb0018ce0bda55db86ee54c21669b1 # v0.10.0
+        uses: nais/docker-build-push@c602c2f06a1ac147a44986188690cfe3a2305862 # v0.11.0
         with:
           team: teameresept
           docker_context: ${{ steps.version-numbers.outputs.docker-dir }}
