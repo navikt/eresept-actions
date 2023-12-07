@@ -2,6 +2,11 @@ name: maven build, re-usable
 on:
   workflow_call:
     inputs:
+      java-version:
+        description: the java version to use
+        required: false
+        type: number
+        default: 21
       groups:
         description: 'groups of test to execute'
         required: false
@@ -40,7 +45,7 @@ jobs:
       - uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 #v4.0.0
         with:
           distribution: 'temurin'
-          java-version: '19'
+          java-version: '${{ inputs.java-version }}'
           overwrite-settings: false
 
       - name: Cache local Maven repository

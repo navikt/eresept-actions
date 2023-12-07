@@ -2,6 +2,11 @@ name: Gradle release application, re-usable
 on:
   workflow_call:
     inputs:
+      java-version:
+        description: the java version to use
+        required: false
+        type: number
+        default: 21
       application:
         description: 'The application to release'
         required: true
@@ -42,7 +47,7 @@ jobs:
       - uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 #v4.0.0
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '${{ inputs.java-version }}'
 
       - name: Set some variables
         run: |
