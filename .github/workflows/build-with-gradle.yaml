@@ -59,13 +59,24 @@ jobs:
           echo "commit_msg=$(git log -1 --oneline)" >> $GITHUB_ENV
           echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
 
+      - name: Initialze CodeQL Analysis
+        uses: github/codeql-action/init@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
+        with:
+          languages: java
+
       - uses: gradle/gradle-build-action@8cbcb9948b5892387aed077daf6f90e1f0ba5b27 #v2.11.0
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
         with:
           gradle-version: wrapper
-          dependency-graph: disabled
+          dependency-graph: generate-and-submit
           arguments: build ${{ inputs.coverage-task }} --no-daemon
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
+        with:
+          category: "/language:java"
+          queries: security-extended,security-and-quality
 
       - name: Publish results (unit test)
         uses: EnricoMi/publish-unit-test-result-action@ca89ad036b5fcd524c1017287fb01b5139908408 #v2.11.0

@@ -65,14 +65,30 @@ jobs:
           echo "commit_msg=$(git log -1 --oneline)" >> $GITHUB_ENV
           echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
 
+      - name: Initialize CodeQL Analysis
+        uses: github/codeql-action/init@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
+        with:
+          languages: java
+          queries: security-extended,security-and-quality
+
       - name: Compile and test
         run: mvn install --no-transfer-progress --settings maven-settings.xml
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
+        with:
+          category: "/language:java"
+          queries: security-extended,security-and-quality
 
       - name: Publish results (unit test)
         uses: EnricoMi/publish-unit-test-result-action@ca89ad036b5fcd524c1017287fb01b5139908408 #v2.11.0
         if: success() || failure()
         with:
           files: "**/target/surefire-reports/TEST-*.xml"
+
+      - name: Submit Dependency Snapshot
+        if: github.actor != 'dependabot[bot]'
+        uses: advanced-security/maven-dependency-submission-action@fcd7eab6b6d22946badc98d1e62665cdee93e0ae #v3.0.3
 
       - name: Checkout badges
         if: ${{ github.event_name != 'pull_request' }}
