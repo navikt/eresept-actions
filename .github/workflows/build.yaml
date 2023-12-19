@@ -24,10 +24,12 @@ jobs:
       group: ${{ github.workflow }}-${{ github.event.repository.name }}-${{ github.ref }}
       cancel-in-progress: true
     permissions:
-      contents: write
+      actions: read
       issues: read
       checks: write
+      contents: write
       pull-requests: write
+      security-events: write
     env:
       slack_webhook: ${{ secrets.webhook }}
     steps:
