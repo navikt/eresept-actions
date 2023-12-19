@@ -76,14 +76,6 @@ jobs:
       - name: Compile and test
         run: mvn install --no-transfer-progress --settings maven-settings.xml
 
-      - name: Submit Dependency Snapshot
-        if: github.ref_name == 'main'
-        uses: advanced-security/maven-dependency-submission-action@fcd7eab6b6d22946badc98d1e62665cdee93e0ae #v3.0.3
-        with:
-          token: ${{ secrets.token }}
-          settings-file: maven-settings.xml
-          maven-args: "-DskipTests --no-transfer-progress"
-
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
         with:
