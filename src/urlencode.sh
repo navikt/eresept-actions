@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+
 rawurlencode() {
   local string="${1}"
   local strlen=${#string}
