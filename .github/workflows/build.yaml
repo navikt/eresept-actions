@@ -93,6 +93,8 @@ jobs:
         uses: advanced-security/maven-dependency-submission-action@fcd7eab6b6d22946badc98d1e62665cdee93e0ae #v3.0.3
         with:
           token: ${{ secrets.token }}
+          settings-file: maven-settings.xml
+          maven-args: -DskipTests
 
       - name: Checkout badges
         if: ${{ github.event_name != 'pull_request' }}
