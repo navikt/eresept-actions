@@ -39,7 +39,7 @@ runs:
     - id: get-versions
       shell: bash
       run: |
-        git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions Bot $({{ github.actor }})"
+        git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions Bot ${{ github.actor }})"
         VERFILE=$($GITHUB_ACTION_PATH/../src/curversion-file-gradle.sh)
         CURVERSION=$($GITHUB_ACTION_PATH/../src/curversion-gradle.sh $VERFILE)
         INPUT_VERSION=${{ inputs.application-version }}

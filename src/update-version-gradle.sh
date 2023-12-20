@@ -11,7 +11,7 @@ FILE=$3
 ACTOR=$4
 if [ "$CURV" != "$NEXTV" ]; then
   sed -ie "s/^version.*=.*$CURV.*/version = \"$NEXTV\"/" $FILE
-  echo $NEXTV | grep -q '-SNAPSHOT'
+  echo $NEXTV | grep -q '\-SNAPSHOT'
   if [ $? -eq 0 ]; then
     TXT="dev-version"
   else
