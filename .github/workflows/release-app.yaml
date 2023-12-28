@@ -44,6 +44,7 @@ jobs:
         with:
           fetch-depth: 0
           repository: navikt/${{ inputs.application }}
+          ref: '${{ github.ref_name }}'
 
       - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@7c60eb95b2d5ec18f2e0e29f34c9ed69475e7a96 #v21

@@ -27,11 +27,6 @@ on:
         required: false
         type: string
         default: 'cyclonedxBom'
-      sbom-path:
-        description: 'where to find the sbom file'
-        required: false
-        type: string
-        default: 'build/reports/bom.json'
     secrets:
       webhook:
         required: true
@@ -53,6 +48,7 @@ jobs:
         with:
           fetch-depth: 0
           repository: navikt/${{ inputs.application }}
+          ref: '${{ github.ref_name }}'
 
       - uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 #v4.0.0
         with:
@@ -116,7 +112,6 @@ jobs:
           build_args: |
             version=${{ steps.version-numbers.outputs.release-version }}
             app_name=${{ inputs.application }}
-          byosbom: ${{ inputs.sbom-path }}
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
