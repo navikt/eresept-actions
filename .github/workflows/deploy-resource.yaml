@@ -1,0 +1,94 @@
+name: Deploy resource, re-usable
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'The version/tag to deploy, main or a tag (include the leading v in the tag)'
+        required: true
+        type: string
+        default: main
+      file:
+        description: 'The resource file to deploy, without .yaml extension'
+        required: true
+        type: string
+      vars:
+        description: 'The file containing the template variables, without .yaml extension and cluster suffix'
+        required: true
+        type: string
+      icon:
+        description: 'The icon to use in slack message'
+        required: true
+        type: string
+      cluster:
+        description: 'The cluster to deploy the resource to'
+        required: true
+        type: string
+        default: dev-fss
+    secrets:
+      webhook:
+        description: 'Slack webhook'
+        required: true
+
+jobs:
+  deploy:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    name: deploy ${{ inputs.file }} to ${{ inputs.cluster }}
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 #v4.1.1
+        with:
+          ref: ${{ inputs.version }}
+
+      - name: Create variables
+        shell: bash
+        run: |
+          lasttag=$(git ls-remote --tags --refs --exit-code --sort=-v:refname | grep -oE 'refs/tags/(.+)$' | head -1 | sed 's/refs\/tags\///;s/v//')
+          tag=$(if [ "${{ inputs.version }}" == "main" ]; then echo $lasttag; else echo ${{ inputs.version }} | sed 's/ //g; s/v//'; fi)
+          echo "deployver=$(echo $tag)" >> $GITHUB_ENV
+          echo "deploydate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@20b53ddc7e7bd626cfb5ca83bef20f148f2c5671 #v2
+        env:
+          CLUSTER: ${{ inputs.cluster }}
+          RESOURCE: .nais/${{ inputs.file }}.yaml
+          VARS: .nais/${{ inputs.vars }}.${{ inputs.cluster }}.yaml
+
+      - name: Checkout badges
+        uses: navikt/eresept-actions/badges-checkout@main
+
+      - name: Deployed version badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: '${{ inputs.cluster }} version'
+          right: '${{ env.deployver }}'
+          color: 'blue'
+          filename: '${{ inputs.cluster }}-${{ inputs.file }}-version'
+          logo: 'tag'
+
+      - name: Deployed date badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: '${{ inputs.cluster }} date'
+          right: '${{ env.deploydate }}'
+          color: 'blue'
+          filename: '${{ inputs.cluster }}-${{ inputs.file }}-date'
+          logo: 'calendar'
+
+      - name: Commit badges
+        uses: navikt/eresept-actions/badges-commit@main
+
+      - name: report to slack
+        if: always()
+        uses: navikt/eresept-actions/slack-notify@main
+        with:
+          status: "${{ job.status }}"
+          username: "eresept deploy ${{ inputs.file }}"
+          icon: "${{ inputs.icon }}"
+          title-success: "Deployed _*${{ inputs.file }}*_ to _*${{ inputs.cluster }}*_"
+          title-failure: "Deploy of _*${{ inputs.file }}*_ to _*${{ inputs.cluster }}*_ failed"
+          title-cancelled: "Deploy of _*${{ inputs.file }}*_ to _*${{ inputs.cluster }}*_ was cancelled"
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
