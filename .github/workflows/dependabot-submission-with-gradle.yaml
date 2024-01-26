@@ -2,12 +2,10 @@ name: maven CodeQL analysis, re-usable
 
 on:
   workflow_call:
-    inputs:
-      module:
-        description: module to retrieve the dependencies for
-        required: false
-        type: string
-        default: ':'
+    secrets:
+      token:
+        description: 'github token'
+        required: true
 
 jobs:
   submission:
@@ -22,8 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 #v4.1.1
 
-      - uses: mikepenz/gradle-dependency-submission@e39d996cbb20c65ff32b7129c0e2be9caefa8f7a #v1
+      - uses: gradle/gradle-build-action@a8f75513eafdebd8141bd1cd4e30fcd194af8dfa #v2.12.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
         with:
-          gradle-build-configuration: "runtimeClasspath"
-          gradle-build-module: "${{ inputs.module }}"
+          gradle-version: wrapper
+          dependency-graph: generate-and-submit
+          arguments: build ${{ inputs.coverage-task }} --no-daemon
 
