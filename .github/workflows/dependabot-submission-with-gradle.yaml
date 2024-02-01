@@ -22,11 +22,11 @@ jobs:
 
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@ec92e829475ac0c2315ea8f9eced72db85bb337a #v3.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
         with:
           dependency-graph: generate-and-submit
 
       - name: Build with gradle
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
         run: ./gradlew ${{ inputs.coverage-task }} --no-daemon
 
