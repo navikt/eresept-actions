@@ -80,15 +80,15 @@ jobs:
           next: ${{ steps.version-numbers.outputs.release-version }}
           file: ${{ steps.version-numbers.outputs.version-file }}
 
-      - name: Compile and test
-        id: compile
-        uses: gradle/gradle-build-action@a8f75513eafdebd8141bd1cd4e30fcd194af8dfa #v2.12.0
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@ec92e829475ac0c2315ea8f9eced72db85bb337a #v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
         with:
-          gradle-version: wrapper
-          arguments: ${{ env.buildarg }} ${{ inputs.sbom-build }} --no-daemon
           dependency-graph: generate-and-submit
+
+      - name: Compile and test
+        run: ./gradlew ${{ env.buildarg }} ${{ inputs.sbom-build }} --no-daemon
 
       - name: Tag
         run: |

@@ -20,11 +20,13 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 #v4.1.1
 
-      - uses: gradle/gradle-build-action@a8f75513eafdebd8141bd1cd4e30fcd194af8dfa #v2.12.0
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@ec92e829475ac0c2315ea8f9eced72db85bb337a #v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
         with:
-          gradle-version: wrapper
           dependency-graph: generate-and-submit
-          arguments: build ${{ inputs.coverage-task }} --no-daemon
+
+      - name: Build with gradle
+        run: ./gradlew ${{ inputs.coverage-task }} --no-daemon
 
