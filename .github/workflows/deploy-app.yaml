@@ -59,7 +59,7 @@ jobs:
         run: |
           LASTVERSION=${{ steps.get-versions.outputs.current-version }}
           INPUT_VERSION=${{ inputs.application-version }}
-          RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION}|sed 's/-.*//')
+          RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION}')
           echo "relversion=$RELVERSION" >> $GITHUB_ENV
           echo "cluster=$(if [ "${{ matrix.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)" >> $GITHUB_ENV
           POSTFIX=$(if [ '${{ matrix.environment }}' != 'p' -a '${{ matrix.environment }}' != 'q1' ]; then echo '-${{ matrix.environment }}'; else echo ''; fi)
