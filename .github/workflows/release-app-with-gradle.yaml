@@ -81,18 +81,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.token }}
         run: ./gradlew ${{ env.buildarg }} ${{ inputs.sbom-build }} --no-daemon
 
-      - name: Create release
-        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e #v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
-        with:
-          tag_name: ${{ steps.get-versions.outputs.next-version }}
-          release_name: Release ${{ steps.get-versions.outputs.next-version }}
-          draft: false
-          prerelease: false
-          body: |
-            Changes in release ${{ steps.get-versions.outputs.next-version }}
-            ${{ steps.get-versions.outputs.changelog }}
+      - name: Tag
+        run: |
+          git tag -a v${{ steps.get-versions.outputs.next-version }} -m 'tagging as v${{ steps.get-versions.outputs.next-version }}'
 
       - name: Docker build and push
         uses: nais/docker-build-push@14cd7a0a656477da33aa7d627123330990ef3807 # v0.11.2
