@@ -51,9 +51,13 @@ jobs:
           echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
 
+      - name: get versions, changelog and more
+        id: get-versions
+        uses: navikt/eresept-actions/get-versions-and-more@main
+
       - name: Get version numbers and cluster
         run: |
-          LASTVERSION=$(git tag --sort=-version:refname|head -1|tr -d 'v')
+          LASTVERSION=${{ steps.get-versions.outputs.current-version }}
           INPUT_VERSION=${{ inputs.application-version }}
           RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION}|sed 's/-.*//')
           echo "relversion=$RELVERSION" >> $GITHUB_ENV
@@ -61,7 +65,6 @@ jobs:
           POSTFIX=$(if [ '${{ matrix.environment }}' != 'p' -a '${{ matrix.environment }}' != 'q1' ]; then echo '-${{ matrix.environment }}'; else echo ''; fi)
           echo "deployapp=${{ matrix.application }}$POSTFIX" >> $GITHUB_ENV
           echo "deployappver=${{ matrix.application }}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
-          echo "deploydate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
 
       - name: Docker login
         uses: nais/login@557ec71a21c53ce9a8f672e1889997d2d564bd8c #v0.0.7
@@ -78,7 +81,6 @@ jobs:
           RESOURCE: .nais/nais.yaml
           VARS: .nais/nais.vars.${{ matrix.environment }}.yaml
           IMAGE: ${{ steps.login.outputs.registry }}/${{ matrix.application }}:${{ env.relversion }}
-#          IMAGE: ghcr.io/navikt/${{ matrix.application }}/${{ matrix.application }}:${{ env.relversion }}
 
       - name: Calculate execution time
         run: |
@@ -101,7 +103,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: '${{ matrix.environment }} date'
-          right: '${{ env.deploydate }}'
+          right: '${{ steps.get-versions.outputs.current-datetime }}'
           color: 'blue'
           filename: 'deploy-date-${{ matrix.environment }}'
           logo: 'calendar'

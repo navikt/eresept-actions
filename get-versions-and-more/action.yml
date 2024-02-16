@@ -1,0 +1,34 @@
+name: 'gets version numbers and changelog and more'
+description: 'gets version numbers and more and outputs to github env'
+outputs:
+  current-version:
+    description: "the current version"
+    value: ${{ steps.get-versions.outputs.current-version }}
+  next-version:
+    description: "the next version number"
+    value: ${{ steps.get-versions.outputs.next-version }}
+  current-datetime:
+    description: "current date and time"
+    value: ${{ steps.get-versions.outputs.current-datetime }}
+  docker-dir:
+    description: "directory of docker file"
+    value: ${{ steps.get-versions.outputs.docker-dir }}
+  changelog:
+    description: "Changelog"
+    value: ${{ steps.get-versions.outputs.changelog }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: get-versions
+      shell: bash
+      run: |
+        echo "current-version=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+        echo "next-version=$(date '+%Y-%m-%d')-$(git --no-pager log -1 --pretty=%h)" >> $GITHUB_OUTPUT
+        echo "current-datetime=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+        echo "docker-dir=$(dirname $(find . -name Dockerfile -maxdepth 2))" >> $GITHUB_OUTPUT
+        # multiline output
+        delim="EOF--$(date +%s)"
+        echo "changelog<<$delim" >> $GITHUB_OUTPUT
+        git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_OUTPUT
+        echo "$delim" >> $GITHUB_OUTPUT

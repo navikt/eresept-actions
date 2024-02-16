@@ -65,20 +65,11 @@ jobs:
           echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
           echo "buildarg=$(if [ '${{ inputs.skip-tests }}' = 'true' ]; then echo 'assemble'; else echo 'build'; fi)" >> $GITHUB_ENV 
+          echo "version=$(date '+%Y-%m-%d')-$(git --no-pager log -1 --pretty=%h)" >> $GITHUB_ENV
 
-      - id: version-numbers
-        uses: navikt/eresept-actions/get-versions-gradle@main
-        with:
-          application: ${{ inputs.application }}
-          application-version: ${{ inputs.application-version }}
-
-      - name: Updates version numbers
-        uses: navikt/eresept-actions/update-version-gradle@main
-        if: ${{ steps.version-numbers.outputs.current-version != steps.version-numbers.outputs.release-version }}
-        with:
-          current: ${{ steps.version-numbers.outputs.current-version }}
-          next: ${{ steps.version-numbers.outputs.release-version }}
-          file: ${{ steps.version-numbers.outputs.version-file }}
+      - name: get versions, changelog and more
+        id: get-versions
+        uses: navikt/eresept-actions/get-versions-and-more@main
 
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 #v3.1.0
@@ -90,32 +81,30 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.token }}
         run: ./gradlew ${{ env.buildarg }} ${{ inputs.sbom-build }} --no-daemon
 
-      - name: Tag
-        run: |
-          git tag -a v${{ steps.version-numbers.outputs.release-version }} -m 'tagging as v${{ steps.version-numbers.outputs.release-version }} [ci skip]'
-
-      - name: Bumb version
-        uses: navikt/eresept-actions/update-version-gradle@main
+      - name: Create release
+        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e #v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
         with:
-          current: ${{ steps.version-numbers.outputs.release-version }}
-          next: ${{ steps.version-numbers.outputs.next-version }}
-          file: ${{ steps.version-numbers.outputs.version-file }}
-
-      - name: Commit to git
-        run: |
-          git push -f origin v${{ steps.version-numbers.outputs.release-version }} main
+          tag_name: ${{ steps.get-versions.outputs.next-version }}
+          release_name: Release ${{ steps.get-versions.outputs.next-version }}
+          draft: false
+          prerelease: false
+          body: |
+            Changes in release ${{ steps.get-versions.outputs.next-version }}
+            ${{ steps.get-versions.outputs.changelog }}
 
       - name: Docker build and push
         uses: nais/docker-build-push@14cd7a0a656477da33aa7d627123330990ef3807 # v0.11.2
         with:
           team: teameresept
-          docker_context: ${{ steps.version-numbers.outputs.docker-dir }}
-          dockerfile: ${{ steps.version-numbers.outputs.docker-dir }}/Dockerfile
+          docker_context: ${{ steps.get-versions.outputs.docker-dir }}
+          dockerfile: ${{ steps.get-versions.outputs.docker-dir }}/Dockerfile
           identity_provider: ${{ secrets.identity-provider }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          tag: ${{ steps.version-numbers.outputs.release-version }}
+          tag: ${{ steps.get-versions.outputs.next-version }}
           build_args: |
-            version=${{ steps.version-numbers.outputs.release-version }}
+            version=${{ steps.get-versions.outputs.next-version }}
             app_name=${{ inputs.application }}
 #          byosbom: ${{ inputs.sbom-path }} # use trivy by default
 
@@ -131,7 +120,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'version'
-          right: '${{ steps.version-numbers.outputs.release-version }}'
+          right: '${{ steps.get-versions.outputs.next-version }}'
           color: 'blue'
           filename: 'version'
           logo: 'tag'
@@ -140,7 +129,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'release date'
-          right: '${{ steps.version-numbers.outputs.release-date }}'
+          right: '${{ steps.get-versions.outputs.current-datetime }}'
           color: 'blue'
           filename: 'rel-date'
           logo: 'calendar'
@@ -159,17 +148,17 @@ jobs:
 
       - name: Summary
         run: |
-          echo "### Released **${{ github.event.repository.name }}:${{ steps.version-numbers.outputs.release-version }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+          echo "### Released **${{ github.event.repository.name }}:${{ steps.get-versions.outputs.next-version }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
 
       - name: report to slack
         if: always()
         uses: navikt/eresept-actions/slack-notify@main
         with:
           status: "${{ job.status }}"
-          username: "release ${{ steps.version-numbers.outputs.app-version }}"
+          username: "release ${{ inputs.application }}:${{ steps.get-versions.outputs.next-version }}"
           icon: ":docker:"
-          title-success: "Released _*${{ steps.version-numbers.outputs.app-version }}*_ in ${{ env.exectime }} seconds"
+          title-success: "Released _*${{ inputs.application }}:${{ steps.get-versions.outputs.next-version }}*_ in ${{ env.exectime }} seconds"
           title-failure: "Release of _*${{ inputs.application }}*_ failed"
           title-cancelled: "Release of _*${{ inputs.application }}*_ was cancelled"
-          message-success: "```${{ steps.version-numbers.outputs.changelog }}```"
+          message-success: "```${{ steps.get-versions.outputs.changelog }}```"
           webhook: ${{ secrets.webhook }}
