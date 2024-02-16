@@ -83,7 +83,8 @@ jobs:
 
       - name: Tag
         run: |
-          git tag -a v${{ steps.get-versions.outputs.next-version }} -m 'tagging as v${{ steps.get-versions.outputs.next-version }}'
+          git tag -a ${{ steps.get-versions.outputs.next-version }} -m 'tagging as v${{ steps.get-versions.outputs.next-version }}'
+          git push origin ${{ steps.get-versions.outputs.next-version }}
 
       - name: Docker build and push
         uses: nais/docker-build-push@14cd7a0a656477da33aa7d627123330990ef3807 # v0.11.2
