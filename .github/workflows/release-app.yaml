@@ -75,6 +75,7 @@ jobs:
 
       - name: Compile and test
         run: |
+          mvn --batch-mode versions:set -DnewVersion=${{ steps.get-versions.outputs.next-version }} -DgenerateBackupPoms=false -DprocessAllModules=true
           SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests -Ddetekt.skip=true"; else echo ""; fi) 
           mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${{ inputs.skip-tests }}
 
