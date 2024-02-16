@@ -69,72 +69,32 @@ jobs:
           echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
 
-      - name: Get version numbers and changelog
-        run: |
-          CURVERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          INPUT_VERSION=${{ inputs.application-version }}
-          RELVERSION=$(echo ${INPUT_VERSION:-$CURVERSION}|sed 's/-.*//')
-          echo "relversion=$RELVERSION" >> $GITHUB_ENV
-          echo "nextversion=$(echo $RELVERSION|awk '{split($0,a,"."); b=a[3]+1;print a[1]"."a[2]"."b}')-SNAPSHOT" >> $GITHUB_ENV
-          echo "appver=${{ inputs.application }}:$RELVERSION" >> $GITHUB_ENV
-          echo "reldate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-          # multiline output
-          delim="EOF--$(date +%s)"
-          echo "CHANGELOG<<$delim" >> $GITHUB_ENV
-          git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_ENV
-          echo "$delim" >> $GITHUB_ENV
+      - name: get versions, changelog and more
+        id: get-versions
+        uses: navikt/eresept-actions/get-versions-and-more@main
 
-      - name: Configure git user
-        run: |
-          git config user.name "GitHub Actions Bot (${{ github.actor }})"
-          git config user.email "actions@github.com"
-
-      - name: Publish, tag
+      - name: Compile and test
         run: |
           SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests -Ddetekt.skip=true"; else echo ""; fi) 
-          mvn --batch-mode versions:set -DnewVersion=${{ env.relversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
-          git commit -am 'Commit new version ${{ env.relversion }}, by ${{ github.actor }} [ci skip]'
-          git tag -a v${{ env.relversion }} -m 'tagging as v${{ env.relversion }} [ci skip]'
           mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${{ inputs.skip-tests }}
-          DIR=$(dirname $(find . -name Dockerfile -maxdepth 2))
-          echo "dockerdir=$DIR" >> $GITHUB_ENV
-#          DOCKER_IMG="ghcr.io/navikt/${{ inputs.application }}/${GITHUB_REPOSITORY#*/}:${{ env.relversion }}"
-#          echo "dockerimg=$DOCKER_IMG" >> $GITHUB_ENV
+
+      - name: Tag
+        run: |
+          git tag -a ${{ steps.get-versions.outputs.next-version }} -m 'tagging as v${{ steps.get-versions.outputs.next-version }}'
+          git push origin ${{ steps.get-versions.outputs.next-version }}
 
       - name: Docker build and push
         uses: nais/docker-build-push@14cd7a0a656477da33aa7d627123330990ef3807 # v0.11.2
         with:
           team: teameresept
-          docker_context: ${{ env.dockerdir }}
-          dockerfile: ${{ env.dockerdir }}/Dockerfile
+          docker_context: ${{ steps.get-versions.outputs.docker-dir }}
+          dockerfile: ${{ steps.get-versions.outputs.docker-dir }}/Dockerfile
           identity_provider: ${{ secrets.identity-provider }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          tag: ${{ env.relversion }}
+          tag: ${{ steps.get-versions.outputs.next-version }}
           build_args: |
-            version=${{ env.relversion }}
+            version=${{ steps.get-versions.outputs.next-version }}
             app_name=${{ inputs.application }}
-
-#      - uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
-#        with:
-#          registry: ghcr.io
-#          username: navikt/${{ inputs.application }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
-#        with:
-#          context: ${{ env.dockerdir }}
-#          push: true
-#          pull: true
-#          build-args: |
-#            "version=${{ env.relversion }}"
-#            "app_name=${{ inputs.application }}"
-#          tags: ${{ env.dockerimg }}
-
-      - name: Prepare for next
-        run: |
-          mvn --batch-mode versions:set -DnewVersion=${{ env.nextversion }} -DgenerateBackupPoms=false -DprocessAllModules=true
-          git commit -am 'Updated to new dev-version ${{ env.nextversion }} after release by ${{ github.actor }} [ci skip]'
-          git push -f origin v${{ env.relversion }} main
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
@@ -148,7 +108,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'version'
-          right: '${{ env.relversion }}'
+          right: '${{ steps.get-versions.outputs.next-version }}'
           color: 'blue'
           filename: 'version'
           logo: 'tag'
@@ -157,7 +117,7 @@ jobs:
         uses: navikt/eresept-actions/badges-create@main
         with:
           left: 'release date'
-          right: '${{ env.reldate }}'
+          right: '${{ steps.get-versions.outputs.current-datetime }}'
           color: 'blue'
           filename: 'rel-date'
           logo: 'calendar'
@@ -183,10 +143,10 @@ jobs:
         uses: navikt/eresept-actions/slack-notify@main
         with:
           status: "${{ job.status }}"
-          username: "release ${{ env.appver }}"
+          username: "release ${{ inputs.application }}:${{ steps.get-versions.outputs.next-version }}"
           icon: ":docker:"
-          title-success: "Released _*${{ env.appver }}*_ in ${{ env.exectime }} seconds"
+          title-success: "Released _*${{ inputs.application }}:${{ steps.get-versions.outputs.next-version }}*_ in ${{ env.exectime }} seconds"
           title-failure: "Release of _*${{ inputs.application }}*_ failed"
           title-cancelled: "Release of _*${{ inputs.application }}*_ was cancelled"
-          message-success: "```${{ env.CHANGELOG }}```"
+          message-success: "```${{ steps.get-versions.outputs.changelog }}```"
           webhook: ${{ secrets.webhook }}

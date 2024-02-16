@@ -65,7 +65,6 @@ jobs:
           echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
           echo "buildarg=$(if [ '${{ inputs.skip-tests }}' = 'true' ]; then echo 'assemble'; else echo 'build'; fi)" >> $GITHUB_ENV 
-          echo "version=$(date '+%Y-%m-%d')-$(git --no-pager log -1 --pretty=%h)" >> $GITHUB_ENV
 
       - name: get versions, changelog and more
         id: get-versions
