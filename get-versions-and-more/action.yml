@@ -23,6 +23,7 @@ runs:
     - id: get-versions
       shell: bash
       run: |
+        git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions Bot ${{ github.actor }})"
         echo "current-version=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
         echo "next-version=$(date '+%Y-%m-%d')-$(git --no-pager log -1 --pretty=%h)" >> $GITHUB_OUTPUT
         echo "current-datetime=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
