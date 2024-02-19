@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 dt=$(date '+%Y-%m-%d')
-sha=$(git --no-pager log -1 --pretty=%h)
+sha=$(git --no-pager log -1 --pretty=%h | cut -c1-7)
 branch=$(git rev-parse --abbrev-ref HEAD)
 stag=$dt-$sha
 if [ "$branch" != "main" ]
