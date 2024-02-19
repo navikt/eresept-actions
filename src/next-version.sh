@@ -1,13 +1,18 @@
 #!/usr/bin/bash
 
-ln=0
 dt=$(date '+%Y-%m-%d')
 sha=$(git --no-pager log -1 --pretty=%h)
-tag=$dt-$sha
-exists=1
-while [ $(git tag -l "$tag") ]
+branch=$(git rev-parse --abbrev-ref HEAD)
+stag=$dt-$sha
+if [ "$branch" != "main" ]
+then
+  stag=$dt-$sha-$branch
+fi
+tag=$stag
+ln=0
+while [ $(git tag -l "$stag") ]
 do
   ln=$(echo $ln | awk '{printf("%02d\n", $0+1)}')
-  tag=$dt-$sha-$ln
+  tag=$stag-$ln
 done
 echo $tag
