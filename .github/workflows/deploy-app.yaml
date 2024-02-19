@@ -44,6 +44,7 @@ jobs:
         with:
           fetch-depth: 0
           repository: navikt/${{ matrix.application }}
+          ref: '${{ github.ref_name }}'
           token: ${{ secrets.token }}
 
       - name: Start time and timezone
