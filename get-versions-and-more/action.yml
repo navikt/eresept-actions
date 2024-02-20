@@ -28,6 +28,9 @@ runs:
         echo "next-version=$($GITHUB_ACTION_PATH/../src/next-version.sh)" >> $GITHUB_OUTPUT
         echo "current-datetime=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
         dd=$(find . -name Dockerfile -maxdepth 2)
+        echo "debug1>>$dd<<"
+        dbg=$(if [ -z "$dd" ]; then echo . else echo $dd; fi)
+        echo "debug2>>$dbg<<"
         echo "docker-dir=$(dirname $(if [ -z "$dd" ]; then echo . else echo $dd; fi))" >> $GITHUB_OUTPUT
         # multiline output
         delim="EOF--$(date +%s)"
