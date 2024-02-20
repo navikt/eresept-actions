@@ -27,7 +27,9 @@ runs:
         echo "current-version=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
         echo "next-version=$($GITHUB_ACTION_PATH/../src/next-version.sh)" >> $GITHUB_OUTPUT
         echo "current-datetime=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
-        echo "docker-dir=$(dirname $(find . -name Dockerfile -maxdepth 2))" >> $GITHUB_OUTPUT
+        dd=$(find . -name Dockerfile -maxdepth 2)
+        if [ -z "$dd" ]; then df="." else df=$(dirname $dd); fi
+        echo "docker-dir=$df" >> $GITHUB_OUTPUT
         # multiline output
         delim="EOF--$(date +%s)"
         echo "changelog<<$delim" >> $GITHUB_OUTPUT
