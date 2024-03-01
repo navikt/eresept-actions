@@ -68,7 +68,7 @@ jobs:
           echo "deployappver=${{ matrix.application }}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
 
       - name: Docker login
-        uses: nais/login@557ec71a21c53ce9a8f672e1889997d2d564bd8c #v0.0.7
+        uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e #v0.0.8
         id: login
         with:
           team: teameresept
