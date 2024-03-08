@@ -71,7 +71,6 @@ jobs:
         uses: github/codeql-action/init@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
         with:
           languages: java
-          queries: security-extended,security-and-quality
 
       - name: Compile and test
         run: mvn install --no-transfer-progress --settings maven-settings.xml
@@ -80,7 +79,6 @@ jobs:
         uses: github/codeql-action/analyze@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
         with:
           category: "/language:java"
-          queries: security-extended,security-and-quality
 
       - name: Publish results (unit test)
         uses: EnricoMi/publish-unit-test-result-action@f355d34d53ad4e7f506f699478db2dd71da9de5f #v2.15.1

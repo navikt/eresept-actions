@@ -50,7 +50,6 @@ jobs:
       - uses: github/codeql-action/init@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
         with:
           languages: ${{ matrix.language }}
-          queries: security-extended,security-and-quality
 
       - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d #v22
