@@ -45,7 +45,7 @@ jobs:
       - name: Create variables
         shell: bash
         run: |
-          lasttag=$(git ls-remote --tags --refs --exit-code --sort=-v:refname | grep -oE 'refs/tags/(.+)$' | head -1 | sed 's/refs\/tags\///;s/v//')
+          lasttag=$(git describe --tags --abbrev=0')
           tag=$(if [ "${{ inputs.version }}" == "main" ]; then echo $lasttag; else echo ${{ inputs.version }} | sed 's/ //g; s/v//'; fi)
           echo "deployver=$(echo $tag)" >> $GITHUB_ENV
           echo "deploydate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
