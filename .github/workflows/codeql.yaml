@@ -47,7 +47,7 @@ jobs:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ github.event.repository.name }}
 
-      - uses: github/codeql-action/init@9fdb3e49720b44c48891d036bb502feb25684276 # v3.25.6
+      - uses: github/codeql-action/init@f079b8493333aace61c81488f8bd40919487bd9f # v3.25.7
         with:
           languages: ${{ matrix.language }}
 
@@ -61,7 +61,7 @@ jobs:
         run: mvn compile -B --no-transfer-progress -DskipTests -Ddetekt.skip=true
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@9fdb3e49720b44c48891d036bb502feb25684276 # v3.25.6
+        uses: github/codeql-action/analyze@f079b8493333aace61c81488f8bd40919487bd9f # v3.25.7
         with:
           category: "/language:${{matrix.language}}"
 
