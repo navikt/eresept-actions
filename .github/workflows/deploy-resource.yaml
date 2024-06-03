@@ -92,4 +92,6 @@ jobs:
           title-success: "Deployed _*${{ inputs.file }}*_ to _*${{ inputs.cluster }}*_"
           title-failure: "Deploy of _*${{ inputs.file }}*_ to _*${{ inputs.cluster }}*_ failed"
           title-cancelled: "Deploy of _*${{ inputs.file }}*_ to _*${{ inputs.cluster }}*_ was cancelled"
+          message-success: "Deployed _*${{ inputs.file }}*_ to _*${{ inputs.cluster }}*_"
+          message-cancelled: "Deploy of _*${{ inputs.file }}*_ to _*${{ inputs.cluster }}*_ was cancelled"
           webhook: ${{ secrets.webhook }}
