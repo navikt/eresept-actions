@@ -6,7 +6,6 @@ on:
         description: 'The version/tag to deploy, main or a tag (include the leading v in the tag)'
         required: true
         type: string
-        default: main
       file:
         description: 'The resource file to deploy, without .yaml extension'
         required: true
@@ -40,12 +39,14 @@ jobs:
     steps:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 #v4.1.6
         with:
-          ref: ${{ inputs.version }}
+          fetch-depth: 0
+          repository: navikt/${{ github.event.repository.name}}
+          ref: '${{ inputs.version }}'
 
       - name: Create variables
         shell: bash
         run: |
-          lasttag=$(git ls-remote --tags --exit-code --sort=-committerdate  | grep -oE 'refs/tags/(.+)$' | sed 's/refs\/tags\///;s/[^-_0-9a-zA-Z].*$//' | head -1)
+          lasttag=$(git describe --tags --abbrev=0)
           tag=$(if [ "${{ inputs.version }}" == "main" ]; then echo $lasttag; else echo ${{ inputs.version }} | sed 's/ //g; s/v//'; fi)
           echo "deployver=$(echo $tag)" >> $GITHUB_ENV
           echo "deploydate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
