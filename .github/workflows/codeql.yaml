@@ -75,4 +75,6 @@ jobs:
           title-success: "CodeQL scan of _*${{ github.event.repository.name }}*_ passed"
           title-failure: "CodeQL scan of _*${{ github.event.repository.name }}*_ failed"
           title-cancelled: "CodeQL scan of _*${{ github.event.repository.name }}*_ was cancelled"
+          message-success: "CodeQL scan of _*${{ github.event.repository.name }}*_ passed"
+          message-cancelled: "CodeQL scan of _*${{ github.event.repository.name }}*_ was cancelled"
           webhook: ${{ secrets.webhook }}
