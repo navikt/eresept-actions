@@ -52,7 +52,7 @@ jobs:
           echo "deploydate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
 
       - name: Deploy
-        uses: nais/deploy/actions/deploy@46cb08a54e6471e1e624c8713d578abc25def884 #v2
+        uses: nais/deploy/actions/deploy@049ad8a74e82894c1247f227e014c888462c94d6 #v2
         env:
           CLUSTER: ${{ inputs.cluster }}
           RESOURCE: .nais/${{ inputs.file }}.yaml
