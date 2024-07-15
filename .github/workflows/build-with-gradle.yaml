@@ -62,7 +62,7 @@ jobs:
           echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
 
       - name: Initialze CodeQL Analysis
-        uses: github/codeql-action/init@b611370bb5703a7efb587f9d136a52ea24c5c38c # v3.25.11
+        uses: github/codeql-action/init@4fa2a7953630fd2f3fb380f21be14ede0169dd4f # v3.25.12
         with:
           languages: java
 
@@ -77,7 +77,7 @@ jobs:
         run: ./gradlew ${{ inputs.coverage-task }} --no-daemon
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@b611370bb5703a7efb587f9d136a52ea24c5c38c # v3.25.11
+        uses: github/codeql-action/analyze@4fa2a7953630fd2f3fb380f21be14ede0169dd4f # v3.25.12
         with:
           category: "/language:java"
 
