@@ -1,8 +1,12 @@
 version: 2
 
 updates:
-  - package-ecosystem: github-actions
-    directory: "/"
+  - package-ecosystem: "github-actions"
+    directories:
+      - "/"
+      - "/badges-checkout"
+      - "/slack-notify"
+      - "/badges-jacoco"
     schedule:
-      interval: daily
+      interval: "daily"
     open-pull-requests-limit: 10
