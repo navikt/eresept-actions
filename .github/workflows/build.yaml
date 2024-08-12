@@ -13,7 +13,7 @@ on:
         required: false
       token:
         description: 'github token'
-        required: false
+        required: true
 
 jobs:
   build:
@@ -28,18 +28,11 @@ jobs:
       issues: read
       checks: write
       contents: write
-      id-token: write
       pull-requests: write
       security-events: write
     env:
       slack_webhook: ${{ secrets.webhook }}
     steps:
-      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f
-        id: octo-sts
-        with:
-          scope: ${{ github.event.repository.name }}
-          identity: readertoken
-
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 #v4.1.7
         with:
           fetch-depth: 0
@@ -48,7 +41,7 @@ jobs:
         uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d #v22
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "eresept-parent", "username": "x-access-token", "password": "${{ steps.octo-sts.outputs.token }}" }, { "id": "xerces", "username": "x-access-token", "password": "${{ steps.octo-sts.outputs.token }}" }]'
+          servers: '[{ "id": "eresept-parent", "username": "x-access-token", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "x-access-token", "password": "${{ secrets.token }}" }]'
           output_file: maven-settings.xml
 
       - uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018 #v4.2.2
