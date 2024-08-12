@@ -37,7 +37,7 @@ jobs:
       - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f
         id: octo-sts
         with:
-          scope: ${{ github.repository_owner }}
+          scope: ${{ github.event.repository.name }}
           identity: readertoken
 
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 #v4.1.7
