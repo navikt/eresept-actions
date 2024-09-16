@@ -79,8 +79,8 @@ jobs:
           SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests -Ddetekt.skip=true"; else echo ""; fi) 
           mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${{ inputs.skip-tests }}
           jarfile=$(ls -1s ${{ steps.get-versions.outputs.docker-dir }}/target/*.jar | sort -n | tail -1 | cut -d' ' -f 2)
-          jar -tf ${{ steps.get-versions.outputs.docker-dir }}/$jarfile | grep -q spring-boot-jarmode-tools
-          if [ $? = 0 ]; then java -Djarmode=tools -jar ${{ steps.get-versions.outputs.docker-dir }}/$jarfile extract --destination ${{ steps.get-versions.outputs.docker-dir }}/target/app; fi
+          jar -tf $jarfile | grep -q spring-boot-jarmode-tools
+          if [ $? = 0 ]; then java -Djarmode=tools -jar $jarfile extract --destination ${{ steps.get-versions.outputs.docker-dir }}/target/app; fi
 
       - name: Tag
         run: |
