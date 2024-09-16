@@ -82,7 +82,7 @@ jobs:
           ./gradlew ${{ env.buildarg }} ${{ inputs.sbom-build }} --no-daemon
           jarfile=$(ls -1s ${{ steps.get-versions.outputs.docker-dir }}/build/libs/*.jar | sort -n | tail -1 | cut -d' ' -f 2)
           jar -tf ${{ steps.get-versions.outputs.docker-dir }}/$jarfile | grep -q spring-boot-jarmode-tools
-          if [ $? = 0 ]; then java -Djarmode=tools -jar ${{ steps.get-versions.outputs.docker-dir }}/$jarfile extract --destination ${{ steps.get-versions.outputs.docker-dir }}/build/libs/app 
+          if [ $? = 0 ]; then java -Djarmode=tools -jar ${{ steps.get-versions.outputs.docker-dir }}/$jarfile extract --destination ${{ steps.get-versions.outputs.docker-dir }}/build/libs/app; fi 
 
       - name: Tag
         run: |
