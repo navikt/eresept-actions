@@ -48,6 +48,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      security-events: write # push sarif to github security
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
         with:
@@ -86,6 +87,7 @@ jobs:
           git push origin ${{ steps.get-versions.outputs.next-version }}
 
       - name: Docker build and push
+        id: docker-push
         uses: nais/docker-build-push@5246e4705d79945a0ec28eb9bd3638dd534fee46 # v0.17.0
         with:
           team: teameresept
@@ -97,7 +99,20 @@ jobs:
           build_args: |
             version=${{ steps.get-versions.outputs.next-version }}
             app_name=${{ inputs.application }}
-#          byosbom: ${{ inputs.sbom-path }} # use trivy by default
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@d9cd5b1c23aaf8cb31bb09141028215828364bbb # v0.24.0
+        with:
+          image-ref: '${{ steps.docker-push.outputs.image }}'
+          format: 'sarif'
+          output: 'trivy.sarif'
+          severity: 'MEDIUM,HIGH,CRITICAL'
+          limit-severities-for-sarif: true
+
+      - name: Upload results to GitHub Security
+        uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v2.19.0
+        with:
+          sarif_file: 'trivy.sarif'
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
@@ -133,6 +148,15 @@ jobs:
           color: 'blue'
           filename: 'rel-exec-time'
           logo: 'stopwatch'
+
+      - name: Scan date badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: 'scanned'
+          right: '${{ steps.get-versions.outputs.current-datetime }}'
+          color: 'blue'
+          filename: 'scan-date'
+          logo: 'shield'
 
       - name: Commit badges
         uses: navikt/eresept-actions/badges-commit@main

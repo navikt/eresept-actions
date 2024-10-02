@@ -1,0 +1,86 @@
+name: Deploy applications, re-usable
+on:
+  workflow_call:
+    secrets:
+      token:
+        description: 'token'
+        required: true
+      identity-provider:
+        required: true
+
+env:
+  LATEST_IMAGE: ${{ github.event.repository.name }}:latest
+
+jobs:
+  trivy-scan:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      security-events: write # push sarif to github security
+    name: Security scan of latest image in ${{ github.event.repository.name }}
+    steps:
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+        with:
+          fetch-depth: 0
+          repository: ${{ github.event.repository.name }}
+          ref: '${{ github.ref_name }}'
+          token: ${{ secrets.token }}
+
+      - name: Start time and timezone
+        run: |
+          echo "starttime=$(date +%s)" >> $GITHUB_ENV
+          sudo timedatectl set-timezone "Europe/Oslo"
+
+      - name: get versions, changelog and more
+        id: get-versions
+        uses: navikt/eresept-actions/get-versions-and-more@main
+
+      - name: Docker login
+        uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e #v0.0.8
+        id: login
+        with:
+          team: teameresept
+          identity_provider: ${{ secrets.identity-provider }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+
+      - name: Run Trivy vulnerability scanner on docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.login.outputs.registry }}/${{ env.LATEST_IMAGE }}
+          ignore-unfixed: true
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: 'MEDIUM,HIGH,CRITICAL'
+          limit-severities-for-sarif: true
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
+
+      - name: Calculate execution time
+        run: |
+          END_TIME=$(date +%s)
+          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
+
+      - name: Checkout badges
+        uses: navikt/eresept-actions/badges-checkout@main
+
+      - name: Scan date badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: 'scanned'
+          right: '${{ steps.get-versions.outputs.current-datetime }}'
+          color: 'blue'
+          filename: 'scan-date'
+          logo: 'shield'
+
+      - name: Commit badges
+        uses: navikt/eresept-actions/badges-commit@main
+
+      - name: Summary
+        run: echo "### Trivy scanned latest in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+
