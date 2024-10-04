@@ -16,3 +16,10 @@ The first is the usual checkout step. The second checks out the dedicated badges
 (see the ref input) nested inside of the other in the path badges (see the path input).
 So locally within the rest of this workflow run, we'll have access to the badges branch
 within a badges directory.
+
+## how to create empty badges branch
+```
+git switch --orphan badges
+git commit --allow-empty -m "Initial commit on orphan branch"
+git push -u origin badges
+```

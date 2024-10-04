@@ -1,4 +1,4 @@
-name: Deploy applications, re-usable
+name: trivy scan, re-usable
 on:
   workflow_call:
     secrets:
