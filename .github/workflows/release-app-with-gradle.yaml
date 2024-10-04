@@ -102,7 +102,7 @@ jobs:
             app_name=${{ inputs.application }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@d9cd5b1c23aaf8cb31bb09141028215828364bbb # v0.24.0
+        uses: aquasecurity/trivy-action@89b14e517dd8699cba3d787e53d4355cad28605c # v0.24.0
         with:
           image-ref: '${{ steps.docker-push.outputs.image }}'
           format: 'sarif'
