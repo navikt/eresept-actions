@@ -106,6 +106,7 @@ jobs:
         with:
           image-ref: '${{ steps.docker-push.outputs.image }}'
           format: 'sarif'
+          hide-progress: true
           output: 'trivy-results.sarif'
           severity: 'MEDIUM,HIGH,CRITICAL'
           limit-severities-for-sarif: true
