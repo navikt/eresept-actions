@@ -8,9 +8,6 @@ on:
       identity-provider:
         required: true
 
-env:
-  LATEST_IMAGE: ${{ github.event.repository.name }}:latest
-
 jobs:
   trivy-scan:
     timeout-minutes: 15
@@ -48,7 +45,7 @@ jobs:
       - name: Run Trivy vulnerability scanner on docker image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ steps.login.outputs.registry }}/${{ env.LATEST_IMAGE }}
+          image-ref: ${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}:${{ steps.get-versions.outputs.current-version }}
           ignore-unfixed: true
           format: "sarif"
           output: "trivy-results.sarif"
