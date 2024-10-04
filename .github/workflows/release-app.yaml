@@ -37,6 +37,7 @@ jobs:
     name: Release ${{ inputs.application }}
     runs-on: ubuntu-latest
     permissions:
+      actions: read # for private repositories
       contents: write
       id-token: write
       security-events: write # push sarif to github security

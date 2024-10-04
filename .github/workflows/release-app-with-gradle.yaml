@@ -46,6 +46,7 @@ jobs:
     name: Release ${{ inputs.application }}
     runs-on: ubuntu-latest
     permissions:
+      actions: read # for private repositories
       contents: write
       id-token: write
       security-events: write # push sarif to github security
@@ -105,14 +106,14 @@ jobs:
         with:
           image-ref: '${{ steps.docker-push.outputs.image }}'
           format: 'sarif'
-          output: 'trivy.sarif'
+          output: 'trivy-results.sarif'
           severity: 'MEDIUM,HIGH,CRITICAL'
           limit-severities-for-sarif: true
 
       - name: Upload results to GitHub Security
         uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v2.19.0
         with:
-          sarif_file: 'trivy.sarif'
+          sarif_file: 'trivy-results.sarif'
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
