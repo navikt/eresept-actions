@@ -90,6 +90,9 @@ jobs:
       - name: Docker build and push
         id: docker-push
         uses: nais/docker-build-push@5246e4705d79945a0ec28eb9bd3638dd534fee46 # v0.17.0
+        env:
+          TRIVY_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-db:2"
+          TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
         with:
           team: teameresept
           docker_context: ${{ steps.get-versions.outputs.docker-dir }}
