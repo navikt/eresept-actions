@@ -17,10 +17,6 @@
 
 name: 'checks out badges branch'
 description: 'checks if we have a dedicated badges branch, and if so checks it out'
-inputs:
-  repo:
-    description: 'the repository'
-    required: true
 runs:
   using: "composite"
   steps:
