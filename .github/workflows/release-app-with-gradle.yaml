@@ -104,10 +104,7 @@ jobs:
             app_name=${{ inputs.application }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # v0.24.0
-        env:
-          TRIVY_SKIP_DB_UPDATE: "true"
-          TRIVY_JAVA_DB_REPOSITORY: "europe-north1-docker.pkg.dev/nais-io/remote-ghcr/aquasecurity/trivy-java-db:1,public.ecr.aws/aquasecurity/trivy-java-db,ghcr.io/aquasecurity/trivy-java-db:1"
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # v0.29.0
         with:
           image-ref: '${{ steps.docker-push.outputs.image }}'
           format: 'sarif'
