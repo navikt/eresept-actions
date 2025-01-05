@@ -16,6 +16,9 @@ on:
         description: 'slack webhook'
         required: true
 
+env:
+  TZ: Europe/Oslo
+
 jobs:
   analyze:
     permissions:

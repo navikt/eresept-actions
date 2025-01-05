@@ -30,6 +30,8 @@ on:
       identity-provider:
         required: true
 
+env:
+  TZ: Europe/Oslo
 
 jobs:
   release:
