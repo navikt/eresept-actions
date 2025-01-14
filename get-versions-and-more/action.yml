@@ -23,7 +23,7 @@ runs:
     - id: get-versions
       shell: bash
       run: |
-        git config user.email "${{ github.actor }}@users.noreply.github.com" && git config user.name "Github Actions Bot (${{ github.actor }})"
+        git config user.email "$ACTOR@users.noreply.github.com" && git config user.name "Github Actions Bot ($ACTOR)"
         echo "current-version=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
         echo "next-version=$($GITHUB_ACTION_PATH/../src/next-version.sh)" >> $GITHUB_OUTPUT
         echo "current-datetime=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
@@ -33,3 +33,5 @@ runs:
         echo "changelog<<$delim" >> $GITHUB_OUTPUT
         git log $(git describe --tags --abbrev=0)..HEAD --oneline >> $GITHUB_OUTPUT
         echo "$delim" >> $GITHUB_OUTPUT
+      env:
+        ACTOR: ${{ github.actor }}

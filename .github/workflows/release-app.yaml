@@ -50,12 +50,14 @@ jobs:
           repository: ${{ github.event.repository.owner.login }}/${{ inputs.application }}
           ref: '${{ github.ref_name }}'
           persist-credentials: true
+          show-progress: false
 
       - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d #v22
         with:
           repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }, { "id": "xerces", "name": "github", "url": "https://maven.pkg.github.com/navikt/xerces-xmlschema-1.1", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
           servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }, { "id": "xerces", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
+          output_file: maven-settings.xml
 
       - uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b #v4.6.0
         with:
@@ -78,26 +80,11 @@ jobs:
         id: get-versions
         uses: navikt/eresept-actions/get-versions-and-more@main
 
-      - name: foo1
-        run: |
-          echo $SHELL
-          echo $FOO
-        env:
-          FOO: foobar1
-
-      - name: foo2
-        shell: bash
-        run: |
-          echo $SHELL
-          echo $FOO
-        env:
-          FOO: foobar2
-
       - name: Compile and test
         run: |
-          mvn --batch-mode versions:set -DnewVersion=${NEXT_VERSION} -DgenerateBackupPoms=false -DprocessAllModules=true -Dversions='*'
+          mvn --batch-mode versions:set -DnewVersion=${NEXT_VERSION} -DgenerateBackupPoms=false -DprocessAllModules=true --settings maven-settings.xml
           SKIPTESTS=$(if [ "${SKIP}" = "true" ]; then echo "-DskipTests"; else echo ""; fi) 
-          mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${SKIP}
+          mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${SKIP} --settings maven-settings.xml
         env:
           SKIP: ${{ inputs.skip-tests }}
           NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
