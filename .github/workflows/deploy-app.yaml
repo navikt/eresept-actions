@@ -63,12 +63,13 @@ jobs:
           echo "relversion=$RELVERSION" >> $GITHUB_ENV
           echo "cluster=$(if [ "${E}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)" >> $GITHUB_ENV
           POSTFIX=$(if [ "${E}" != "p" -a "${E}" != "q1" ]; then echo "-${E}"; else echo ""; fi)
-          echo "deployapp=${E}$POSTFIX" >> $GITHUB_ENV
-          echo "deployappver=${E}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
+          echo "deployapp=${APP}$POSTFIX" >> $GITHUB_ENV
+          echo "deployappver=${APP}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
         env:
           LASTVERSION: ${{ steps.get-versions.outputs.current-version }}
           INPUT_VERSION: ${{ inputs.application-version }}
           E: ${{ matrix.environment }}
+          APP: ${{ matrix.application }}
 
       - name: Docker login
         uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e #v0.0.8
