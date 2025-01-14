@@ -28,4 +28,4 @@ runs:
       with:
         ref: badges
         path: badges
-        persist-credentials: false
+        persist-credentials: true
