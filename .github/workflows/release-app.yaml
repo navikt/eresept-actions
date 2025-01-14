@@ -80,7 +80,7 @@ jobs:
 
       - name: Compile and test
         run: |
-          mvn --batch-mode versions:set -DnewVersion=${NEXT_VERSION} -DgenerateBackupPoms=false -DprocessAllModules=true
+          mvn --batch-mode versions:set -DnewVersion=${NEXT_VERSION} -DgenerateBackupPoms=false -DprocessAllModules=true -Dversions='*'
           SKIPTESTS=$(if [ "${SKIP}" = "true" ]; then echo "-DskipTests"; else echo ""; fi) 
           mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${SKIP}
         env:
