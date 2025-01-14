@@ -81,11 +81,17 @@ jobs:
       - name: foo1
         run: |
           echo $SHELL
+          echo $FOO
+        env:
+          FOO: foobar1
 
       - name: foo2
         shell: bash
         run: |
           echo $SHELL
+          echo $FOO
+        env:
+          FOO: foobar2
 
       - name: Compile and test
         run: |
