@@ -49,6 +49,7 @@ jobs:
           fetch-depth: 0
           repository: ${{ github.event.repository.owner.login }}/${{ inputs.application }}
           ref: '${{ github.ref_name }}'
+          persist-credentials: false
 
       - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d #v22
@@ -79,14 +80,19 @@ jobs:
 
       - name: Compile and test
         run: |
-          mvn --batch-mode versions:set -DnewVersion=${{ steps.get-versions.outputs.next-version }} -DgenerateBackupPoms=false -DprocessAllModules=true
-          SKIPTESTS=$(if [ "${{ inputs.skip-tests }}" = "true" ]; then echo "-DskipTests -Ddetekt.skip=true"; else echo ""; fi) 
-          mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${{ inputs.skip-tests }}
+          mvn --batch-mode versions:set -DnewVersion=${NEXT_VERSION} -DgenerateBackupPoms=false -DprocessAllModules=true
+          SKIPTESTS=$(if [ "${SKIP}" = "true" ]; then echo "-DskipTests"; else echo ""; fi) 
+          mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${SKIP}
+        env:
+          SKIP: ${{ inputs.skip-tests }}
+          NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
 
       - name: Tag
         run: |
-          git tag -a ${{ steps.get-versions.outputs.next-version }} -m 'tagging as ${{ steps.get-versions.outputs.next-version }}'
-          git push origin ${{ steps.get-versions.outputs.next-version }}
+          git tag -a ${NEXT_VERSION} -m 'tagging as ${NEXT_VERSION}'
+          git push origin ${NEXT_VERSION}
+        env:
+          NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
 
       - name: Docker build and push
         id: docker-push
@@ -123,7 +129,7 @@ jobs:
       - name: Calculate execution time
         run: |
           END_TIME=$(date +%s)
-          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
+          echo "exectime=$(( $END_TIME - ${starttime} ))" >> $GITHUB_ENV
 
       - name: Version badge
         uses: navikt/eresept-actions/badges-create@main
@@ -166,7 +172,10 @@ jobs:
 
       - name: Summary
         run: |
-          echo "### Released **${{ github.event.repository.name }}:${{ steps.get-versions.outputs.next-version }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+          echo "### Released **${REPO}:${NEXT_VERSION}** in ${exectime} seconds" >> $GITHUB_STEP_SUMMARY
+        env:
+          REPO: ${{ github.event.repository.name }}
+          NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
 
       - name: report to slack
         if: always()

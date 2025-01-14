@@ -31,7 +31,12 @@ runs:
   steps:
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       shell: bash
-      run: $GITHUB_ACTION_PATH/mkbadges.sh ${{ inputs.jacoco-dir }}/${{ inputs.jacoco-name }} $GITHUB_ACTION_PATH ${{ runner.temp }}
+      run: $GITHUB_ACTION_PATH/mkbadges.sh ${DIR}/${NAME} $GITHUB_ACTION_PATH ${TMP}
+      env:
+        DIR: ${{ inputs.jacoco-dir }}
+        NAME: ${{ inputs.jacoco-name }}
+        TMP: ${{ runner.temp }}
+
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
       uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b #v4.5.0
       with:

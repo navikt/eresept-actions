@@ -48,14 +48,14 @@ jobs:
         run: |
           delver() {
             echo deleting $1
-            if [ "${{ inputs.dry-run }}" = "false" ]
+            if [ "${DRY}" = "false" ]
             then
-              curl -s -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions/$1"
+              curl -s -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${TYPE}/$PKG/versions/$1"
             fi
           }
           
           transform() {
-            if [ "${{ inputs.type }}" == "maven" ]
+            if [ "${TYPE}" == "maven" ]
             then
               cat tmp2.json | jq "[.[] |{id: .id, created_at: .created_at, version: .name }]" | jq ".[-$TAIL:]"
             else
@@ -63,29 +63,29 @@ jobs:
             fi
           }
           
-          if [ "${{ inputs.type }}" != "container" ] && [ "${{ inputs.type }}" != "maven" ]
+          if [ "${TYPE}" != "container" ] && [ "${TYPE}" != "maven" ]
           then
             echo "invalid package type, only container and maven is supported"
             exit 1
           fi
           REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}
-          if [ "${{ inputs.type }}" = "maven" ]
+          if [ "${TYPE}" = "maven" ]
           then
-            if [ -z "${{ inputs.package }}" ]
+            if [ -z "${PACKAGE}" ]
             then
               echo "package is mandatory if type is maven"
               exit 1
             fi
-            PKG="${{ inputs.package }}"
+            PKG="${PACKAGE}"
           else
-            if [ -z "${{ inputs.package }}" ]
+            if [ -z "${PACKAGE}" ]
             then
               PKG="${REPOSITORY_NAME}%2F${REPOSITORY_NAME}"
             else
-              PKG="${REPOSITORY_NAME}%2F${{ inputs.package }}"
+              PKG="${REPOSITORY_NAME}%2F${PACKAGE}"
             fi
           fi
-          curl -w "%{http_code}" -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${{ inputs.type }}/$PKG/versions?per_page=100" > tmp.json
+          curl -w "%{http_code}" -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.token }}" "https://api.github.com/orgs/navikt/packages/${TYPE}/$PKG/versions?per_page=100" > tmp.json
           STATUS=$(tail -1 tmp.json)
           if [ "$STATUS" != "200" ]
           then
@@ -96,12 +96,12 @@ jobs:
           cat tmp.json | head -n -1 > tmp2.json
           TOTAL=$(cat tmp2.json | jq 'length')
           echo "package has $TOTAL versions (100 means 100 or more) before cleanup" >> $GITHUB_STEP_SUMMARY
-          if [ -z "${{ inputs.version }}" ]
+          if [ -z "${VER}" ]
           then
-            TAIL=$(echo $TOTAL - ${{ inputs.versions-to-keep }} | bc)
-            if [ $TAIL -gt ${{ inputs.old-versions-to-delete }} ]
+            TAIL=$(echo $TOTAL - ${KEEP} | bc)
+            if [ $TAIL -gt ${DELETE} ]
             then
-              TAIL=${{ inputs.old-versions-to-delete }}
+              TAIL=${DELETE}
             fi
             if [ $TAIL -gt 0 ]
             then
@@ -114,7 +114,7 @@ jobs:
               do
                 delver $v
               done
-              if [ "${{ inputs.dry-run }}" = "false" ]
+              if [ "${DRY}" = "false" ]
               then
                 echo "$TAIL versions deleted" >> $GITHUB_STEP_SUMMARY
               else
@@ -124,20 +124,27 @@ jobs:
                 echo "no versions to delete" >> $GITHUB_STEP_SUMMARY
             fi
           else
-            echo "will attempt to delete version ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "will attempt to delete version ${VER}" >> $GITHUB_STEP_SUMMARY
             TAIL=$TOTAL
             TRANSFORMED=$(transform)
-            VERSION=$(echo $TRANSFORMED | jq '.[] | select(.version == "${{ inputs.version }}")' | jq '.id')
+            VERSION=$(echo $TRANSFORMED | jq '.[] | select(.version == "${VER}")' | jq '.id')
             if [ -z "$VERSION" ]
             then
-              echo "version ${{ inputs.version }} not found" >> $GITHUB_STEP_SUMMARY
+              echo "version ${VER} not found" >> $GITHUB_STEP_SUMMARY
             else
               delver $VERSION
-              if [ "${{ inputs.dry-run }}" = "false" ]
+              if [ "${DRY}" = "false" ]
               then
-                echo "${{ inputs.version }} deleted" >> $GITHUB_STEP_SUMMARY
+                echo "${VER} deleted" >> $GITHUB_STEP_SUMMARY
               else
-                echo "dry run: ${{ inputs.version }} not deleted" >> $GITHUB_STEP_SUMMARY
+                echo "dry run: ${VER} not deleted" >> $GITHUB_STEP_SUMMARY
               fi
             fi
           fi
+        env:
+          VER: ${{ inputs.version }}
+          DRY: ${{ inputs.dry-run }}
+          KEEP: ${{ inputs.versions-to-keep }}
+          DELETE: ${{ inputs.old-versions-to-delete }}
+          PACKAGE: ${{ inputs.package }}
+          TYPE: ${{ inputs.type }}

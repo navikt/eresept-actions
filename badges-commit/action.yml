@@ -25,5 +25,7 @@ runs:
       run: |
         cd badges
         if [[ `git status --porcelain *.svg` ]]; then
-          $GITHUB_ACTION_PATH/docommit.sh ${{ github.actor }}
+          $GITHUB_ACTION_PATH/docommit.sh ${ACTOR}
         fi
+      env:
+        ACTOR: ${{ github.actor }}

@@ -59,6 +59,7 @@ jobs:
           fetch-depth: 0
           repository: ${{ github.event.repository.owner.login }}/${{ inputs.application }}
           ref: '${{ github.ref_name }}'
+          persist-credentials: false
 
       - uses: gradle/actions/wrapper-validation@0bdd871935719febd78681f197cd39af5b6e16a6 # v4.2.2
 
@@ -71,7 +72,9 @@ jobs:
         run: |
           echo "starttime=$(date +%s)" >> $GITHUB_ENV
           sudo timedatectl set-timezone "Europe/Oslo"
-          echo "buildarg=$(if [ '${{ inputs.skip-tests }}' = 'true' ]; then echo 'assemble'; else echo 'build'; fi)" >> $GITHUB_ENV 
+          echo "buildarg=$(if [ ${SKIP} = 'true' ]; then echo 'assemble'; else echo 'build'; fi)" >> $GITHUB_ENV
+        env:
+          SKIP: ${{ inputs.skip-tests }}
 
       - name: get versions, changelog and more
         id: get-versions
@@ -85,12 +88,15 @@ jobs:
       - name: Compile and test
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
-        run: ./gradlew ${{ env.buildarg }} ${{ inputs.sbom-build }} --no-daemon
+          SBOM: ${{ inputs.sbom-build }}
+        run: ./gradlew ${buildarg} ${SBOM} --no-daemon
 
       - name: Tag
         run: |
-          git tag -a ${{ steps.get-versions.outputs.next-version }} -m 'tagging as v${{ steps.get-versions.outputs.next-version }}'
-          git push origin ${{ steps.get-versions.outputs.next-version }}
+          git tag -a ${NEXT_VERSION} -m 'tagging as v${NEXT_VERSION}'
+          git push origin ${NEXT_VERSION}
+        env:
+          NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
 
       - name: Docker build and push
         id: docker-push
@@ -127,7 +133,7 @@ jobs:
       - name: Calculate execution time
         run: |
           END_TIME=$(date +%s)
-          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
+          echo "exectime=$(( $END_TIME - ${starttime} ))" >> $GITHUB_ENV
 
       - name: Version badge
         uses: navikt/eresept-actions/badges-create@main
@@ -170,7 +176,10 @@ jobs:
 
       - name: Summary
         run: |
-          echo "### Released **${{ github.event.repository.name }}:${{ steps.get-versions.outputs.next-version }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+          echo "### Released **${REPO}:${NEXT_VERSION}** in ${exectime} seconds" >> $GITHUB_STEP_SUMMARY
+        env:
+          REPO: ${{ github.event.repository.name }}
+          NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
 
       - name: report to slack
         if: always()

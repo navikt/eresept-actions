@@ -46,6 +46,7 @@ jobs:
           repository: ${{ github.event.repository.owner.login }}/${{ matrix.application }}
           ref: '${{ github.ref_name }}'
           token: ${{ secrets.token }}
+          persist-credentials: false
 
       - name: Start time and timezone
         run: |
@@ -58,14 +59,16 @@ jobs:
 
       - name: Get version numbers and cluster
         run: |
-          LASTVERSION=${{ steps.get-versions.outputs.current-version }}
-          INPUT_VERSION=${{ inputs.application-version }}
           RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION})
           echo "relversion=$RELVERSION" >> $GITHUB_ENV
-          echo "cluster=$(if [ "${{ matrix.environment }}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)" >> $GITHUB_ENV
-          POSTFIX=$(if [ '${{ matrix.environment }}' != 'p' -a '${{ matrix.environment }}' != 'q1' ]; then echo '-${{ matrix.environment }}'; else echo ''; fi)
-          echo "deployapp=${{ matrix.application }}$POSTFIX" >> $GITHUB_ENV
-          echo "deployappver=${{ matrix.application }}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
+          echo "cluster=$(if [ "${E}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)" >> $GITHUB_ENV
+          POSTFIX=$(if [ "${E}" != "p" -a "${E}" != "q1" ]; then echo "-${E}"; else echo ""; fi)
+          echo "deployapp=${E}$POSTFIX" >> $GITHUB_ENV
+          echo "deployappver=${E}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
+        env:
+          LASTVERSION: ${{ steps.get-versions.outputs.current-version }}
+          INPUT_VERSION: ${{ inputs.application-version }}
+          E: ${{ matrix.environment }}
 
       - name: Docker login
         uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e #v0.0.8
@@ -86,7 +89,7 @@ jobs:
       - name: Calculate execution time
         run: |
           END_TIME=$(date +%s)
-          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
+          echo "exectime=$(( $END_TIME - ${starttime} ))" >> $GITHUB_ENV
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
@@ -113,7 +116,9 @@ jobs:
         uses: navikt/eresept-actions/badges-commit@main
 
       - name: Summary
-        run: echo "### Deployed **${{ env.deployappver }}** to **${{ matrix.environment }}** in **${{ env.cluster }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+        run: echo "### Deployed **${deployappver}** to **${E}** in **${cluster}** in ${exectime} seconds" >> $GITHUB_STEP_SUMMARY
+        env:
+          E: ${{ matrix.environment }}
 
       - name: report to slack
         if: always()

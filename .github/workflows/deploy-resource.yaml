@@ -42,14 +42,17 @@ jobs:
           fetch-depth: 0
           repository: ${{ github.event.repository.full_name}}
           ref: '${{ inputs.version }}'
+          persist-credentials: false
 
       - name: Create variables
         shell: bash
         run: |
           lasttag=$(git describe --tags --abbrev=0)
-          tag=$(if [ "${{ inputs.version }}" == "main" ]; then echo $lasttag; else echo ${{ inputs.version }} | sed 's/ //g; s/v//'; fi)
+          tag=$(if [ "${VER}" == "main" ]; then echo $lasttag; else echo ${VER} | sed 's/ //g; s/v//'; fi)
           echo "deployver=$(echo $tag)" >> $GITHUB_ENV
           echo "deploydate=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+        env:
+          VER: ${{ inputs.version }}
 
       - name: Deploy
         uses: nais/deploy/actions/deploy@7c152a10f4da3ca352d57a25eba0b3a8e04882f9 #v2
