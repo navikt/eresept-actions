@@ -49,7 +49,7 @@ jobs:
           fetch-depth: 0
           repository: ${{ github.event.repository.owner.login }}/${{ inputs.application }}
           ref: '${{ github.ref_name }}'
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d #v22
