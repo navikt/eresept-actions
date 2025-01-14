@@ -93,7 +93,7 @@ jobs:
 
       - name: Tag
         run: |
-          git tag -a ${NEXT_VERSION} -m 'tagging as v${NEXT_VERSION}'
+          git tag -a ${NEXT_VERSION} -m "tagging as v${NEXT_VERSION}"
           git push origin ${NEXT_VERSION}
         env:
           NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
