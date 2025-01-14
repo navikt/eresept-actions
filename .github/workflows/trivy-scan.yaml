@@ -31,7 +31,7 @@ jobs:
           repository: ${{ github.event.repository.full_name }}
           ref: '${{ github.ref_name }}'
           token: ${{ secrets.token }}
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Start time and timezone
         run: |

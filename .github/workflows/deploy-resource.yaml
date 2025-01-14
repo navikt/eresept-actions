@@ -42,7 +42,7 @@ jobs:
           fetch-depth: 0
           repository: ${{ github.event.repository.full_name}}
           ref: '${{ inputs.version }}'
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Create variables
         shell: bash
