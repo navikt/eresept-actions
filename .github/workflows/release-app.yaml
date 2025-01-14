@@ -78,6 +78,15 @@ jobs:
         id: get-versions
         uses: navikt/eresept-actions/get-versions-and-more@main
 
+      - name: foo1
+        run: |
+          echo $SHELL
+
+      - name: foo2
+        shell: bash
+        run: |
+          echo $SHELL
+
       - name: Compile and test
         run: |
           mvn --batch-mode versions:set -DnewVersion=${NEXT_VERSION} -DgenerateBackupPoms=false -DprocessAllModules=true -Dversions='*'
