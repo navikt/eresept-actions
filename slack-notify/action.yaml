@@ -56,8 +56,11 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: echo "minimal=$( if ([ '${{ github.event_name }}' != 'push' ] && [ '${{ github.event_name }}' != 'pull_request' ]) || [ '${{ inputs.minimal }}' = 'true' ]; then echo true; else echo ${{ inputs.minimal }}; fi)"  >> $GITHUB_ENV
+    - run: echo "minimal=$( if ([ ${EVENT} != 'push' ] && [ ${EVENT} != 'pull_request' ]) || [ ${MIN} = 'true' ]; then echo true; else echo ${MIN}; fi)"  >> $GITHUB_ENV
       shell: bash
+      env:
+        EVENT: ${{ github.event_name }}
+        MIN: ${{ inputs.minimal }}
 
     - if: ${{ inputs.status == 'success' && github.event_name != 'schedule' }}
       env:

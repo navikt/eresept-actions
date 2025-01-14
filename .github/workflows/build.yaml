@@ -39,6 +39,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Create settings.xml
         uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d #v22
@@ -110,7 +111,7 @@ jobs:
       - name: Calculate execution time
         run: |
           END_TIME=$(date +%s)
-          echo "exectime=$(( $END_TIME - ${{ env.starttime }} ))" >> $GITHUB_ENV
+          echo "exectime=$(( $END_TIME - ${starttime} ))" >> $GITHUB_ENV
 
       - name: Time used badge
         if: ${{ github.event_name != 'pull_request' }}
@@ -127,7 +128,9 @@ jobs:
         uses: navikt/eresept-actions/badges-commit@main
 
       - name: Summary
-        run: echo "### Built **${{ github.event.repository.name }}** in ${{ env.exectime }} seconds" >> $GITHUB_STEP_SUMMARY
+        run: echo "### Built **${REPO}** in ${exectime} seconds" >> $GITHUB_STEP_SUMMARY
+        env:
+          REPO: ${{ github.event.repository.name }}
 
       - name: report to slack
         if: always()
