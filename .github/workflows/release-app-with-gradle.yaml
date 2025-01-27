@@ -37,8 +37,6 @@ on:
         required: true
       token:
         required: true
-      identity-provider:
-        required: true
 
 env:
   TZ: Europe/Oslo
@@ -100,13 +98,11 @@ jobs:
 
       - name: Docker build and push
         id: docker-push
-        uses: nais/docker-build-push@5246e4705d79945a0ec28eb9bd3638dd534fee46 # v0.17.0
+        uses: nais/docker-build-push@791ebb6f74b82849c742a9bc9c97abe44c6c111f # v0.17.0
         with:
           team: teameresept
           docker_context: ${{ steps.get-versions.outputs.docker-dir }}
           dockerfile: ${{ steps.get-versions.outputs.docker-dir }}/Dockerfile
-          identity_provider: ${{ secrets.identity-provider }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           tag: ${{ steps.get-versions.outputs.next-version }}
           build_args: |
             version=${{ steps.get-versions.outputs.next-version }}
