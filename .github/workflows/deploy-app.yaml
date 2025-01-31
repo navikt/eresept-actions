@@ -70,7 +70,7 @@ jobs:
           APP: ${{ matrix.application }}
 
       - name: Docker login
-        uses: nais/login@9e4ed2bb919a53f4b88a1a929aff132084e78d2d #v0
+        uses: nais/login@8ebbba35984d713e500e5d6c4ceec1cf3026e30c #v0
         id: login
         with:
           team: teameresept
