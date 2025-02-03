@@ -55,7 +55,7 @@ jobs:
           VER: ${{ inputs.version }}
 
       - name: Deploy
-        uses: nais/deploy/actions/deploy@48597d99a7d73647af50c6b0408ea01d94b385a4 #v2
+        uses: nais/deploy/actions/deploy@3dc4790fabf7d7d32d45dc216e82b4254b75f379 #v2
         env:
           CLUSTER: ${{ inputs.cluster }}
           RESOURCE: .nais/${{ inputs.file }}.yaml
