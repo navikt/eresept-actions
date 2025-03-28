@@ -77,6 +77,8 @@ jobs:
       - name: get versions, changelog and more
         id: get-versions
         uses: navikt/eresept-actions/get-versions-and-more@main
+        with:
+          application-version: '${{ inputs.application-version }}'
 
       - name: Compile and test
         run: |

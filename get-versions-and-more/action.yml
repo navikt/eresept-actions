@@ -1,5 +1,10 @@
 name: 'gets version numbers and changelog and more'
 description: 'gets version numbers and more and outputs to github env'
+inputs:
+  application-version:
+    description: 'the application version given as optional input'
+    required: false
+    default: ''
 outputs:
   current-version:
     description: "the current version"
@@ -25,7 +30,7 @@ runs:
       run: |
         git config user.email "$ACTOR@users.noreply.github.com" && git config user.name "Github Actions Bot ($ACTOR)"
         echo "current-version=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
-        echo "next-version=$($GITHUB_ACTION_PATH/../src/next-version.sh)" >> $GITHUB_OUTPUT
+        echo "next-version=$($GITHUB_ACTION_PATH/../src/next-version.sh $APPVER)" >> $GITHUB_OUTPUT
         echo "current-datetime=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
         echo "docker-dir=$($GITHUB_ACTION_PATH/../src/docker-dir.sh)" >> $GITHUB_OUTPUT
         # multiline output
@@ -35,3 +40,4 @@ runs:
         echo "$delim" >> $GITHUB_OUTPUT
       env:
         ACTOR: ${{ github.actor }}
+        APPVER: ${{ application-version }}
