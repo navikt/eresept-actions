@@ -40,4 +40,4 @@ runs:
         echo "$delim" >> $GITHUB_OUTPUT
       env:
         ACTOR: ${{ github.actor }}
-        APPVER: ${{ application-version }}
+        APPVER: ${{ inputs.application-version }}
