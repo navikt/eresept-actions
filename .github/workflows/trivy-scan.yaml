@@ -41,7 +41,7 @@ jobs:
         uses: navikt/eresept-actions/get-versions-and-more@main
 
       - name: Docker login
-        uses: nais/login@3444be636212c24b7f4c2d83c700aba40961b437 #v0
+        uses: nais/login@e7cf2c159677dc7c7d599feff5f808f2bf59c7cf #v0
         id: login
         with:
           team: teameresept
