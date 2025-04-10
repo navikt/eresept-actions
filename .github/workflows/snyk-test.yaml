@@ -61,7 +61,7 @@ jobs:
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: ""
           MSG_MINIMAL: true
-        uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # v2
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2
       - name: Report failure?
         if: failure()
         env:
@@ -73,7 +73,7 @@ jobs:
           SLACK_ICON_EMOJI: ":snyk:"
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: "See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} for details"
-        uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # v2
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2
       - name: Report cancellation?
         if: cancelled()
         env:
@@ -86,4 +86,4 @@ jobs:
           SLACK_FOOTER: "${{ inputs.footer }}"
           SLACK_MESSAGE: ""
           MSG_MINIMAL: true
-        uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # v2
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2
