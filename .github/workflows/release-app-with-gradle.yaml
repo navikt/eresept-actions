@@ -89,7 +89,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
           SBOM: ${{ inputs.sbom-build }}
-        run: ./gradlew ${buildarg} ${SBOM} --no-daemon
+          NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
+        run: ./gradlew ${buildarg} ${SBOM} --no-daemon -Pversion=${NEXT_VERSION}
+
 
       - name: Tag
         run: |
