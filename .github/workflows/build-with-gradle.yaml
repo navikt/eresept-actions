@@ -89,11 +89,20 @@ jobs:
         with:
           category: "/language:java"
 
-      - name: Publish results (unit test)
-        uses: EnricoMi/publish-unit-test-result-action@afb2984f4d89672b2f9d9c13ae23d53779671984 #v2.19.0
+#      - name: Publish results (unit test)
+#        uses: EnricoMi/publish-unit-test-result-action@afb2984f4d89672b2f9d9c13ae23d53779671984 #v2.19.0
+#        if: success() || failure()
+#        with:
+#          files: "**/build/test-results/test/TEST-*.xml"
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 #v5
         if: success() || failure()
         with:
-          files: "**/build/test-results/test/TEST-*.xml"
+          include_time_in_summary: 'true'
+          include_passed: 'false'
+          detailed_summary: 'true'
+          report_paths: '**/build/test-results/test/TEST-*.xml'
 
       - name: Checkout badges
         if: ${{ github.event_name != 'pull_request' }}
