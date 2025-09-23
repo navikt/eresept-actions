@@ -111,9 +111,7 @@ jobs:
           build_args: |
             version=${{ steps.get-versions.outputs.next-version }}
             app_name=${{ inputs.application }}
-            byosbom: ${{ SBOM_PATH }}
-        env:
-          SBOM_PATH: ${{ inputs.sbom-path }}
+            byosbom=${{ inputs.sbom-path }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
