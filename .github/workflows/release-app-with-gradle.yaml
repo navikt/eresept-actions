@@ -92,7 +92,6 @@ jobs:
           NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
         run: ./gradlew ${buildarg} ${SBOM} --no-daemon -Pversion=${NEXT_VERSION}
 
-
       - name: Tag
         run: |
           git tag -a ${NEXT_VERSION} -m "tagging as v${NEXT_VERSION}"
@@ -111,7 +110,6 @@ jobs:
           build_args: |
             version=${{ steps.get-versions.outputs.next-version }}
             app_name=${{ inputs.application }}
-            byosbom=${{ inputs.sbom-path }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
