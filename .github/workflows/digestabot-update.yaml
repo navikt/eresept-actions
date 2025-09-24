@@ -19,4 +19,4 @@ jobs:
       - uses: navikt/digestabot@3233d68167c867ef8227c5dfde7a30f2a0e10af0
         with:
           token: ${{ secrets.token }}
-          team: appsec
+          team: teameresept
