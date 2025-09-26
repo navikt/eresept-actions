@@ -16,7 +16,21 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v5
+
+      - run: |
+          echo "DT=$(date '+%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+
       - uses: navikt/digestabot@3233d68167c867ef8227c5dfde7a30f2a0e10af0
         with:
           token: ${{ secrets.token }}
           team: teameresept
+          labels-for-pr: 'automated pr, image digest update'
+          branch-for-pr: 'image-digest-update-${{ env.DT }}'
+          title-for-pr: 'Update image digest ${{ env.DT }}'
+          description-for-pr: 'Update of image digest'
+          commit-message: 'Update of image digest ${{ env.DT }}'
+
+
+```release-note
+:package: Update of image digest
+```'
