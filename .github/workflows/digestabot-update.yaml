@@ -29,8 +29,3 @@ jobs:
           title-for-pr: 'Update image digest ${{ env.DT }}'
           description-for-pr: 'Update of image digest'
           commit-message: 'Update of image digest ${{ env.DT }}'
-
-
-```release-note
-:package: Update of image digest
-```'
