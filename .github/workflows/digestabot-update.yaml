@@ -21,7 +21,7 @@ jobs:
           echo "DT=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
           echo "B=$(date '+%Y%m%d-%H%M%S')" >> $GITHUB_ENV
 
-      - uses: navikt/digestabot@3233d68167c867ef8227c5dfde7a30f2a0e10af0
+      - uses: navikt/digestabot@07cb8ac331b0b06bc0b30a7415587fb63b919608
         with:
           token: ${{ secrets.token }}
           team: teameresept
