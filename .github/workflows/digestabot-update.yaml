@@ -29,4 +29,4 @@ jobs:
           branch-for-pr: 'image-digest-update-${{ env.B }}'
           title-for-pr: 'Update image digest at ${{ env.DT }}'
           description-for-pr: 'Update of image digest'
-          commit-message: 'Update of image digest at ${{ env.DT }}'
+          commit-message: 'Update of image digest at ${{ env.DT }} [ci skip]'
