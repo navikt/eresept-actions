@@ -48,7 +48,7 @@ on:
         value: ${{ jobs.release.outputs.image }}
       digest:
         description: 'the image digest'
-        value: ${{ steps.release.outputs.digest }}
+        value: ${{ jobs.release.outputs.digest }}
 
 env:
   TZ: Europe/Oslo
