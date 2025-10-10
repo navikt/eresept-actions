@@ -22,11 +22,24 @@ on:
         required: false
         type: boolean
         default: false
+      salsa:
+        description: 'if we shall generate a attestation for the image'
+        required: false
+        type: boolean
+        default: true
     secrets:
       webhook:
         required: true
       token:
         required: true
+    outputs:
+      image:
+        description: 'the docker image'
+        value: ${{ steps.docker-build-push.outputs.image }}
+      digest:
+        description: 'the image digest'
+        value: ${{ steps.docker-build-push.outputs.digest }}
+
 
 env:
   TZ: Europe/Oslo
@@ -97,13 +110,14 @@ jobs:
           NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
 
       - name: Docker build and push
-        id: docker-push
+        id: docker-build-push
         uses: nais/docker-build-push@791ebb6f74b82849c742a9bc9c97abe44c6c111f # v0
         with:
           team: teameresept
           docker_context: ${{ steps.get-versions.outputs.docker-dir }}
           dockerfile: ${{ steps.get-versions.outputs.docker-dir }}/Dockerfile
           tag: ${{ steps.get-versions.outputs.next-version }}
+          salsa: ${{ inputs.salsa }}
           build_args: |
             version=${{ steps.get-versions.outputs.next-version }}
             app_name=${{ inputs.application }}

@@ -32,11 +32,23 @@ on:
         required: false
         type: string
         default: 'build/reports/bom.json'
+    salsa:
+      description: 'if we shall generate a attestation for the image'
+      required: false
+      type: boolean
+      default: true
     secrets:
       webhook:
         required: true
       token:
         required: true
+    outputs:
+      image:
+        description: 'the docker image'
+        value: ${{ steps.docker-build-push.outputs.image }}
+      digest:
+        description: 'the image digest'
+        value: ${{ steps.docker-build-push.outputs.digest }}
 
 env:
   TZ: Europe/Oslo
@@ -107,6 +119,7 @@ jobs:
           docker_context: ${{ steps.get-versions.outputs.docker-dir }}
           dockerfile: ${{ steps.get-versions.outputs.docker-dir }}/Dockerfile
           tag: ${{ steps.get-versions.outputs.next-version }}
+          salsa: ${{ inputs.salsa }}
           build_args: |
             version=${{ steps.get-versions.outputs.next-version }}
             app_name=${{ inputs.application }}
