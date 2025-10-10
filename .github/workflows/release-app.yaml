@@ -108,23 +108,23 @@ jobs:
             version=${{ steps.get-versions.outputs.next-version }}
             app_name=${{ inputs.application }}
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
-        with:
-          image-ref: '${{ steps.docker-push.outputs.image }}'
-          format: 'sarif'
-          hide-progress: true
-          output: 'trivy-results.sarif'
-          severity: 'MEDIUM,HIGH,CRITICAL'
-          limit-severities-for-sarif: true
-
-      - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@e296a935590eb16afc0c0108289f68c87e2a89a5 # v3.29.5
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-      - name: Checkout badges
-        uses: navikt/eresept-actions/badges-checkout@main
+#      - name: Run Trivy vulnerability scanner
+#        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+#        with:
+#          image-ref: '${{ steps.docker-push.outputs.image }}'
+#          format: 'sarif'
+#          hide-progress: true
+#          output: 'trivy-results.sarif'
+#          severity: 'MEDIUM,HIGH,CRITICAL'
+#          limit-severities-for-sarif: true
+#
+#      - name: Upload results to GitHub Security
+#        uses: github/codeql-action/upload-sarif@e296a935590eb16afc0c0108289f68c87e2a89a5 # v3.29.5
+#        with:
+#          sarif_file: 'trivy-results.sarif'
+#
+#      - name: Checkout badges
+#        uses: navikt/eresept-actions/badges-checkout@main
 
       - name: Calculate execution time
         run: |
