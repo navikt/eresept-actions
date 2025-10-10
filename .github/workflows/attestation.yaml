@@ -40,4 +40,4 @@ jobs:
         id: attest-sign
         uses: nais/attest-sign@v1
         with:
-          image_ref: ${{ steps.login.outputs.registry }}/${{ input.application }}@${{ inputs.digest }}
+          image_ref: ${{ steps.login.outputs.registry }}/${{ inputs.application }}@${{ inputs.digest }}
