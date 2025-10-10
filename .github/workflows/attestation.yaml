@@ -2,8 +2,8 @@ name: generate an attestation for the image, re-usable
 on:
   workflow_call:
     inputs:
-      applications:
-        description: 'the applications to attest'
+      application:
+        description: 'the application to attest'
         required: true
         type: string
       image:
