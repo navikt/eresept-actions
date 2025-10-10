@@ -45,10 +45,10 @@ on:
     outputs:
       image:
         description: 'the docker image'
-        value: ${{ steps.docker-build-push.outputs.image }}
+        value: ${{ jobs.release.outputs.image }}
       digest:
         description: 'the image digest'
-        value: ${{ steps.docker-build-push.outputs.digest }}
+        value: ${{ steps.release.outputs.digest }}
 
 env:
   TZ: Europe/Oslo
@@ -58,6 +58,9 @@ jobs:
     timeout-minutes: 40
     name: Release ${{ inputs.application }}
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+      digest: ${{ steps.docker-build-push.outputs.digest }}
     permissions:
       actions: read # for private repositories
       contents: write
@@ -112,7 +115,7 @@ jobs:
           NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
 
       - name: Docker build and push
-        id: docker-push
+        id: docker-build-push
         uses: nais/docker-build-push@791ebb6f74b82849c742a9bc9c97abe44c6c111f # v0
         with:
           team: teameresept

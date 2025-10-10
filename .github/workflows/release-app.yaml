@@ -35,10 +35,10 @@ on:
     outputs:
       image:
         description: 'the docker image'
-        value: ${{ steps.docker-build-push.outputs.image }}
+        value: ${{ jobs.release.outputs.image }}
       digest:
         description: 'the image digest'
-        value: ${{ steps.docker-build-push.outputs.digest }}
+        value: ${{ steps.release.outputs.digest }}
 
 
 env:
@@ -49,6 +49,9 @@ jobs:
     timeout-minutes: 40
     name: Release ${{ inputs.application }}
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+      digest: ${{ steps.docker-build-push.outputs.digest }}
     permissions:
       actions: read # for private repositories
       contents: write
