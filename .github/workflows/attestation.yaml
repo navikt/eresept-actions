@@ -26,7 +26,6 @@ jobs:
     name: Generate attestation of ${{ inputs.image }}
     runs-on: ubuntu-latest
     permissions:
-      actions: read # for private repositories
       contents: read
       id-token: write
     steps:
