@@ -32,11 +32,11 @@ on:
         required: false
         type: string
         default: 'build/reports/bom.json'
-    salsa:
-      description: 'if we shall generate a attestation for the image'
-      required: false
-      type: boolean
-      default: true
+      salsa:
+        description: 'if we shall generate a attestation for the image'
+        required: false
+        type: boolean
+        default: true
     secrets:
       webhook:
         required: true
