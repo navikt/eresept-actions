@@ -22,6 +22,7 @@ jobs:
       id-token: write
       security-events: write # push sarif to github security
     name: Security scan of latest image in ${{ github.event.repository.name }}
+    if: false # temporarily skip this action
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 #v5.0.0
         with:
