@@ -26,7 +26,7 @@ jobs:
         with:
           token: ${{ secrets.token }}
           team: teameresept
-          labels-for-pr: 'automated pr, image digest update'
+          labels-for-pr: 'automated pr, image digest update, automerge'
           branch-for-pr: 'image-digest-update-${{ env.B }}'
           title-for-pr: 'Update image digest at ${{ env.DT }}'
           description-for-pr: 'Update of image digest'
