@@ -22,6 +22,7 @@ jobs:
           echo "B=$(date '+%Y%m%d-%H%M%S')" >> $GITHUB_ENV
 
       - uses: navikt/digestabot@07cb8ac331b0b06bc0b30a7415587fb63b919608 #v1.0
+        id: digestabot
         with:
           token: ${{ secrets.token }}
           team: teameresept
@@ -30,3 +31,9 @@ jobs:
           title-for-pr: 'Update image digest at ${{ env.DT }}'
           description-for-pr: 'Update of image digest'
           commit-message: 'Update of image digest at ${{ env.DT }} [ci skip]'
+
+      - name: merge
+        run: gh pr merge --auto --squash --delete-branch "$PR_URL"
+        env:
+          PR_URL: ${{ GITHUB_SERVER_URL }}/${{ GITHUB_REPOSITORY }}/${{ steps.digestabot.output.pull_request_number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
