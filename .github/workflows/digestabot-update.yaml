@@ -33,7 +33,6 @@ jobs:
           commit-message: 'Update of image digest at ${{ env.DT }} [ci skip]'
 
       - name: merge
-        run: gh pr merge --auto --squash --delete-branch "$PR_URL"
+        run: gh pr merge --auto --squash --delete-branch "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ steps.digestabot.output.pull_request_number }}"
         env:
-          PR_URL: ${{ GITHUB_SERVER_URL }}/${{ GITHUB_REPOSITORY }}/${{ steps.digestabot.output.pull_request_number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
