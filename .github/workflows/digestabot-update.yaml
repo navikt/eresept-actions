@@ -6,6 +6,9 @@ on:
       token:
         description: 'github token'
         required: true
+      webhook:
+        description: 'slack webhook'
+        required: false
 
 jobs:
   digest-update:
@@ -33,6 +36,17 @@ jobs:
           commit-message: 'Update of image digest at ${{ env.DT }} [ci skip]'
 
       - name: merge
+        if: ${{ steps.digestabot.outputs.pull_request_number != '' }}
         run: gh pr merge --auto --squash --delete-branch "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/${{ steps.digestabot.outputs.pull_request_number }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: report to slack
+        if: success()
+        uses: navikt/eresept-actions/slack-notify@main
+        with:
+          status: "${{ job.status }}"
+          username: "digestabot ${{ github.event.repository.name }}"
+          icon: ":github2:"
+          title-success: "Merged PR #${{ steps.digestabot.outputs.pull_request_number }} _*${{ github.event.repository.name }}*_"
+          webhook: ${{ secrets.webhook }}
