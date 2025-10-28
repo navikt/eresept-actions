@@ -151,6 +151,6 @@ jobs:
           title-success: "Built _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
           title-failure: "Build failure in _*${{ github.event.repository.name }}*_"
           title-cancelled: "Build of _*${{ github.event.repository.name }}*_ was cancelled"
-          message-success: "${{ env.commit_msg }}"
-          message-cancelled: "${{ env.commit_msg }}"
+          message-success: "```${{ env.commit_msg }}```"
+          message-cancelled: "```${{ env.commit_msg }}```"
           webhook: ${{ secrets.webhook }}
