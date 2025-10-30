@@ -17,6 +17,11 @@ on:
         required: false
         default: 'build/reports/jacoco/test'
         type: string
+      coverage-report-name:
+        description: 'filename of coverage report without extension'
+        required: false
+        default: ${{ inputs.coverage-task }}
+        type: string
     secrets:
       webhook:
         description: 'slack webhook'
@@ -113,7 +118,7 @@ jobs:
         uses: navikt/eresept-actions/badges-jacoco@main
         with:
           jacoco-dir: ${{ inputs.coverage-report-dir }}
-          jacoco-name: ${{ inputs.coverage-task }}.csv
+          jacoco-name: ${{ inputs.coverage-report-name }}.csv
 
       - name: Last commit badge
         if: ${{ github.event_name != 'pull_request' }}
