@@ -78,7 +78,7 @@ jobs:
           fi
           if [ "${GAR}" == "true" ]
           then
-            g="${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}:${{ env.deployver }}"
+            g="${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}:$tag"
           else
             g=""
           fi
