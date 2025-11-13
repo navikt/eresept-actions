@@ -76,14 +76,13 @@ jobs:
           else
             ev="${VAR},deploydate=$dd2"
           fi
-          echo "extravars=$ev" >> $GITHUB_ENV
           if [ "${GAR}" == "true" ]
           then
             g="${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}:${{ env.deployver }}"
           else
             g=""
           fi
-          echo "garimage=$g" >> $GITHUB_ENV
+          echo "extravars=$ev,image=$g" >> $GITHUB_ENV
         env:
           VER: ${{ inputs.version }}
           VAR: ${{ inputs.var }}
@@ -96,7 +95,6 @@ jobs:
           RESOURCE: .nais/${{ inputs.file }}.yaml
           VARS: .nais/${{ inputs.vars }}.${{ inputs.cluster }}.yaml
           VAR: '${{ env.extravars }}'
-          IMAGE: ${{env.garimage }}
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
