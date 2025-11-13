@@ -57,7 +57,7 @@ jobs:
           dd="$(date '+%Y-%m-%d %H:%M:%S')"
           echo "deployver=$tag" >> $GITHUB_ENV
           echo "deploydate=$dd" >> $GITHUB_ENV
-          dd2=$(echo $dd | sed 's/ /T/')
+          dd2=$(echo $dd | sed 's/[ ]/T/;s/:/./g')
           if [ -z "${VAR}" ]
           then
             ev="deploydate=$dd2"
