@@ -43,6 +43,7 @@ jobs:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     permissions:
+      actions: read # for private repositories
       contents: write
       id-token: write
     name: deploy ${{ inputs.file }} to ${{ inputs.cluster }}
