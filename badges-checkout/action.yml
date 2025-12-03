@@ -24,7 +24,7 @@ runs:
       run: echo "BADGES=$($GITHUB_ACTION_PATH/../src/branch-exists.sh)" >> $GITHUB_ENV
 
     - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
-      uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 #v6.0.0
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
       with:
         ref: badges
         path: badges
