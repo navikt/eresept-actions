@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         # no default
+      cluster-postfix:
+        description: 'The cluster postfix, fss (default) or gcp'
+        required: false
+        type: string
+        default: 'fss'
       environments:
         description: 'The environments to deploy applications to (stringified JSON object listing application, eg: "[\"q1\",\"p\"]")'
         required: true
@@ -37,7 +42,7 @@ jobs:
       matrix:
         application: ${{ fromJson(inputs.applications) }}
         environment: ${{ fromJson(inputs.environments) }}
-    name: Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ matrix.environment }}
+    name: 'Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ matrix.environment }} (${{ inputs.cluster-postfix }})'
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
         with:
@@ -68,6 +73,7 @@ jobs:
           INPUT_VERSION: ${{ inputs.application-version }}
           E: ${{ matrix.environment }}
           APP: ${{ matrix.application }}
+          CLUSTER_POSTFIX: ${{ inputs.cluster-postfix }}
 
       - name: Docker login
         uses: nais/login@e7cf2c159677dc7c7d599feff5f808f2bf59c7cf #v0
@@ -75,12 +81,12 @@ jobs:
         with:
           team: teameresept
 
-      - name: Deploy ${{ env.deployapp }} to ${{matrix.environment }}
+      - name: Deploy ${{ env.deployapp }} to ${{ matrix.environment }} in ${{ env.cluster }}
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 #v2
         env:
           CLUSTER: ${{ env.cluster }}
           RESOURCE: .nais/nais.yaml
-          VARS: .nais/nais.vars.${{ matrix.environment }}.yaml
+          VARS: .nais/nais.vars.${{ env.cluster }}.${{ matrix.environment }}.yaml
           IMAGE: ${{ steps.login.outputs.registry }}/${{ matrix.application }}:${{ env.relversion }}
 
       - name: Calculate execution time
@@ -94,19 +100,19 @@ jobs:
       - name: Deploy version badge
         uses: navikt/eresept-actions/badges-create@main
         with:
-          left: '${{ matrix.environment }} version'
+          left: '${{ env.cluster }} ${{ matrix.environment }}  version'
           right: '${{ env.relversion }}'
           color: 'blue'
-          filename: 'deploy-version-${{ matrix.environment }}'
+          filename: 'deploy-version-${{ env.cluster }}-${{ matrix.environment }}'
           logo: 'tag'
 
       - name: Deploy date badge
         uses: navikt/eresept-actions/badges-create@main
         with:
-          left: '${{ matrix.environment }} date'
+          left: '${{ env.cluster }} ${{ matrix.environment }} date'
           right: '${{ steps.get-versions.outputs.current-datetime }}'
           color: 'blue'
-          filename: 'deploy-date-${{ matrix.environment }}'
+          filename: 'deploy-date-${{ env.cluster }}-${{ matrix.environment }}'
           logo: 'calendar'
 
       - name: Commit badges
