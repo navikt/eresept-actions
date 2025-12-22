@@ -33,6 +33,11 @@ on:
         required: false
         type: boolean
         default: false
+      suffix:
+        description: 'image suffix'
+        required: false
+        type: string
+        default: ''
     secrets:
       webhook:
         description: 'Slack webhook'
@@ -79,7 +84,12 @@ jobs:
           fi
           if [ "${GAR}" == "true" ]
           then
-            g="${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}:$tag"
+            if [ -z "${SUF}" ]
+            then
+              g="${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}:$tag"
+            else
+              g="${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}-${SUF}:$tag"
+            fi
           else
             g=""
           fi
@@ -88,6 +98,7 @@ jobs:
           VER: ${{ inputs.version }}
           VAR: ${{ inputs.var }}
           GAR: ${{ inputs.gar }}
+          SUF: ${{ inputs.suffix }}
 
       - name: Deploy
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 #v2
