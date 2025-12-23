@@ -64,7 +64,7 @@ jobs:
         run: |
           RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION})
           echo "relversion=$RELVERSION" >> $GITHUB_ENV
-          echo "cluster=$(if [ "${E}" == "p" ]; then echo prod-fss; else echo dev-fss ; fi)" >> $GITHUB_ENV
+          echo "cluster=$(if [ "${E}" == "p" ]; then echo prod-${CLUSTER_POSTFIX}; else echo dev-${CLUSTER_POSTFIX} ; fi)" >> $GITHUB_ENV
           POSTFIX=$(if [ "${E}" != "p" -a "${E}" != "q1" ]; then echo "-${E}"; else echo ""; fi)
           echo "deployapp=${APP}$POSTFIX" >> $GITHUB_ENV
           echo "deployappver=${APP}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
