@@ -72,7 +72,7 @@ jobs:
           echo "commit_sha=$(git log -1 --format=%H)" >> $GITHUB_ENV
 
       - name: Initialize CodeQL Analysis
-        uses: github/codeql-action/init@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v3.29.5
+        uses: github/codeql-action/init@19b2f06db2b6f5108140aeb04014ef02b648f789 # v3.29.5
         with:
           languages: java
 
@@ -80,7 +80,7 @@ jobs:
         run: mvn install --no-transfer-progress --settings maven-settings.xml
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v3.29.5
+        uses: github/codeql-action/analyze@19b2f06db2b6f5108140aeb04014ef02b648f789 # v3.29.5
         with:
           category: "/language:java"
 
