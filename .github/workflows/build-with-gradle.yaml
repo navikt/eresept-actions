@@ -20,7 +20,7 @@ on:
       coverage-report-name:
         description: 'filename of coverage report without extension'
         required: false
-        default: ${{ inputs.coverage-task }}
+        default: 'jacocoTestReport'
         type: string
     secrets:
       webhook:
