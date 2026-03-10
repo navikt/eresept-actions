@@ -48,7 +48,7 @@ jobs:
           team: teameresept
 
       - name: Run Trivy vulnerability scanner on docker image
-        uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # v0.34.2
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         with:
           image-ref: ${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}:${{ steps.get-versions.outputs.current-version }}
           format: "sarif"
