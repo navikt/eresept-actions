@@ -29,10 +29,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ github.event.repository.name }}
 
       - name: Create settings.xml
-        uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d #v22
+        uses: s4u/maven-settings-action@894661b3ddae382f1ae8edbeab60987e08cf0788 #v4.0.0
         with:
-          repositories: '[{ "id": "eresept-parent", "name": "github", "url": "https://maven.pkg.github.com/navikt/eresept-parent", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" } }]'
-          servers: '[{ "id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}" }]'
+          repositories: '[{"id": "eresept-parent","name": "github","url": "https://maven.pkg.github.com/navikt/eresept-parent"}]'
+          servers: '[{"id": "eresept-parent", "username": "${{ github.actor }}", "password": "${{ secrets.token }}"}]'
 
       - name: Submit Dependency Snapshot
         uses: advanced-security/maven-dependency-submission-action@b275d12641ac2d2108b2cbb7598b154ad2f2cee8 #v5.0.0
