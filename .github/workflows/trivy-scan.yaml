@@ -1,12 +1,6 @@
 name: trivy scan, re-usable
 on:
   workflow_call:
-    inputs:
-      skip-update:
-        description: 'Skip trivy update database or not, TODO delete later'
-        required: false
-        type: boolean
-        default: true
     secrets:
       token:
         description: 'token'
@@ -22,7 +16,6 @@ jobs:
       id-token: write
       security-events: write # push sarif to github security
     name: Security scan of latest image in ${{ github.event.repository.name }}
-    if: false # temporarily skip this action
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
         with:
