@@ -27,6 +27,11 @@ on:
         required: false
         type: boolean
         default: true
+      scan:
+        description: 'if we shall scan the image'
+        required: false
+        type: boolean
+        default: true
     secrets:
       webhook:
         required: true
@@ -119,6 +124,23 @@ jobs:
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
+        if: ${{ inputs.scan }}
+        with:
+          image-ref: '${{ steps.docker-push.outputs.image }}'
+          format: 'sarif'
+          hide-progress: true
+          output: 'trivy-results.sarif'
+          severity: 'MEDIUM,HIGH,CRITICAL'
+          limit-severities-for-sarif: true
+
+      - name: Upload results to GitHub Security
+        uses: github/codeql-action/upload-sarif@e296a935590eb16afc0c0108289f68c87e2a89a5 # v3.29.5
+        if: ${{ inputs.scan }}
+        with:
+          sarif_file: 'trivy-results.sarif'
 
       - name: Calculate execution time
         run: |
