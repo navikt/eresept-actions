@@ -145,7 +145,7 @@ jobs:
           limit-severities-for-sarif: true
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@e296a935590eb16afc0c0108289f68c87e2a89a5 # v3.29.5
+        uses: github/codeql-action/upload-sarif@38697555549f1db7851b81482ff19f1fa5c4fedc # v3.29.5
         if: ${{ inputs.scan }}
         with:
           sarif_file: 'trivy-results.sarif'
