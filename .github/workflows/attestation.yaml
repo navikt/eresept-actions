@@ -37,6 +37,6 @@ jobs:
 
       - name: Generate SBOM, attest and sign image
         id: attest-sign
-        uses: nais/attest-sign@9f718bc53c1379a59982d425d1e7456f632af881 #v2
+        uses: nais/attest-sign@518e541b5bd2eaff9ed7cb7fd305ec940b66fdaa #v2.0.5
         with:
           image_ref: ${{ steps.login.outputs.registry }}/${{ inputs.application }}@${{ inputs.digest }}
