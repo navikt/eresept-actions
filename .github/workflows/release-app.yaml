@@ -107,9 +107,9 @@ jobs:
 
       - name: Compile and test
         run: |
-          mvn --batch-mode versions:set -DnewVersion=${NEXT_VERSION} -DgenerateBackupPoms=false -DprocessAllModules=true --settings maven-settings.xml
+          mvn -ntp --batch-mode versions:set -DnewVersion=${NEXT_VERSION} -DgenerateBackupPoms=false -DprocessAllModules=true --settings maven-settings.xml
           SKIPTESTS=$(if [ "${SKIP}" = "true" ]; then echo "-DskipTests"; else echo ""; fi) 
-          mvn --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${SKIP} --settings maven-settings.xml
+          mvn -ntp --batch-mode clean install --no-transfer-progress $SKIPTESTS -Ddetekt.skip=${SKIP} --settings maven-settings.xml
         env:
           SKIP: ${{ inputs.skip-tests }}
           NEXT_VERSION: ${{ steps.get-versions.outputs.next-version }}
