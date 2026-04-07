@@ -69,7 +69,7 @@ jobs:
           ref: '${{ github.ref_name }}'
           persist-credentials: true
 
-      - uses: gradle/actions/wrapper-validation@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
+      - uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 #v5.2.0
         with:
@@ -91,7 +91,7 @@ jobs:
           application-version: '${{ inputs.application-version }}'
 
       - name: Setup gradle
-        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
         with:
           dependency-graph: generate-and-submit
 
