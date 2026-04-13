@@ -58,7 +58,7 @@ jobs:
           fetch-depth: 0
           repository: ${{ github.event.repository.full_name}}
           ref: '${{ github.ref_name }}'
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Docker login
         if: ${{ inputs.gar }}

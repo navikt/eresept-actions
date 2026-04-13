@@ -49,7 +49,7 @@ jobs:
           fetch-depth: 0
           repository: ${{ github.event.repository.owner.login }}/${{ matrix.application }}
           ref: '${{ github.ref_name }}'
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Start time and timezone
         run: |
