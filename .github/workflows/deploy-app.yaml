@@ -76,7 +76,7 @@ jobs:
           CLUSTER_POSTFIX: ${{ inputs.cluster-postfix }}
 
       - name: Docker login
-        uses: nais/login@c88ada9ce583928e1c84d2fd5c45cfacdd18d5de #v0
+        uses: nais/login@d6ab5d83f735e9f155eb9d7d29cd20ae46820ea9 #v0
         id: login
         with:
           team: teameresept
