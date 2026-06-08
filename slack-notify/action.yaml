@@ -73,7 +73,7 @@ runs:
         SLACK_FOOTER: "${{ inputs.footer }}"
         SLACK_MESSAGE: "${{ inputs.message-success }}"
         MSG_MINIMAL: ${{ env.minimal }}
-      uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+      uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
     - if: ${{ inputs.status == 'failure' }}
       env:
         SLACK_CHANNEL: ${{ inputs.channel }}
@@ -85,7 +85,7 @@ runs:
         SLACK_FOOTER: "${{ inputs.footer }}"
         SLACK_MESSAGE: "${{ inputs.message-failure }}"
         MSG_MINIMAL: ${{ env.minimal }}
-      uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+      uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
     - if: ${{ inputs.status == 'cancelled' }}
       env:
         SLACK_CHANNEL: ${{ inputs.channel }}
@@ -97,4 +97,4 @@ runs:
         SLACK_FOOTER: "${{ inputs.footer }}"
         SLACK_MESSAGE: "${{ inputs.message-cancelled }}"
         MSG_MINIMAL: ${{ env.minimal }}
-      uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+      uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
