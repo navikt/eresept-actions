@@ -82,7 +82,7 @@ jobs:
           team: teameresept
 
       - name: Deploy ${{ env.deployapp }} to ${{ matrix.environment }} in ${{ env.cluster }}
-        uses: nais/deploy/actions/deploy@ab841e4d99cbb00edd996d3ae39bd4cea6b8e2c2 #v2
+        uses: nais/deploy/actions/deploy@5fdd91aaf69bb0d6dd5e5118cdacb639f487b93b #v2
         env:
           CLUSTER: ${{ env.cluster }}
           RESOURCE: .nais/nais.yaml
