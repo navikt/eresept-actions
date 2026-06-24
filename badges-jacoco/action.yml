@@ -29,7 +29,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
+    - if: ${{ env.BADGES == '0' && github.event_name != 'pull_request' }}
       shell: bash
       run: $GITHUB_ACTION_PATH/mkbadges.sh ${DIR}/${NAME} $GITHUB_ACTION_PATH ${TMP}
       env:
@@ -37,7 +37,7 @@ runs:
         NAME: ${{ inputs.jacoco-name }}
         TMP: ${{ runner.temp }}
 
-    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
+    - if: ${{ env.BADGES == '0' && github.event_name != 'pull_request' }}
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
       with:
         name: jacoco-report

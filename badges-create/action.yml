@@ -44,7 +44,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
+    - if: ${{ env.BADGES == '0' && github.event_name != 'pull_request' }}
       shell: bash
       run: |
         l=$(echo ${LEFT} | sed 's/-/--/g;s/_/__/g')

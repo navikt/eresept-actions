@@ -20,7 +20,7 @@ description: 'commits the badges to the badges branch'
 runs:
   using: "composite"
   steps:
-    - if: ${{ env.BADGES == 'true' && github.event_name != 'pull_request' }}
+    - if: ${{ env.BADGES == '0' && github.event_name != 'pull_request' }}
       shell: bash
       run: |
         cd badges
