@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-inloc=$(git branch --list badges)
-inrem=$(git ls-remote --heads origin badges)
-if [ -z "$inloc" -a -z "$inrem" ]; then echo false; else echo true; fi
+git ls-remote --exit-code --heads origin badges
+if [ $? -eq 0 ]; then echo true; else echo false; fi
 
