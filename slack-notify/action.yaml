@@ -98,12 +98,42 @@ runs:
         webhook: ${{ inputs.webhook }}
         webhook-type: incoming-webhook
         payload: |
-          username: "${{ inputs.username }}"
-          icon_emoji: "${{ inputs.icon }}"
-          channel: "${{ inputs.channel }}"
-          attachments:
-            - color: "warning"
-              mrkdwn_in: ["text"]
-              title: "${{ inputs.title-cancelled  }}"
-              text: "${{ inputs.message-cancelled  }}"
-              footer: "${{ inputs.footer }}"
+          {
+            username: "${{ inputs.username }}"
+            icon_emoji: "${{ inputs.icon }}"
+            channel: "${{ inputs.channel }}"
+            blocks: [
+              {
+                "type": "section",
+                "block_id": "callout-section-1",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "${{ inputs.title-cancelled }}"
+                }
+              },
+              {
+                "type": "divider",
+                "block_id": "callout-div-1"
+              },
+              {
+                "type": "section",
+                "block_id": "callout-section-2",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "${{ inputs.message-cancelled }}"
+                }
+              },
+              {
+                "type": "divider",
+                "block_id": "callout-div-1"
+              },
+              {
+                "type": "section",
+                "block_id": "callout-section-3",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "${{ inputs.footer }}"
+                }
+              }
+            ]
+          }
