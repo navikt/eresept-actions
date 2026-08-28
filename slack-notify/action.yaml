@@ -104,36 +104,43 @@ runs:
             channel: "${{ inputs.channel }}",
             blocks: [
               {
-                "type": "section",
-                "block_id": "callout-section-1",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "${{ inputs.title-cancelled }}"
+                 "type": "callout",
+                 "block_id": "bkb_callaout_default",
+                 "background_color": "yellow",
+                 "child_blocks": [
+                    {
+                      "type": "section",
+                      "block_id": "callout-section-1",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "${{ inputs.title-cancelled }}"
+                      }
+                    },
+                    {
+                      "type": "divider",
+                      "block_id": "callout-div-1"
+                    },
+                    {
+                      "type": "section",
+                      "block_id": "callout-section-2",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "${{ inputs.message-cancelled }}"
+                      }
+                    },
+                    {
+                      "type": "divider",
+                      "block_id": "callout-div-2"
+                    },
+                    {
+                      "type": "section",
+                      "block_id": "callout-section-3",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "${{ inputs.footer }}"
+                      }
+                    }
+                  ]
                 }
-              },
-              {
-                "type": "divider",
-                "block_id": "callout-div-1"
-              },
-              {
-                "type": "section",
-                "block_id": "callout-section-2",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "${{ inputs.message-cancelled }}"
-                }
-              },
-              {
-                "type": "divider",
-                "block_id": "callout-div-2"
-              },
-              {
-                "type": "section",
-                "block_id": "callout-section-3",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "${{ inputs.footer }}"
-                }
-              }
-            ]
+              ]
           }
