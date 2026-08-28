@@ -63,84 +63,38 @@ runs:
         MIN: ${{ inputs.minimal }}
 
     - if: ${{ inputs.status == 'success' && github.event_name != 'schedule' }}
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d #v4.0.0
-      with:
-        webhook: ${{ inputs.webhook }}
-        webhook-type: incoming-webhook
-        payload: |
-          username: "${{ inputs.username }}"
-          icon_emoji: "${{ inputs.icon }}"
-          channel: "${{ inputs.channel }}"
-          attachments:
-            - color: "good"
-              mrkdwn_in: ["text"]
-              title: "${{ inputs.title-success }}"
-              text: "${{ inputs.message-success }}"
-              footer: "${{ inputs.footer }}"
+      env:
+        SLACK_CHANNEL: ${{ inputs.channel }}
+        SLACK_WEBHOOK: ${{ inputs.webhook }}
+        SLACK_USERNAME: "${{ inputs.username  }}"
+        SLACK_TITLE: "${{ inputs.title-success }}"
+        SLACK_COLOR: "good"
+        SLACK_ICON_EMOJI: "${{ inputs.icon }}"
+        SLACK_FOOTER: "${{ inputs.footer }}"
+        SLACK_MESSAGE: "${{ inputs.message-success }}"
+        MSG_MINIMAL: ${{ env.minimal }}
+      uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
     - if: ${{ inputs.status == 'failure' }}
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d #v4.0.0
-      with:
-        webhook: ${{ inputs.webhook }}
-        webhook-type: incoming-webhook
-        payload: |
-          username: "${{ inputs.username }}"
-          icon_emoji: "${{ inputs.icon }}"
-          channel: "${{ inputs.channel }}"
-          attachments:
-            - color: "danger"
-              mrkdwn_in: ["text"]
-              title: "${{ inputs.title-failure }}"
-              text: "${{ inputs.message-failure }}"
-              footer: "${{ inputs.footer }}"
+      env:
+        SLACK_CHANNEL: ${{ inputs.channel }}
+        SLACK_WEBHOOK: ${{ inputs.webhook }}
+        SLACK_USERNAME: "${{ inputs.username  }}"
+        SLACK_TITLE: "${{ inputs.title-failure }}"
+        SLACK_COLOR: "danger"
+        SLACK_ICON_EMOJI: "${{ inputs.icon }}"
+        SLACK_FOOTER: "${{ inputs.footer }}"
+        SLACK_MESSAGE: "${{ inputs.message-failure }}"
+        MSG_MINIMAL: ${{ env.minimal }}
+      uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
     - if: ${{ inputs.status == 'cancelled' }}
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d #v4.0.0
-      with:
-        webhook: ${{ inputs.webhook }}
-        webhook-type: incoming-webhook
-        payload: |
-          {
-            username: "${{ inputs.username }}",
-            icon_emoji: "${{ inputs.icon }}",
-            channel: "${{ inputs.channel }}",
-            blocks: [
-              {
-                 "type": "callout",
-                 "block_id": "bkb_callaout_default",
-                 "background_color": "yellow",
-                 "child_blocks": [
-                    {
-                      "type": "section",
-                      "block_id": "callout-section-1",
-                      "text": {
-                        "type": "mrkdwn",
-                        "text": "${{ inputs.title-cancelled }}"
-                      }
-                    },
-                    {
-                      "type": "divider",
-                      "block_id": "callout-div-1"
-                    },
-                    {
-                      "type": "section",
-                      "block_id": "callout-section-2",
-                      "text": {
-                        "type": "mrkdwn",
-                        "text": "${{ inputs.message-cancelled }}"
-                      }
-                    },
-                    {
-                      "type": "divider",
-                      "block_id": "callout-div-2"
-                    },
-                    {
-                      "type": "section",
-                      "block_id": "callout-section-3",
-                      "text": {
-                        "type": "mrkdwn",
-                        "text": "${{ inputs.footer }}"
-                      }
-                    }
-                  ]
-                }
-              ]
-          }
+      env:
+        SLACK_CHANNEL: ${{ inputs.channel }}
+        SLACK_WEBHOOK: ${{ inputs.webhook }}
+        SLACK_USERNAME: "${{ inputs.username  }}"
+        SLACK_TITLE: "${{ inputs.title-cancelled }}"
+        SLACK_COLOR: "warning"
+        SLACK_ICON_EMOJI: "${{ inputs.icon }}"
+        SLACK_FOOTER: "${{ inputs.footer }}"
+        SLACK_MESSAGE: "${{ inputs.message-cancelled }}"
+        MSG_MINIMAL: ${{ env.minimal }}
+      uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
