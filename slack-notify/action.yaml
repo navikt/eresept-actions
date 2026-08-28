@@ -99,9 +99,9 @@ runs:
         webhook-type: incoming-webhook
         payload: |
           {
-            username: "${{ inputs.username }}"
-            icon_emoji: "${{ inputs.icon }}"
-            channel: "${{ inputs.channel }}"
+            username: "${{ inputs.username }}",
+            icon_emoji: "${{ inputs.icon }}",
+            channel: "${{ inputs.channel }}",
             blocks: [
               {
                 "type": "section",
@@ -125,7 +125,7 @@ runs:
               },
               {
                 "type": "divider",
-                "block_id": "callout-div-1"
+                "block_id": "callout-div-2"
               },
               {
                 "type": "section",
