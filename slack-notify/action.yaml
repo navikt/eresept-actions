@@ -73,6 +73,7 @@ runs:
           channel: "${{ inputs.channel }}"
           attachments:
             - color: "good"
+              mrkdwn_in: ["text"]
               title: "${{ inputs.title-success }}"
               text: "${{ inputs.message-success }}"
               footer: "${{ inputs.footer }}"
@@ -87,6 +88,7 @@ runs:
           channel: "${{ inputs.channel }}"
           attachments:
             - color: "danger"
+              mrkdwn_in: ["text"]
               title: "${{ inputs.title-failure }}"
               text: "${{ inputs.message-failure }}"
               footer: "${{ inputs.footer }}"
@@ -101,6 +103,7 @@ runs:
           channel: "${{ inputs.channel }}"
           attachments:
             - color: "warning"
+              mrkdwn_in: ["text"]
               title: "${{ inputs.title-cancelled  }}"
               text: "${{ inputs.message-cancelled  }}"
               footer: "${{ inputs.footer }}"
