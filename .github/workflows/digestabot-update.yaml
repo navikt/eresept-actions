@@ -44,7 +44,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: report to slack
-        if: success()
+        if: ${{ steps.digestabot.outputs.pull_request_number != '' }}
         uses: navikt/eresept-actions/slack-notify@main
         with:
           status: "${{ job.status }}"
