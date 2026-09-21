@@ -53,3 +53,9 @@ jobs:
           title-success: "Merged PR #${{ steps.digestabot.outputs.pull_request_number }} _*${{ github.event.repository.name }}*_"
           message-success: "Changed files:\n```${{ steps.digestabot.outputs.changed_files }}```"
           webhook: ${{ secrets.webhook }}
+
+      - name: Summary
+        if: ${{ steps.digestabot.outputs.pull_request_number != '' }}
+        run: |
+          echo "### Merged PR" >> $GITHUB_STEP_SUMMARY
+          echo "Changed file: ${{ steps.digestabot.outputs.changed_files }}" >> $GITHUB_STEP_SUMMARY
