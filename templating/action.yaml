@@ -34,4 +34,4 @@ runs:
       env:
         TEMPLATE: ${{ inputs.template }}
         VARIABLES: ${{ inputs.variables }}
-        EXT: {{ inputs.output-extension }}
+        EXT: ${{ inputs.output-extension }}
