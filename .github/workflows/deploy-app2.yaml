@@ -89,7 +89,7 @@ jobs:
           template: .nais/nais.yaml
           variables: .nais/nais.vars.${{ env.cluster }}.${{ matrix.environment }}.yaml
 
-      - uses: nais/setup@f27b84576c727c1263f113152de8c815172d7967 # v1.0.2
+      - uses: nais/setup@ea33c90b68228e6f04fb34b88bfd8ab6ad523ce8 # v1.0.2
         with:
           team: teameresept
 
