@@ -14,7 +14,7 @@ const variables = YAML.parse(
 );
 
 const compiled = Handlebars.compile(template, {
-    strict: false
+    strict: true
 });
 
 const output = compiled(variables)
