@@ -70,7 +70,7 @@ jobs:
         run: |
           nais apply ${RESOURCE} --environment ${CLUSTER} --wait
         env:
-          CLUSTER: ${{ env.cluster }}
+          CLUSTER: ${{ inputs.cluster }}
           RESOURCE: ${{ steps.template.outputs.output }}
 
       - name: Checkout badges
