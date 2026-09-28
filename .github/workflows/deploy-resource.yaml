@@ -14,11 +14,6 @@ on:
         description: 'The file containing the template variables, without .yaml extension and cluster suffix'
         required: true
         type: string
-      var:
-        description: 'Comma-separated list of template variables in the form key=value. Will overwrite any identical template variable in the VARS file'
-        required: false
-        type: string
-        default: ''
       icon:
         description: 'The icon to use in slack message'
         required: true
@@ -28,16 +23,6 @@ on:
         required: true
         type: string
         default: dev-fss
-      gar:
-        description: 'Use image from GAR or not'
-        required: false
-        type: boolean
-        default: false
-      suffix:
-        description: 'image suffix'
-        required: false
-        type: string
-        default: ''
     secrets:
       webhook:
         description: 'Slack webhook'
@@ -61,53 +46,32 @@ jobs:
           persist-credentials: true
           show-progress: false
 
-      - name: Docker login
-        if: ${{ inputs.gar }}
-        uses: nais/login@40b72a35a18ddf2ad74b632461139ab838cc2a2f #v0
-        id: login
-        with:
-          team: teameresept
-
       - name: Create variables
         shell: bash
         run: |
           lasttag=$(git describe --tags --abbrev=0)
           tag=$(if [ "${VER}" == "main" ]; then echo $lasttag; else echo ${VER} | sed 's/ //g; s/v//'; fi)
-          dd="$(date '+%Y-%m-%d %H:%M:%S')"
           echo "deployver=$tag" >> $GITHUB_ENV
-          echo "deploydate=$dd" >> $GITHUB_ENV
-          dd2=$(echo $dd | sed 's/[ ]/T/;s/:/./g')
-          if [ -z "${VAR}" ]
-          then
-            ev="deploydate=$dd2"
-          else
-            ev="${VAR},deploydate=$dd2"
-          fi
-          if [ "${GAR}" == "true" ]
-          then
-            if [ -z "${SUF}" ]
-            then
-              g="${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}:$tag"
-            else
-              g="${{ steps.login.outputs.registry }}/${{ github.event.repository.name }}-${SUF}:$tag"
-            fi
-          else
-            g=""
-          fi
-          echo "extravars=$ev,image=$g" >> $GITHUB_ENV
         env:
           VER: ${{ inputs.version }}
-          VAR: ${{ inputs.var }}
-          GAR: ${{ inputs.gar }}
-          SUF: ${{ inputs.suffix }}
+
+      - name: Templating
+        id: template
+        uses: navikt/eresept-actions/templating@main
+        with:
+          template: .nais/${{ inputs.file }}.yaml
+          variables: .nais/${{ inputs.vars }}.${{ inputs.cluster }}.yaml
+
+      - uses: nais/setup@ea33c90b68228e6f04fb34b88bfd8ab6ad523ce8 # v1.0.2
+        with:
+          team: teameresept
 
       - name: Deploy
-        uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 #v2
+        run: |
+          nais apply ${RESOURCE} --environment ${CLUSTER} --wait
         env:
-          CLUSTER: ${{ inputs.cluster }}
-          RESOURCE: .nais/${{ inputs.file }}.yaml
-          VARS: .nais/${{ inputs.vars }}.${{ inputs.cluster }}.yaml
-          VAR: '${{ env.extravars }}'
+          CLUSTER: ${{ env.cluster }}
+          RESOURCE: ${{ steps.template.outputs.output }}
 
       - name: Checkout badges
         uses: navikt/eresept-actions/badges-checkout@main
