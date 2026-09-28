@@ -7,6 +7,10 @@ inputs:
   variables:
     description: 'the file containing the variables'
     required: true
+  output-extension:
+    description: 'the extension of the output file'
+    required: false
+    default: 'yaml'
 outputs:
   output:
     description: 'the file with finished result'
@@ -24,9 +28,10 @@ runs:
       id: 'render-template'
       shell: bash
       run: |
-        OUTPUT="${RUNNER_TEMP}/output.txt"
+        OUTPUT="${RUNNER_TEMP}/output.${EXT}"
         echo "output=$OUTPUT" >> $GITHUB_OUTPUT
         node $GITHUB_ACTION_PATH/render.js $TEMPLATE $VARIABLES $OUTPUT
       env:
         TEMPLATE: ${{ inputs.template }}
         VARIABLES: ${{ inputs.variables }}
+        EXT: {{ inputs.output-extension }}
