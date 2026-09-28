@@ -82,12 +82,23 @@ jobs:
         with:
           team: teameresept
 
+      - name: Pre templating
+        run: |
+          tmpvars="${RUNNER_TEMP}/vars.yaml"
+          echo "tmpvars=$tmpvars" >> $GITHUB_ENV
+          cp ${VARS} $tmpvars
+          echo "image: ${IMAGE}" > $tmpvars
+          cat ${VARS} >> $tmpvars
+        env:
+          VARS: .nais/nais.vars.${{ env.cluster }}.${{ matrix.environment }}.yaml
+          IMAGE: ${{ steps.login.outputs.registry }}/${{ matrix.application }}:${{ env.relversion }}
+
       - name: Templating
         id: template
         uses: navikt/eresept-actions/templating@main
         with:
           template: .nais/nais.yaml
-          variables: .nais/nais.vars.${{ env.cluster }}.${{ matrix.environment }}.yaml
+          variables: ${{ env.tmpvars }}
 
       - uses: nais/setup@ea33c90b68228e6f04fb34b88bfd8ab6ad523ce8 # v1.0.2
         with:
@@ -95,11 +106,10 @@ jobs:
 
       - name: Deploy ${{ env.deployapp }} to ${{ matrix.environment }} in ${{ env.cluster }}
         run: |
-          nais apply ${RESOURCE} --environment ${CLUSTER} --set spec.image="${IMAGE}" --wait
+          nais apply ${RESOURCE} --environment ${CLUSTER} --wait
         env:
           CLUSTER: ${{ env.cluster }}
           RESOURCE: ${{ steps.template.outputs.output }}
-          IMAGE: ${{ steps.login.outputs.registry }}/${{ matrix.application }}:${{ env.relversion }}
 
       - name: Calculate execution time
         run: |
