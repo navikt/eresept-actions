@@ -1,0 +1,154 @@
+name: Deploy applications, re-usable
+on:
+  workflow_call:
+    inputs:
+      applications:
+        description: 'The applications to deploy (stringified JSON object listing application, eg: "[\"foo\",\"bar\"]")'
+        required: true
+        type: string
+        # no default
+      application-version:
+        description: 'The version to deploy'
+        required: false
+        type: string
+        # no default
+      cluster-postfix:
+        description: 'The cluster postfix, fss (default) or gcp'
+        required: false
+        type: string
+        default: 'fss'
+      environments:
+        description: 'The environments to deploy applications to (stringified JSON object listing application, eg: "[\"q1\",\"p\"]")'
+        required: true
+        type: string
+        # no default
+    secrets:
+      webhook:
+        description: 'Slack webhook'
+        required: true
+      token:
+        description: 'token'
+        required: true
+
+jobs:
+  deploy:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read # for private re
+      contents: write
+      id-token: write
+    strategy:
+      matrix:
+        application: ${{ fromJson(inputs.applications) }}
+        environment: ${{ fromJson(inputs.environments) }}
+    name: 'Deploy ${{ matrix.application }} ${{ inputs.application-version }} to ${{ matrix.environment }} (${{ inputs.cluster-postfix }})'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+        with:
+          fetch-depth: 0
+          repository: ${{ github.event.repository.owner.login }}/${{ matrix.application }}
+          ref: '${{ github.ref_name }}'
+          persist-credentials: true
+          show-progress: false
+
+      - name: Start time and timezone
+        run: |
+          echo "starttime=$(date +%s)" >> $GITHUB_ENV
+          sudo timedatectl set-timezone "Europe/Oslo"
+
+      - name: get versions, changelog and more
+        id: get-versions
+        uses: navikt/eresept-actions/get-versions-and-more@main
+
+      - name: Get version numbers and cluster
+        run: |
+          RELVERSION=$(echo ${INPUT_VERSION:-$LASTVERSION})
+          echo "relversion=$RELVERSION" >> $GITHUB_ENV
+          echo "cluster=$(if [ "${E}" == "p" ]; then echo prod-${CLUSTER_POSTFIX}; else echo dev-${CLUSTER_POSTFIX} ; fi)" >> $GITHUB_ENV
+          POSTFIX=$(if [ "${E}" != "p" -a "${E}" != "q1" ]; then echo "-${E}"; else echo ""; fi)
+          echo "deployapp=${APP}$POSTFIX" >> $GITHUB_ENV
+          echo "deployappver=${APP}$POSTFIX:$RELVERSION" >> $GITHUB_ENV
+        env:
+          LASTVERSION: ${{ steps.get-versions.outputs.current-version }}
+          INPUT_VERSION: ${{ inputs.application-version }}
+          E: ${{ matrix.environment }}
+          APP: ${{ matrix.application }}
+          CLUSTER_POSTFIX: ${{ inputs.cluster-postfix }}
+
+      - name: Docker login
+        uses: nais/login@40b72a35a18ddf2ad74b632461139ab838cc2a2f #v0
+        id: login
+        with:
+          team: teameresept
+
+      - name: Templating
+        id: template
+        uses: navikt/eresept-actions/templating@main
+        with:
+          template: .nais/nais.yaml
+          variables: .nais/nais.vars.${{ env.cluster }}.${{ matrix.environment }}.yaml
+
+      - uses: nais/setup@f27b84576c727c1263f113152de8c815172d7967 # v1.0.2
+        with:
+          team: teameresept
+
+      - name: Deploy ${{ env.deployapp }} to ${{ matrix.environment }} in ${{ env.cluster }}
+        run: |
+          nais apply ${{ steps.template.outputs.output }} \
+            --environment ${{ env.cluster }} \
+            --set spec.image="${{ steps.login.outputs.registry }}/${{ matrix.application }}:${{ env.relversion }}" \
+            --wait
+        env:
+          CLUSTER: ${{ env.cluster }}
+          RESOURCE: .nais/nais.yaml
+          VARS: .nais/nais.vars.${{ env.cluster }}.${{ matrix.environment }}.yaml
+          IMAGE: ${{ steps.login.outputs.registry }}/${{ matrix.application }}:${{ env.relversion }}
+
+      - name: Calculate execution time
+        run: |
+          END_TIME=$(date +%s)
+          echo "exectime=$(( $END_TIME - ${starttime} ))" >> $GITHUB_ENV
+
+      - name: Checkout badges
+        uses: navikt/eresept-actions/badges-checkout@main
+
+      - name: Deploy version badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: '${{ env.cluster }} ${{ matrix.environment }}  version'
+          right: '${{ env.relversion }}'
+          color: 'blue'
+          filename: 'deploy-version-${{ env.cluster }}-${{ matrix.environment }}'
+          logo: 'tag'
+
+      - name: Deploy date badge
+        uses: navikt/eresept-actions/badges-create@main
+        with:
+          left: '${{ env.cluster }} ${{ matrix.environment }} date'
+          right: '${{ steps.get-versions.outputs.current-datetime }}'
+          color: 'blue'
+          filename: 'deploy-date-${{ env.cluster }}-${{ matrix.environment }}'
+          logo: 'calendar'
+
+      - name: Commit badges
+        uses: navikt/eresept-actions/badges-commit@main
+
+      - name: Summary
+        run: echo "### Deployed **${deployappver}** to **${E}** in **${cluster}** in ${exectime} seconds" >> $GITHUB_STEP_SUMMARY
+        env:
+          E: ${{ matrix.environment }}
+
+      - name: report to slack
+        if: always()
+        uses: navikt/eresept-actions/slack-notify@main
+        with:
+          status: "${{ job.status }}"
+          username: "deploy ${{ env.deployappver }} -> ${{ env.cluster }} ${{ matrix.environment }}"
+          icon: ":naiser:"
+          title-success: "Deployed _*${{ env.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ env.cluster }}*_ in ${{ env.exectime }} seconds"
+          title-failure: "Deploy of _*${{ env.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ env.cluster }}*_ failed"
+          title-cancelled: "Deploy of _*${{ env.deployappver }}*_ to _*${{ env.cluster }}*_ in _*${{ env.cluster }}*_ was cancelled"
+          message-success: "${{ env.deployappver }}"
+          message-cancelled: "${{ env.deployappver }}"
+          webhook: ${{ secrets.webhook }}

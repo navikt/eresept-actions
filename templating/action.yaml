@@ -1,0 +1,32 @@
+name: templating
+description: 'preprocess a file with handlebar templating'
+inputs:
+  template:
+    description: 'the file to preprocess'
+    required: true
+  variables:
+    description: 'the file containing the variables'
+    required: true
+outputs:
+  output:
+    description: 'the file with finished result'
+    value: ${{ steps.render-template.outputs.output }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: install dependcies
+      shell: bash
+      run: npm ci
+      working-directory: ${{ github.action_path }}
+
+    - name: render template
+      id: 'render-template'
+      shell: bash
+      run: |
+        OUTPUT="${RUNNER_TEMP}/output.txt"
+        echo "output=$OUTPUT" >> $GITHUB_OUTPUT
+        node $GITHUB_ACTION_PATH/render.js $TEMPLATE $VARIABLES $OUTPUT
+      env:
+        TEMPLATE: ${{ inputs.template }}
+        VARIABLES: ${{ inputs.variables }}
