@@ -50,7 +50,7 @@ jobs:
           status: "${{ job.status }}"
           username: "digestabot ${{ github.event.repository.name }}"
           icon: ":github2:"
-          title-success: "Merged PR #${{ steps.digestabot.outputs.pull_request_number }} _*${{ github.event.repository.name }}*_"
+          title-success: "Merged PR #${{ steps.digestabot.outputs.pull_request_number }} ${{ github.event.repository.name }}"
           message-success: "Changed files:\n```${{ steps.digestabot.outputs.changed_files }}```"
           webhook: ${{ secrets.webhook }}
 

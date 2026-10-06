@@ -152,9 +152,9 @@ jobs:
           status: "${{ job.status }}"
           username: "deploy ${{ env.deployappver }} -> ${{ env.cluster }} ${{ matrix.environment }}"
           icon: ":naiser:"
-          title-success: "Deployed _*${{ env.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ env.cluster }}*_ in ${{ env.exectime }} seconds"
-          title-failure: "Deploy of _*${{ env.deployappver }}*_ to _*${{ matrix.environment }}*_ in _*${{ env.cluster }}*_ failed"
-          title-cancelled: "Deploy of _*${{ env.deployappver }}*_ to _*${{ env.cluster }}*_ in _*${{ env.cluster }}*_ was cancelled"
+          title-success: "Deployed ${{ env.deployappver }} to ${{ matrix.environment }} in ${{ env.cluster }} in ${{ env.exectime }} seconds"
+          title-failure: "Deploy of ${{ env.deployappver }} to ${{ matrix.environment }} in ${{ env.cluster }} failed"
+          title-cancelled: "Deploy of ${{ env.deployappver }} to ${{ env.cluster }} in ${{ env.cluster }} was cancelled"
           message-success: "${{ env.deployappver }}"
           message-cancelled: "${{ env.deployappver }}"
           webhook: ${{ secrets.webhook }}

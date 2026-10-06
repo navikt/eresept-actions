@@ -163,9 +163,9 @@ jobs:
           status: "${{ job.status }}"
           username: "build ${{ github.event.repository.name }}"
           icon: ":github2:"
-          title-success: "Built _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
-          title-failure: "Build failure in _*${{ github.event.repository.name }}*_"
-          title-cancelled: "Build of _*${{ github.event.repository.name }}*_ was cancelled"
+          title-success: "Built ${{ github.event.repository.name }} in ${{ env.exectime }} seconds"
+          title-failure: "Build failure in ${{ github.event.repository.name }}"
+          title-cancelled: "Build of ${{ github.event.repository.name }} was cancelled"
           message-success: "```${{ env.commit_msg }}```"
           message-cancelled: "```${{ env.commit_msg }}```"
           webhook: ${{ secrets.webhook }}

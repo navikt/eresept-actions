@@ -200,9 +200,9 @@ jobs:
           status: "${{ job.status }}"
           username: "release ${{ inputs.application }}:${{ steps.get-versions.outputs.next-version }}"
           icon: ":docker:"
-          title-success: "Released _*${{ inputs.application }}:${{ steps.get-versions.outputs.next-version }}*_ in ${{ env.exectime }} seconds"
-          title-failure: "Release of _*${{ inputs.application }}*_ failed"
-          title-cancelled: "Release of _*${{ inputs.application }}*_ was cancelled"
+          title-success: "Released ${{ inputs.application }}:${{ steps.get-versions.outputs.next-version }} in ${{ env.exectime }} seconds"
+          title-failure: "Release of ${{ inputs.application }} failed"
+          title-cancelled: "Release of ${{ inputs.application }} was cancelled"
           message-success: "```${{ steps.get-versions.outputs.changelog }}```"
           webhook: ${{ secrets.webhook }}
 

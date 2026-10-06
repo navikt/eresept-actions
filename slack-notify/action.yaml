@@ -149,18 +149,23 @@ runs:
         if message.strip():
             sections.append(message)
 
-        sections.append(metadata)
+        # don't include metadata
+        # sections.append(metadata)
 
         attachment_text = "\n\n".join(sections)
+        author_link = os.environ["GITHUB_SERVER_URL"] + "/" + os.environ["GITHUB_ACTOR"]
+        author_icon = os.environ["GITHUB_SERVER_URL"] + "/" + os.environ["GITHUB_ACTOR"] + ".png?size=32"
         
         payload = {
           "channel": os.environ["SLACK_CHANNEL"],
           "username": os.environ["SLACK_USERNAME"],
           "icon_emoji": os.environ["SLACK_ICON_EMOJI"],
-          "text": message or title or "GitHub Actions notification",
           "attachments": [
             {
               "color": os.environ["SLACK_COLOR"],
+              "author_name": os.environ["GITHUB_ACTOR"],
+              "author_link": author_link,
+              "author_icon": author_icon,
               "title": title.strip(),
               "text": attachment_text,
               "footer": os.environ["SLACK_FOOTER"],

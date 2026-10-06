@@ -92,9 +92,9 @@ jobs:
           status: "${{ job.status }}"
           username: "test ${{ github.event.repository.name }}"
           icon: ":github2:"
-          title-success: "Tested tests in group ${{ inputs.groups }} in _*${{ github.event.repository.name }}*_ in ${{ env.exectime }} seconds"
-          title-failure: "Testing tests in group ${{ inputs.groups }} in _*${{ github.event.repository.name }}*_ failed"
-          title-cancelled: "Testing tests in group ${{ inputs.groups }} of _*${{ github.event.repository.name }}*_ was cancelled"
+          title-success: "Tested tests in group ${{ inputs.groups }} in ${{ github.event.repository.name }} in ${{ env.exectime }} seconds"
+          title-failure: "Testing tests in group ${{ inputs.groups }} in ${{ github.event.repository.name }} failed"
+          title-cancelled: "Testing tests in group ${{ inputs.groups }} of ${{ github.event.repository.name }} was cancelled"
           message-success: "${{ env.commit_msg }}"
           message-cancelled: "${{ env.commit_msg }}"
           webhook: ${{ secrets.webhook }}
