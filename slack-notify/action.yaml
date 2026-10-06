@@ -153,39 +153,39 @@ runs:
 
         attachment_text = "\n\n".join(sections)
         
-          payload = {
-            "channel": os.environ["SLACK_CHANNEL"],
-            "username": os.environ["SLACK_USERNAME"],
-            "icon_emoji": os.environ["SLACK_ICON_EMOJI"],
-            "text": message or title or "GitHub Actions notification",
-            "attachments": [
-              {
-                "color": os.environ["SLACK_COLOR"],
-                "title": title.strip(),
-                "text": attachment_text,
-                "footer": os.environ["SLACK_FOOTER"],
-              }
-            ],
-          }
-        
-          with open("/tmp/slack-payload.json", "w", encoding="utf-8") as f:
-            json.dump(
-            payload,
-            f,
-            ensure_ascii=False,
-            separators=(",", ":"),
-            )
+        payload = {
+          "channel": os.environ["SLACK_CHANNEL"],
+          "username": os.environ["SLACK_USERNAME"],
+          "icon_emoji": os.environ["SLACK_ICON_EMOJI"],
+          "text": message or title or "GitHub Actions notification",
+          "attachments": [
+            {
+              "color": os.environ["SLACK_COLOR"],
+              "title": title.strip(),
+              "text": attachment_text,
+              "footer": os.environ["SLACK_FOOTER"],
+            }
+          ],
+        }
+      
+        with open("/tmp/slack-payload.json", "w", encoding="utf-8") as f:
+          json.dump(
+          payload,
+          f,
+          ensure_ascii=False,
+          separators=(",", ":"),
+          )
         PY
         
-          curl \
-            --fail-with-body \
-            --silent \
-            --show-error \
-            --retry 3 \
-            --retry-delay 2 \
-            --connect-timeout 10 \
-            --max-time 30 \
-            -X POST \
-            -H 'Content-Type: application/json' \
-            --data-binary @/tmp/slack-payload.json \
-            "${SLACK_WEBHOOK}"
+        curl \
+          --fail-with-body \
+          --silent \
+          --show-error \
+          --retry 3 \
+          --retry-delay 2 \
+          --connect-timeout 10 \
+          --max-time 30 \
+          -X POST \
+          -H 'Content-Type: application/json' \
+          --data-binary @/tmp/slack-payload.json \
+          "${SLACK_WEBHOOK}"
