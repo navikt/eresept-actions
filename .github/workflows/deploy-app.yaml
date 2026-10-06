@@ -155,6 +155,4 @@ jobs:
           title-success: "Deployed ${{ env.deployappver }} to ${{ matrix.environment }} in ${{ env.cluster }} in ${{ env.exectime }} seconds"
           title-failure: "Deploy of ${{ env.deployappver }} to ${{ matrix.environment }} in ${{ env.cluster }} failed"
           title-cancelled: "Deploy of ${{ env.deployappver }} to ${{ env.cluster }} in ${{ env.cluster }} was cancelled"
-          message-success: "${{ env.deployappver }}"
-          message-cancelled: "${{ env.deployappver }}"
           webhook: ${{ secrets.webhook }}

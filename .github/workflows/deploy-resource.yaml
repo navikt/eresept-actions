@@ -107,6 +107,4 @@ jobs:
           title-success: "Deployed ${{ inputs.file }}:${{ env.deployver }} to ${{ inputs.cluster }}"
           title-failure: "Deploy of ${{ inputs.file }}:${{ env.deployver }} to ${{ inputs.cluster }} failed"
           title-cancelled: "Deploy of ${{ inputs.file }}:${{ env.deployver }} to ${{ inputs.cluster }} was cancelled"
-          message-success: "${{ inputs.file }}:${{ env.deployver }}"
-          message-cancelled: "${{ inputs.file }}:${{ env.deployver }}"
           webhook: ${{ secrets.webhook }}
