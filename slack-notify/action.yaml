@@ -56,45 +56,287 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: echo "minimal=$( if ([ ${EVENT} != 'push' ] && [ ${EVENT} != 'pull_request' ]) || [ ${MIN} = 'true' ]; then echo true; else echo ${MIN}; fi)"  >> $GITHUB_ENV
-      shell: bash
-      env:
-        EVENT: ${{ github.event_name }}
-        MIN: ${{ inputs.minimal }}
+  # Keep the behavior of the old wrapper:
+  #
+  # - push / pull_request:
+  # use the configured minimal value
+  #
+  # - all other events:
+  # force minimal=true
+  #
+  # This means schedule, workflow_dispatch, etc. don't get
+  # Ref/Event/Actions URL/Commit metadata.
+  - name: Prepare minimal setting
+    id: minimal
+    shell: bash
+    env:
+      EVENT: ${{ github.event_name }}
+      MINIMAL: ${{ inputs.minimal }}
+    run: |
+      set -euo pipefail
+      if {
+            [[ "${EVENT}" != "push" ]] &&
+            [[ "${EVENT}" != "pull_request" ]]
+          } || [[ "${MINIMAL}" == "true" ]]; then
+            echo "value=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "value=${MINIMAL}" >> "${GITHUB_OUTPUT}"
+          fi
 
-    - if: ${{ inputs.status == 'success' && github.event_name != 'schedule' }}
-      env:
-        SLACK_CHANNEL: ${{ inputs.channel }}
-        SLACK_WEBHOOK: ${{ inputs.webhook }}
-        SLACK_USERNAME: "${{ inputs.username  }}"
-        SLACK_TITLE: "${{ inputs.title-success }}"
-        SLACK_COLOR: "good"
-        SLACK_ICON_EMOJI: "${{ inputs.icon }}"
-        SLACK_FOOTER: "${{ inputs.footer }}"
-        SLACK_MESSAGE: "${{ inputs.message-success }}"
-        MSG_MINIMAL: ${{ env.minimal }}
-      uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
-    - if: ${{ inputs.status == 'failure' }}
-      env:
-        SLACK_CHANNEL: ${{ inputs.channel }}
-        SLACK_WEBHOOK: ${{ inputs.webhook }}
-        SLACK_USERNAME: "${{ inputs.username  }}"
-        SLACK_TITLE: "${{ inputs.title-failure }}"
-        SLACK_COLOR: "danger"
-        SLACK_ICON_EMOJI: "${{ inputs.icon }}"
-        SLACK_FOOTER: "${{ inputs.footer }}"
-        SLACK_MESSAGE: "${{ inputs.message-failure }}"
-        MSG_MINIMAL: ${{ env.minimal }}
-      uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
-    - if: ${{ inputs.status == 'cancelled' }}
-      env:
-        SLACK_CHANNEL: ${{ inputs.channel }}
-        SLACK_WEBHOOK: ${{ inputs.webhook }}
-        SLACK_USERNAME: "${{ inputs.username  }}"
-        SLACK_TITLE: "${{ inputs.title-cancelled }}"
-        SLACK_COLOR: "warning"
-        SLACK_ICON_EMOJI: "${{ inputs.icon }}"
-        SLACK_FOOTER: "${{ inputs.footer }}"
-        SLACK_MESSAGE: "${{ inputs.message-cancelled }}"
-        MSG_MINIMAL: ${{ env.minimal }}
-      uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
+      - name: Send Slack notification
+        if: >-
+          ${{
+            (inputs.status == 'success' && github.event_name != 'schedule') ||
+            inputs.status == 'failure' ||
+            inputs.status == 'cancelled'
+          }}
+        shell: bash
+        env:
+          SLACK_WEBHOOK: ${{ inputs.webhook }}
+
+          SLACK_CHANNEL: ${{ inputs.channel }}
+          SLACK_USERNAME: ${{ inputs.username }}
+          SLACK_ICON_EMOJI: ${{ inputs.icon }}
+
+          SLACK_TITLE_SUCCESS: ${{ inputs.title-success }}
+          SLACK_TITLE_FAILURE: ${{ inputs.title-failure }}
+          SLACK_TITLE_CANCELLED: ${{ inputs.title-cancelled }}
+
+          SLACK_MESSAGE_SUCCESS: ${{ inputs.message-success }}
+          SLACK_MESSAGE_FAILURE: ${{ inputs.message-failure }}
+          SLACK_MESSAGE_CANCELLED: ${{ inputs.message-cancelled }}
+
+          SLACK_FOOTER: ${{ inputs.footer }}
+
+          STATUS: ${{ inputs.status }}
+          MSG_MINIMAL: ${{ steps.minimal.outputs.value }}
+
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          set -euo pipefail
+
+          case "${STATUS}" in
+            success)
+              SLACK_TITLE="${SLACK_TITLE_SUCCESS}"
+              SLACK_MESSAGE="${SLACK_MESSAGE_SUCCESS}"
+              SLACK_COLOR="good"
+              ;;
+            failure)
+              SLACK_TITLE="${SLACK_TITLE_FAILURE}"
+              SLACK_MESSAGE="${SLACK_MESSAGE_FAILURE}"
+              SLACK_COLOR="danger"
+              ;;
+            cancelled)
+              SLACK_TITLE="${SLACK_TITLE_CANCELLED}"
+              SLACK_MESSAGE="${SLACK_MESSAGE_CANCELLED}"
+              SLACK_COLOR="warning"
+              ;;
+            *)
+              echo "Invalid status: ${STATUS}" >&2
+              echo "Expected: success, failure or cancelled" >&2
+              exit 1
+              ;;
+          esac
+
+          #
+          # Determine the values used by rtCamp's metadata section.
+          #
+
+          EVENT="${GITHUB_EVENT_NAME}"
+
+          # Match the old action's ref behavior.
+          REF="${GITHUB_REF_NAME}"
+
+          # Default to the workflow SHA.
+          COMMIT="${GITHUB_SHA}"
+
+          # For pull requests, use the PR head SHA.
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]] &&
+             [[ -f "${GITHUB_EVENT_PATH}" ]]; then
+
+            PR_SHA="$(
+              jq -r '.pull_request.head.sha // empty' \
+                "${GITHUB_EVENT_PATH}"
+            )"
+
+            if [[ -n "${PR_SHA}" ]]; then
+              COMMIT="${PR_SHA}"
+            fi
+          fi
+
+          ACTIONS_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          #
+          # MSG_MINIMAL semantics:
+          #
+          # true
+          #   remove all metadata
+          #
+          # "event"
+          #   remove Event
+          #
+          # "ref,actions url"
+          #   remove Ref and Actions URL
+          #
+          # This follows the old rtCamp behavior/documentation.
+          #
+
+          REMOVE_REF=false
+          REMOVE_EVENT=false
+          REMOVE_ACTIONS_URL=false
+          REMOVE_COMMIT=false
+
+          MINIMAL="$(echo "${MSG_MINIMAL}" | tr '[:upper:]' '[:lower:]')"
+
+          if [[ "${MINIMAL}" == "true" ]]; then
+            REMOVE_REF=true
+            REMOVE_EVENT=true
+            REMOVE_ACTIONS_URL=true
+            REMOVE_COMMIT=true
+
+          elif [[ -n "${MINIMAL}" ]]; then
+            IFS=',' read -ra FIELDS <<< "${MINIMAL}"
+
+            for FIELD in "${FIELDS[@]}"; do
+              FIELD="$(echo "${FIELD}" | sed 's/^ *//;s/ *$//')"
+
+              case "${FIELD}" in
+                ref)
+                  REMOVE_REF=true
+                  ;;
+                event)
+                  REMOVE_EVENT=true
+                  ;;
+                "actions url"|"actions_url")
+                  REMOVE_ACTIONS_URL=true
+                  ;;
+                commit)
+                  REMOVE_COMMIT=true
+                  ;;
+              esac
+            done
+          fi
+
+          #
+          # Build the Slack attachment.
+          #
+          # This is the important part: we create the same concepts that
+          # rtCamp/action-slack-notify exposes, but send them ourselves.
+          #
+
+          export SLACK_TITLE
+          export SLACK_MESSAGE
+          export SLACK_COLOR
+          export SLACK_FOOTER
+
+          export SLACK_CHANNEL
+          export SLACK_USERNAME
+          export SLACK_ICON_EMOJI
+
+          export REF
+          export EVENT
+          export COMMIT
+          export ACTIONS_URL
+
+          export REMOVE_REF
+          export REMOVE_EVENT
+          export REMOVE_ACTIONS_URL
+          export REMOVE_COMMIT
+
+          python3 <<'PY'
+          import json
+          import os
+
+          title = os.environ["SLACK_TITLE"]
+          message = os.environ["SLACK_MESSAGE"]
+
+          metadata = []
+
+          if os.environ["REMOVE_REF"] != "true":
+              metadata.append(
+                  f"*Ref:* `{os.environ['REF']}`"
+              )
+
+          if os.environ["REMOVE_EVENT"] != "true":
+              metadata.append(
+                  f"*Event:* `{os.environ['EVENT']}`"
+              )
+
+          if os.environ["REMOVE_ACTIONS_URL"] != "true":
+              metadata.append(
+                  f"*Actions URL:* <{os.environ['ACTIONS_URL']}|View workflow run>"
+              )
+
+          if os.environ["REMOVE_COMMIT"] != "true":
+              metadata.append(
+                  f"*Commit:* `{os.environ['COMMIT']}`"
+              )
+
+          sections = []
+
+          if message.strip():
+              sections.append(message)
+
+          if metadata:
+              sections.append("\n".join(metadata))
+
+          attachment_text = "\n\n".join(sections)
+
+          payload = {
+              "channel": os.environ["SLACK_CHANNEL"],
+              "username": os.environ["SLACK_USERNAME"],
+              "icon_emoji": os.environ["SLACK_ICON_EMOJI"],
+
+              "text": message,
+
+              "attachments": [
+                  {
+                      "color": os.environ["SLACK_COLOR"],
+                      "title": title.strip(),
+                      "text": attachment_text,
+                      "footer": os.environ["SLACK_FOOTER"],
+                  }
+              ],
+          }
+
+          # When MSG_MINIMAL=true, rtCamp v2.4.0 removes the title as well.
+          if (
+              os.environ["REMOVE_REF"] == "true"
+              and os.environ["REMOVE_EVENT"] == "true"
+              and os.environ["REMOVE_ACTIONS_URL"] == "true"
+              and os.environ["REMOVE_COMMIT"] == "true"
+          ):
+              payload["attachments"][0].pop("title", None)
+
+          with open("/tmp/slack-payload.json", "w", encoding="utf-8") as f:
+              json.dump(
+                  payload,
+                  f,
+                  ensure_ascii=False,
+                  separators=(",", ":"),
+              )
+          PY
+
+          #
+          # Send directly to the old Slack incoming webhook.
+          #
+          curl \
+            --fail-with-body \
+            --silent \
+            --show-error \
+            --retry 3 \
+            --retry-delay 2 \
+            --connect-timeout 10 \
+            --max-time 30 \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/slack-payload.json \
+            "${SLACK_WEBHOOK}"
