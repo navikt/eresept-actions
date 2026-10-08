@@ -30,7 +30,7 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.repository.name }}-${{ github.ref }}
       cancel-in-progress: true
-    if: github.event.pull_request.user.login != 'dependabot[bot]' || github.event_name != 'push'
+    if: github.event_name != 'pull_request' || github.actor != 'dependabot[bot]'
     strategy:
       fail-fast: false
       matrix:

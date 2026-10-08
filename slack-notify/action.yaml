@@ -182,6 +182,11 @@ runs:
           )
         PY
         
+        if [[ -z "${SLACK_WEBHOOK}" ]]; then
+          echo "SLACK_WEBHOOK is empty; cannot send Slack notification" >&2
+          exit 1
+        fi
+  
         curl \
           --fail-with-body \
           --silent \
