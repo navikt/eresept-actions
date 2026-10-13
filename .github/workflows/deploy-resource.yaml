@@ -62,7 +62,7 @@ jobs:
           template: .nais/${{ inputs.file }}.yaml
           variables: .nais/${{ inputs.vars }}.${{ inputs.cluster }}.yaml
 
-      - uses: nais/setup@ea33c90b68228e6f04fb34b88bfd8ab6ad523ce8 # v1.0.2
+      - uses: nais/setup@fb8692f65df9c904e2cdac5d395630ac876abdcf # v1.0.3
         with:
           team: teameresept
 
