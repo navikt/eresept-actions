@@ -149,8 +149,9 @@ runs:
         if message.strip():
             sections.append(message)
 
-        # don't include metadata
-        # sections.append(metadata)
+        # only include metadata for pull requests
+        if os.environ.get('EVENT') == 'pull_request':
+            sections.append(metadata)
 
         attachment_text = "\n\n".join(sections)
         author_link = os.environ["GITHUB_SERVER_URL"] + "/" + os.environ["GITHUB_ACTOR"]
