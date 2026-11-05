@@ -6,7 +6,7 @@ on:
         description: the java version to use
         required: false
         type: number
-        default: 21
+        default: 25
       application:
         description: 'The application to release'
         required: true

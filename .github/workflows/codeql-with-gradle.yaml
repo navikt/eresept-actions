@@ -7,7 +7,7 @@ on:
         description: the java version to use
         required: false
         type: number
-        default: 21
+        default: 25
     secrets:
       token:
         description: 'github token'
